@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, Scissors, Phone, User, Heart, ShoppingBag, X, ChevronRight } from "lucide-react";
+import { Menu, Scissors, Phone, User, Heart, ShoppingBag, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 
 const navLinks = [
   { name: "Home", path: "/" },
@@ -42,7 +42,7 @@ export function Header() {
                     </div>
                     <div>
                       <SheetTitle className="text-left font-display text-lg">StitchCraft</SheetTitle>
-                      <p className="text-xs text-muted-foreground">Premium Tailoring</p>
+                      <SheetDescription className="text-xs text-muted-foreground">Premium Tailoring Services</SheetDescription>
                     </div>
                   </div>
                 </SheetHeader>
