@@ -10,6 +10,7 @@ const navLinks = [
   { name: "Uniforms", path: "/uniforms" },
   { name: "Men's Tailoring", path: "/mens" },
   { name: "Measurements", path: "/measurements" },
+  { name: "Admin Login", path: "/login" },
 ];
 
 export function Header() {
