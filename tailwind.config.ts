@@ -67,10 +67,10 @@ export default {
           DEFAULT: "hsl(var(--cream))",
           dark: "hsl(var(--cream-dark))",
         },
-        burgundy: {
-          DEFAULT: "hsl(var(--burgundy))",
-          light: "hsl(var(--burgundy-light))",
-          dark: "hsl(var(--burgundy-dark))",
+        brown: {
+          DEFAULT: "hsl(var(--brown))",
+          light: "hsl(var(--brown-light))",
+          dark: "hsl(var(--brown-dark))",
         },
         gold: {
           DEFAULT: "hsl(var(--gold))",
@@ -90,10 +90,10 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       boxShadow: {
-        soft: "0 4px 20px -4px hsla(20, 30%, 15%, 0.1)",
-        card: "0 8px 30px -8px hsla(20, 30%, 15%, 0.12)",
-        elevated: "0 20px 50px -15px hsla(20, 30%, 15%, 0.2)",
-        gold: "0 8px 30px -8px hsla(38, 80%, 55%, 0.3)",
+        soft: "0 4px 20px -4px hsla(25, 35%, 12%, 0.1)",
+        card: "0 8px 30px -8px hsla(25, 35%, 12%, 0.12)",
+        elevated: "0 20px 50px -15px hsla(25, 35%, 12%, 0.2)",
+        gold: "0 8px 30px -8px hsla(38, 85%, 55%, 0.3)",
       },
       keyframes: {
         "accordion-down": {
