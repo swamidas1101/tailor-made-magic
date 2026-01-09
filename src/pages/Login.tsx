@@ -46,7 +46,7 @@ export default function Login() {
           <div className="w-20 h-20 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center mb-6">
             <Scissors className="w-10 h-10" />
           </div>
-          <h1 className="text-4xl font-display font-bold mb-4 text-center">StitchCraft</h1>
+          <h1 className="text-4xl font-display font-bold mb-4 text-center">Tailo</h1>
           <p className="text-lg opacity-90 text-center max-w-md">
             Premium tailoring management system for administrators and tailors
           </p>
@@ -72,7 +72,7 @@ export default function Login() {
               <Scissors className="w-6 h-6 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-2xl font-display font-bold">StitchCraft</h1>
+              <h1 className="text-2xl font-display font-bold">Tailo</h1>
               <p className="text-xs text-muted-foreground">Management Portal</p>
             </div>
           </div>

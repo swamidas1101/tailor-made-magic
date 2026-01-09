@@ -36,7 +36,7 @@ export function Footer() {
                 <Scissors className="w-5 h-5 text-charcoal" />
               </div>
               <div>
-                <h3 className="text-xl font-display font-bold leading-none">StitchCraft</h3>
+                <h3 className="text-xl font-display font-bold leading-none">Tailo</h3>
                 <p className="text-xs text-background/60">Premium Tailoring</p>
               </div>
             </Link>
@@ -99,7 +99,7 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-2 text-sm text-background/70">
                 <Mail className="w-4 h-4 flex-shrink-0" />
-                <span>hello@stitchcraft.com</span>
+                <span>hello@tailo.com</span>
               </li>
             </ul>
           </div>
@@ -108,7 +108,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="py-6 border-t border-background/10 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-background/60">
-            © {new Date().getFullYear()} StitchCraft. All rights reserved.
+            © {new Date().getFullYear()} Tailo. All rights reserved.
           </p>
           <div className="flex gap-6 text-sm text-background/60">
             <Link to="/privacy" className="hover:text-accent transition-colors">Privacy Policy</Link>

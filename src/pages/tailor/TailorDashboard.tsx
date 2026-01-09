@@ -31,7 +31,7 @@ export default function TailorDashboard() {
               <Scissors className="w-5 h-5 text-sidebar-accent-foreground" />
             </div>
             <div>
-              <h1 className="font-display font-bold text-lg">StitchCraft</h1>
+              <h1 className="font-display font-bold text-lg">Tailo</h1>
               <p className="text-xs text-sidebar-foreground/70">Tailor Portal</p>
             </div>
           </Link>
@@ -59,7 +59,7 @@ export default function TailorDashboard() {
               <SheetHeader className="p-4 border-b border-sidebar-border">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-sidebar-accent flex items-center justify-center"><Scissors className="w-5 h-5 text-sidebar-accent-foreground" /></div>
-                  <div><SheetTitle className="text-left font-display text-sidebar-foreground">StitchCraft</SheetTitle><SheetDescription className="text-xs">Tailor Portal</SheetDescription></div>
+                  <div><SheetTitle className="text-left font-display text-sidebar-foreground">Tailo</SheetTitle><SheetDescription className="text-xs">Tailor Portal</SheetDescription></div>
                 </div>
               </SheetHeader>
               <nav className="flex-1 p-4 space-y-1">

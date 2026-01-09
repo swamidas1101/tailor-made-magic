@@ -50,7 +50,7 @@ export default function AdminDashboard() {
               <Scissors className="w-5 h-5 text-sidebar-accent-foreground" />
             </div>
             <div>
-              <h1 className="font-display font-bold text-lg">StitchCraft</h1>
+              <h1 className="font-display font-bold text-lg">Tailo</h1>
               <p className="text-xs text-sidebar-foreground/70">Admin Portal</p>
             </div>
           </Link>
@@ -110,7 +110,7 @@ export default function AdminDashboard() {
                     <Scissors className="w-5 h-5 text-sidebar-accent-foreground" />
                   </div>
                   <div>
-                    <SheetTitle className="text-left font-display text-sidebar-foreground">StitchCraft</SheetTitle>
+                    <SheetTitle className="text-left font-display text-sidebar-foreground">Tailo</SheetTitle>
                     <SheetDescription className="text-xs">Admin Portal</SheetDescription>
                   </div>
                 </div>
