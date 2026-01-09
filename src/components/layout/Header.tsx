@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, Scissors, Phone, User, Heart, ShoppingBag, ChevronRight } from "lucide-react";
+import { Menu, Scissors, Phone, Heart, ShoppingBag, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
+import { UserMenu } from "@/components/auth/UserMenu";
+import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
 
 const navLinks = [
   { name: "Home", path: "/" },
@@ -10,12 +13,13 @@ const navLinks = [
   { name: "Uniforms", path: "/uniforms" },
   { name: "Men's Tailoring", path: "/mens" },
   { name: "Measurements", path: "/measurements" },
-  { name: "Admin Login", path: "/login" },
 ];
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const { totalItems: cartCount } = useCart();
+  const { totalItems: wishlistCount } = useWishlist();
 
   return (
     <header className="sticky top-0 z-50 glass border-b border-border/50">
@@ -71,8 +75,8 @@ export function Header() {
                     <Button variant="outline" size="sm" className="w-full justify-start">
                       <Phone className="w-4 h-4 mr-2" /> Call Us
                     </Button>
-                    <Button variant="gold" size="sm" className="w-full">
-                      Book Appointment
+                    <Button variant="gold" size="sm" className="w-full" asChild>
+                      <Link to="/categories">Explore Designs</Link>
                     </Button>
                   </div>
                 </div>
@@ -110,7 +114,7 @@ export function Header() {
             ))}
           </nav>
 
-          {/* Right Actions - Myntra Style */}
+          {/* Right Actions */}
           <div className="flex items-center gap-1 md:gap-2">
             <Button variant="ghost" size="icon" className="hidden md:flex" aria-label="Contact">
               <Phone className="w-5 h-5" />
@@ -119,9 +123,8 @@ export function Header() {
             <Link to="/wishlist">
               <Button variant="ghost" size="icon" className="relative" aria-label="Wishlist">
                 <Heart className="w-5 h-5" />
-                {/* Wishlist count badge - can be made dynamic */}
                 <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-accent text-[10px] font-bold text-accent-foreground rounded-full flex items-center justify-center">
-                  0
+                  {wishlistCount}
                 </span>
               </Button>
             </Link>
@@ -129,19 +132,17 @@ export function Header() {
             <Link to="/cart">
               <Button variant="ghost" size="icon" className="relative" aria-label="Cart">
                 <ShoppingBag className="w-5 h-5" />
-                {/* Cart count badge - can be made dynamic */}
                 <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-accent text-[10px] font-bold text-accent-foreground rounded-full flex items-center justify-center">
-                  0
+                  {cartCount}
                 </span>
               </Button>
             </Link>
             
-            <Button variant="ghost" size="icon" className="hidden sm:flex" aria-label="Profile">
-              <User className="w-5 h-5" />
-            </Button>
+            {/* User Menu with Dropdown */}
+            <UserMenu />
             
-            <Button variant="gold" size="sm" className="hidden md:flex">
-              Book Now
+            <Button variant="gold" size="sm" className="hidden md:flex" asChild>
+              <Link to="/categories">Book Now</Link>
             </Button>
           </div>
         </div>
