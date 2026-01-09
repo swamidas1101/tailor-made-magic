@@ -42,7 +42,7 @@ export function Header() {
                       <Scissors className="w-5 h-5 text-primary-foreground" />
                     </div>
                     <div>
-                      <SheetTitle className="text-left font-display text-lg">StitchCraft</SheetTitle>
+                      <SheetTitle className="text-left font-display text-lg">Tailo</SheetTitle>
                       <SheetDescription className="text-xs text-muted-foreground">Premium Tailoring Services</SheetDescription>
                     </div>
                   </div>
@@ -86,7 +86,7 @@ export function Header() {
               </div>
               <div className="hidden sm:block">
                 <h1 className="text-lg md:text-xl font-display font-bold text-foreground leading-none">
-                  StitchCraft
+                  Tailo
                 </h1>
                 <p className="text-[10px] md:text-xs text-muted-foreground">Premium Tailoring</p>
               </div>

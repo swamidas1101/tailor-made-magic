@@ -25,7 +25,7 @@ const USERS: Record<string, { password: string; role: UserRole; name: string }> 
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(() => {
-    const stored = localStorage.getItem("stitchcraft_user");
+    const stored = localStorage.getItem("tailo_user");
     return stored ? JSON.parse(stored) : null;
   });
 
@@ -47,13 +47,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
     
     setUser(authUser);
-    localStorage.setItem("stitchcraft_user", JSON.stringify(authUser));
+    localStorage.setItem("tailo_user", JSON.stringify(authUser));
     return { success: true };
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("stitchcraft_user");
+    localStorage.removeItem("tailo_user");
   };
 
   return (
