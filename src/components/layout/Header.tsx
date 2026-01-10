@@ -18,7 +18,7 @@ const navLinks = [
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
-  const { totalItems: cartCount } = useCart();
+  const { totalItems: cartCount, justAdded } = useCart();
   const { totalItems: wishlistCount } = useWishlist();
 
   return (
@@ -130,9 +130,11 @@ export function Header() {
             </Link>
             
             <Link to="/cart">
-              <Button variant="ghost" size="icon" className="relative" aria-label="Cart">
-                <ShoppingBag className="w-5 h-5" />
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-accent text-[10px] font-bold text-accent-foreground rounded-full flex items-center justify-center">
+              <Button variant="ghost" size="icon" className={`relative transition-all duration-300 ${justAdded ? "scale-110" : ""}`} aria-label="Cart">
+                <ShoppingBag className={`w-5 h-5 transition-colors duration-300 ${justAdded ? "text-accent" : ""}`} />
+                <span className={`absolute -top-0.5 -right-0.5 w-4 h-4 text-[10px] font-bold rounded-full flex items-center justify-center transition-all duration-300 ${
+                  justAdded ? "bg-green-500 text-white scale-125 animate-pulse" : "bg-accent text-accent-foreground"
+                }`}>
                   {cartCount}
                 </span>
               </Button>
