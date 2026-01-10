@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, ReactNode } from "react";
 
 export interface CartItem {
   id: string;
@@ -19,6 +19,7 @@ interface CartContextType {
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
+  justAdded: boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -28,10 +29,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const stored = localStorage.getItem("tailo_cart");
     return stored ? JSON.parse(stored) : [];
   });
+  const [justAdded, setJustAdded] = useState(false);
 
   const saveToStorage = (newItems: CartItem[]) => {
     localStorage.setItem("tailo_cart", JSON.stringify(newItems));
   };
+
+  const triggerAddAnimation = useCallback(() => {
+    setJustAdded(true);
+    setTimeout(() => setJustAdded(false), 1000);
+  }, []);
 
   const addToCart = (item: Omit<CartItem, "id" | "quantity">) => {
     const id = `${item.designId}-${item.size}-${item.withMaterial}`;
@@ -48,6 +55,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       saveToStorage(newItems);
       return newItems;
     });
+    triggerAddAnimation();
   };
 
   const removeFromCart = (id: string) => {
@@ -80,7 +88,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   return (
     <CartContext.Provider
-      value={{ items, addToCart, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice }}
+      value={{ items, addToCart, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice, justAdded }}
     >
       {children}
     </CartContext.Provider>

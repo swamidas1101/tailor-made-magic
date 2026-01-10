@@ -17,6 +17,8 @@ export interface DesignCardProps {
   reviewCount: number;
   timeInDays: number;
   isPopular?: boolean;
+  neckType?: string;
+  workType?: string;
 }
 
 export function DesignCard({
@@ -29,6 +31,8 @@ export function DesignCard({
   reviewCount,
   timeInDays,
   isPopular,
+  neckType,
+  workType,
 }: DesignCardProps) {
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
@@ -43,7 +47,7 @@ export function DesignCard({
       image,
       price,
       withMaterial: false,
-      size: "M", // Default size
+      size: "M",
     });
     toast.success("Added to cart!", {
       description: `${name} - ₹${price.toLocaleString()}`,
@@ -63,9 +67,9 @@ export function DesignCard({
   };
 
   return (
-    <div className="group block bg-card rounded-xl overflow-hidden shadow-soft hover-lift">
-      {/* Image */}
-      <Link to={`/design/${id}`} className="block relative aspect-[4/5] overflow-hidden">
+    <div className="group block bg-card rounded-lg overflow-hidden shadow-soft hover-lift">
+      {/* Image - More compact */}
+      <Link to={`/design/${id}`} className="block relative aspect-[3/4] overflow-hidden">
         <img
           src={image}
           alt={name}
@@ -74,7 +78,7 @@ export function DesignCard({
         <div className="absolute inset-0 bg-gradient-to-t from-charcoal/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
         
         {isPopular && (
-          <Badge className="absolute top-3 left-3 bg-accent text-accent-foreground shadow-gold">
+          <Badge className="absolute top-2 left-2 bg-accent text-accent-foreground shadow-gold text-[10px] px-2 py-0.5">
             Popular
           </Badge>
         )}
@@ -82,53 +86,66 @@ export function DesignCard({
         {/* Wishlist Button */}
         <button
           onClick={handleWishlist}
-          className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+          className={`absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center transition-all ${
             wishlisted 
               ? "bg-destructive text-destructive-foreground" 
               : "bg-background/80 text-foreground hover:bg-background"
           }`}
         >
-          <Heart className={`w-4 h-4 ${wishlisted ? "fill-current" : ""}`} />
+          <Heart className={`w-3.5 h-3.5 ${wishlisted ? "fill-current" : ""}`} />
         </button>
         
         {/* Quick info overlay */}
-        <div className="absolute bottom-3 left-3 right-3 flex justify-between items-end opacity-0 group-hover:opacity-100 transition-opacity">
-          <div className="flex items-center gap-1 bg-background/90 rounded-full px-2 py-1 text-xs font-medium">
+        <div className="absolute bottom-2 left-2 right-2 flex justify-between items-end opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex items-center gap-1 bg-background/90 rounded-full px-2 py-0.5 text-[10px] font-medium">
             <Clock className="w-3 h-3 text-muted-foreground" />
-            <span>{timeInDays} days</span>
+            <span>{timeInDays}d</span>
           </div>
+          {workType && (
+            <div className="bg-background/90 rounded-full px-2 py-0.5 text-[10px] font-medium">
+              {workType}
+            </div>
+          )}
         </div>
       </Link>
 
-      {/* Content */}
-      <div className="p-4">
+      {/* Content - Compact */}
+      <div className="p-3">
         <Link to={`/design/${id}`}>
-          <p className="text-xs text-accent font-medium uppercase tracking-wide mb-1">
-            {category}
-          </p>
-          <h3 className="font-display font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+          <div className="flex items-center gap-1.5 mb-1">
+            <p className="text-[10px] text-accent font-medium uppercase tracking-wide">
+              {category}
+            </p>
+            {neckType && (
+              <>
+                <span className="text-muted-foreground">•</span>
+                <p className="text-[10px] text-muted-foreground">{neckType}</p>
+              </>
+            )}
+          </div>
+          <h3 className="font-display font-semibold text-sm text-foreground group-hover:text-primary transition-colors line-clamp-1">
             {name}
           </h3>
         </Link>
         
-        <div className="flex items-center gap-1 mt-2">
-          <Star className="w-4 h-4 fill-accent text-accent" />
-          <span className="text-sm font-medium">{rating.toFixed(1)}</span>
-          <span className="text-xs text-muted-foreground">({reviewCount})</span>
+        <div className="flex items-center gap-1 mt-1.5">
+          <Star className="w-3 h-3 fill-accent text-accent" />
+          <span className="text-xs font-medium">{rating.toFixed(1)}</span>
+          <span className="text-[10px] text-muted-foreground">({reviewCount})</span>
         </div>
         
-        <div className="flex items-baseline gap-1 mt-3 pt-3 border-t border-border">
-          <IndianRupee className="w-4 h-4 text-primary" />
-          <span className="text-lg font-bold text-primary">{price.toLocaleString()}</span>
-          <span className="text-xs text-muted-foreground">onwards</span>
+        <div className="flex items-baseline gap-0.5 mt-2 pt-2 border-t border-border">
+          <IndianRupee className="w-3 h-3 text-primary" />
+          <span className="text-base font-bold text-primary">{price.toLocaleString()}</span>
+          <span className="text-[10px] text-muted-foreground ml-0.5">onwards</span>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-2 mt-4">
+        {/* Action Buttons - Compact */}
+        <div className="flex gap-1.5 mt-3">
           <Button 
             variant="default" 
             size="sm" 
-            className="flex-1"
+            className="flex-1 h-8 text-xs"
             asChild
           >
             <Link to={`/design/${id}`}>Book Now</Link>
@@ -136,10 +153,10 @@ export function DesignCard({
           <Button 
             variant="outline" 
             size="sm" 
-            className="px-3"
+            className="h-8 w-8 p-0"
             onClick={handleAddToCart}
           >
-            <ShoppingCart className="w-4 h-4" />
+            <ShoppingCart className="w-3.5 h-3.5" />
           </Button>
         </div>
       </div>

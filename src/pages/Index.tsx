@@ -13,14 +13,14 @@ const Index = () => {
 
   return (
     <Layout>
-      {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center">
-        <div className="absolute inset-0">
+      {/* Hero Section - Full Width */}
+      <section className="relative min-h-[85vh] flex items-center">
+        <div className="absolute inset-0 w-full">
           <img src={heroImage} alt="Premium Tailoring" className="w-full h-full object-cover" />
           <div className="absolute inset-0 gradient-hero opacity-80" />
         </div>
         
-        <div className="container relative z-10 px-4 py-20">
+        <div className="w-full relative z-10 px-4 md:px-8 lg:px-16 py-16">
           <div className="max-w-2xl stagger-children">
             <p className="text-gold font-medium mb-4 flex items-center gap-2">
               <Sparkles className="w-4 h-4" /> Premium Online Tailoring
