@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Star, Clock, IndianRupee, Heart, ShoppingCart, Check } from "lucide-react";
+import { Star, Clock, IndianRupee, Heart, ShoppingCart, Check, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
@@ -35,10 +35,15 @@ export function DesignCard({
   neckType,
   workType,
 }: DesignCardProps) {
-  const { addToCart } = useCart();
+  const { addToCart, items: cartItems } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const wishlisted = isInWishlist(id);
   const [justAddedToCart, setJustAddedToCart] = useState(false);
+
+  // Check if item is already in cart and get count
+  const cartItemCount = useMemo(() => {
+    return cartItems.filter(item => item.designId === id).reduce((sum, item) => sum + item.quantity, 0);
+  }, [cartItems, id]);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -161,17 +166,25 @@ export function DesignCard({
             <Link to={`/design/${id}`}>Book Now</Link>
           </Button>
           <Button 
-            variant={justAddedToCart ? "default" : "outline"}
+            variant={justAddedToCart || cartItemCount > 0 ? "default" : "outline"}
             size="sm" 
-            className={`h-8 w-8 p-0 transition-all duration-300 ${
+            className={`h-8 min-w-8 p-0 transition-all duration-300 relative ${
               justAddedToCart 
                 ? "bg-green-500 hover:bg-green-600 border-green-500 scale-110" 
-                : ""
+                : cartItemCount > 0
+                  ? "bg-primary hover:bg-primary/90 border-primary"
+                  : ""
             }`}
             onClick={handleAddToCart}
           >
             {justAddedToCart ? (
               <Check className="w-3.5 h-3.5 text-white" />
+            ) : cartItemCount > 0 ? (
+              <div className="flex items-center gap-0.5 px-1.5">
+                <ShoppingCart className="w-3 h-3 text-primary-foreground" />
+                <span className="text-xs font-bold text-primary-foreground">{cartItemCount}</span>
+                <Plus className="w-2.5 h-2.5 text-primary-foreground" />
+              </div>
             ) : (
               <ShoppingCart className="w-3.5 h-3.5" />
             )}
