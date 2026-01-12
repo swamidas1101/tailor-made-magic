@@ -12,6 +12,8 @@ import DesignDetail from "./pages/DesignDetail";
 import Measurements from "./pages/Measurements";
 import Uniforms from "./pages/Uniforms";
 import MensTailoring from "./pages/MensTailoring";
+import Cart from "./pages/Cart";
+import Wishlist from "./pages/Wishlist";
 import Login from "./pages/Login";
 import UserLogin from "./pages/UserLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -47,6 +49,8 @@ const App = () => (
                 <Route path="/measurements" element={<Measurements />} />
                 <Route path="/uniforms" element={<Uniforms />} />
                 <Route path="/mens" element={<MensTailoring />} />
+                <Route path="/cart" element={<Cart />} />
+                <Route path="/wishlist" element={<Wishlist />} />
                 <Route path="/user-login" element={<UserLogin />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/admin" element={<AdminDashboard />}>

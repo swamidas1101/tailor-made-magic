@@ -130,13 +130,25 @@ export function Header() {
             </Link>
             
             <Link to="/cart">
-              <Button variant="ghost" size="icon" className={`relative transition-all duration-300 ${justAdded ? "scale-110" : ""}`} aria-label="Cart">
-                <ShoppingBag className={`w-5 h-5 transition-colors duration-300 ${justAdded ? "text-accent" : ""}`} />
-                <span className={`absolute -top-0.5 -right-0.5 w-4 h-4 text-[10px] font-bold rounded-full flex items-center justify-center transition-all duration-300 ${
-                  justAdded ? "bg-green-500 text-white scale-125 animate-pulse" : "bg-accent text-accent-foreground"
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className={`relative transition-all duration-500 ${justAdded ? "scale-125 bg-accent/20" : ""}`} 
+                aria-label="Cart"
+              >
+                <ShoppingBag className={`w-5 h-5 transition-all duration-500 ${justAdded ? "text-green-500 fill-green-500/30" : ""}`} />
+                <span className={`absolute -top-1 -right-1 min-w-5 h-5 px-1 text-[10px] font-bold rounded-full flex items-center justify-center transition-all duration-500 ${
+                  justAdded 
+                    ? "bg-green-500 text-white scale-150 animate-bounce shadow-lg shadow-green-500/50" 
+                    : cartCount > 0 
+                      ? "bg-accent text-accent-foreground" 
+                      : "bg-muted text-muted-foreground"
                 }`}>
                   {cartCount}
                 </span>
+                {justAdded && (
+                  <span className="absolute inset-0 rounded-full animate-ping bg-green-500/30" />
+                )}
               </Button>
             </Link>
             
