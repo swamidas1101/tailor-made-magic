@@ -43,28 +43,28 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-background flex">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex w-64 flex-col bg-gradient-to-b from-sidebar-background to-charcoal text-sidebar-foreground">
-        <div className="p-6 border-b border-brown-light/30">
+      <aside className="hidden lg:flex w-64 flex-col fixed left-0 top-0 bottom-0 bg-[#2d1f14] text-white z-40">
+        <div className="p-6 border-b border-white/10">
           <Link to="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gold flex items-center justify-center">
-              <Scissors className="w-5 h-5 text-brown-dark" />
+            <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center">
+              <Scissors className="w-5 h-5 text-[#2d1f14]" />
             </div>
             <div>
-              <h1 className="font-display font-bold text-lg text-cream">Tailo</h1>
-              <p className="text-xs text-cream/70">Admin Portal</p>
+              <h1 className="font-display font-bold text-lg text-white">Tailo</h1>
+              <p className="text-xs text-white/60">Admin Portal</p>
             </div>
           </Link>
         </div>
 
-        <nav className="flex-1 p-4 space-y-1">
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           {adminNavItems.map((item) => (
             <Link
               key={item.path}
               to={item.path}
               className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                 isActive(item.path)
-                  ? "bg-gold text-brown-dark font-semibold"
-                  : "text-cream/80 hover:bg-brown-light/30 hover:text-cream"
+                  ? "bg-amber-500 text-[#2d1f14] font-semibold"
+                  : "text-white/80 hover:bg-white/10 hover:text-white"
               }`}
             >
               <item.icon className="w-5 h-5" />
@@ -73,19 +73,19 @@ export default function AdminDashboard() {
           ))}
         </nav>
 
-        <div className="p-4 border-t border-brown-light/30">
+        <div className="p-4 border-t border-white/10">
           <div className="flex items-center gap-3 px-4 py-3 mb-3">
-            <div className="w-8 h-8 rounded-full bg-gold flex items-center justify-center text-sm font-bold text-brown-dark">
+            <div className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-sm font-bold text-[#2d1f14]">
               {user?.name?.charAt(0) || "A"}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate text-cream">{user?.name}</p>
-              <p className="text-xs text-cream/60 capitalize">{user?.role}</p>
+              <p className="text-sm font-medium truncate text-white">{user?.name}</p>
+              <p className="text-xs text-white/60 capitalize">{user?.role}</p>
             </div>
           </div>
           <Button 
             variant="destructive" 
-            className="w-full bg-red-600/90 hover:bg-red-600 text-white"
+            className="w-full bg-red-600 hover:bg-red-700 text-white"
             onClick={handleLogout}
           >
             <LogOut className="w-4 h-4 mr-2" />
@@ -103,15 +103,15 @@ export default function AdminDashboard() {
                 <Menu className="w-5 h-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-[280px] p-0 bg-gradient-to-b from-sidebar-background to-charcoal text-sidebar-foreground">
-              <SheetHeader className="p-4 border-b border-brown-light/30">
+            <SheetContent side="left" className="w-[280px] p-0 bg-[#2d1f14] text-white border-none">
+              <SheetHeader className="p-4 border-b border-white/10">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gold flex items-center justify-center">
-                    <Scissors className="w-5 h-5 text-brown-dark" />
+                  <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center">
+                    <Scissors className="w-5 h-5 text-[#2d1f14]" />
                   </div>
                   <div>
-                    <SheetTitle className="text-left font-display text-cream">Tailo</SheetTitle>
-                    <SheetDescription className="text-xs text-cream/70">Admin Portal</SheetDescription>
+                    <SheetTitle className="text-left font-display text-white">Tailo</SheetTitle>
+                    <SheetDescription className="text-xs text-white/60">Admin Portal</SheetDescription>
                   </div>
                 </div>
               </SheetHeader>
@@ -124,8 +124,8 @@ export default function AdminDashboard() {
                     onClick={() => setSidebarOpen(false)}
                     className={`flex items-center justify-between px-4 py-3 rounded-lg transition-colors ${
                       isActive(item.path)
-                        ? "bg-gold text-brown-dark font-semibold"
-                        : "text-cream/80 hover:bg-brown-light/30"
+                        ? "bg-amber-500 text-[#2d1f14] font-semibold"
+                        : "text-white/80 hover:bg-white/10"
                     }`}
                   >
                     <div className="flex items-center gap-3">
@@ -137,10 +137,10 @@ export default function AdminDashboard() {
                 ))}
               </nav>
 
-              <div className="p-4 border-t border-brown-light/30">
+              <div className="p-4 border-t border-white/10">
                 <Button 
                   variant="destructive" 
-                  className="w-full bg-red-600/90 hover:bg-red-600 text-white"
+                  className="w-full bg-red-600 hover:bg-red-700 text-white"
                   onClick={handleLogout}
                 >
                   <LogOut className="w-4 h-4 mr-2" />
@@ -159,7 +159,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 lg:pt-0 pt-14 overflow-auto">
+      <main className="flex-1 lg:ml-64 lg:pt-0 pt-14 overflow-auto">
         <Outlet />
       </main>
     </div>
