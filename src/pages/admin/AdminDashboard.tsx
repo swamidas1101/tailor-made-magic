@@ -43,7 +43,7 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-background flex">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex w-64 flex-col bg-brown-dark text-cream">
+      <aside className="hidden lg:flex w-64 flex-col bg-gradient-to-b from-sidebar-background to-charcoal text-sidebar-foreground">
         <div className="p-6 border-b border-brown-light/30">
           <Link to="/" className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gold flex items-center justify-center">
@@ -103,7 +103,7 @@ export default function AdminDashboard() {
                 <Menu className="w-5 h-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-[280px] p-0 bg-brown-dark text-cream">
+            <SheetContent side="left" className="w-[280px] p-0 bg-gradient-to-b from-sidebar-background to-charcoal text-sidebar-foreground">
               <SheetHeader className="p-4 border-b border-brown-light/30">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-gold flex items-center justify-center">

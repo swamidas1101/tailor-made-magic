@@ -59,6 +59,13 @@ export const categories = [
     designCount: 75,
   },
   {
+    id: "halfsaree",
+    name: "Half Saree",
+    description: "Traditional and trendy half saree designs for festive occasions and special celebrations.",
+    image: "https://images.unsplash.com/photo-1583391733956-6c78276477e2?w=600&h=800&fit=crop",
+    designCount: 135,
+  },
+  {
     id: "suits",
     name: "Salwar Suits",
     description: "Classic and modern salwar suit designs for everyday elegance.",
