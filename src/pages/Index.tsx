@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Star, Clock, Shield, Sparkles, Ruler, Shirt, Users, GraduationCap, Heart, TrendingUp, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Star, Clock, Shield, Sparkles, Ruler, Shirt, Users, GraduationCap, Heart, TrendingUp, CheckCircle2, Flower2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/layout/Layout";
 import { CategoryCard } from "@/components/categories/CategoryCard";
@@ -74,7 +74,27 @@ const Index = () => {
             <p className="text-accent font-medium mb-2">What We Offer</p>
             <h2 className="text-3xl md:text-4xl font-display font-bold">Tailoring Services</h2>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-4 gap-6">
+            {/* Women's Tailoring Card - NEW */}
+            <Link to="/categories" className="group">
+              <div className="relative h-72 rounded-2xl overflow-hidden shadow-card hover-lift">
+                <img 
+                  src="https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=600&h=400&fit=crop" 
+                  alt="Women's Tailoring"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Flower2 className="w-5 h-5 text-accent" />
+                    <span className="text-accent text-sm font-medium">Women's Collection</span>
+                  </div>
+                  <h3 className="text-xl font-display font-bold text-white mb-1">Women's Tailoring</h3>
+                  <p className="text-white/70 text-sm">Blouses, Kurtis, Lehengas & More</p>
+                </div>
+              </div>
+            </Link>
+
             {/* Menswear Card */}
             <Link to="/mens" className="group">
               <div className="relative h-72 rounded-2xl overflow-hidden shadow-card hover-lift">
@@ -123,8 +143,8 @@ const Index = () => {
                   <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center mb-4">
                     <Ruler className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-display font-bold text-white mb-2">Save Your Measurements</h3>
-                  <p className="text-white/80 text-sm mb-4">Enter once, use for all future orders</p>
+                  <h3 className="text-xl font-display font-bold text-white mb-2">Save Measurements</h3>
+                  <p className="text-white/80 text-sm mb-4">Enter once, use for all orders</p>
                   <Button variant="hero" size="sm">
                     Get Started <ArrowRight className="w-4 h-4 ml-1" />
                   </Button>

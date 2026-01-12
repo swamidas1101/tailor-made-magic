@@ -1,5 +1,6 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Star, Clock, IndianRupee, Heart, ShoppingCart } from "lucide-react";
+import { Star, Clock, IndianRupee, Heart, ShoppingCart, Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
@@ -37,6 +38,7 @@ export function DesignCard({
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const wishlisted = isInWishlist(id);
+  const [justAddedToCart, setJustAddedToCart] = useState(false);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -49,10 +51,18 @@ export function DesignCard({
       withMaterial: false,
       size: "M",
     });
+    setJustAddedToCart(true);
     toast.success("Added to cart!", {
       description: `${name} - ₹${price.toLocaleString()}`,
     });
   };
+
+  useEffect(() => {
+    if (justAddedToCart) {
+      const timer = setTimeout(() => setJustAddedToCart(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [justAddedToCart]);
 
   const handleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -151,12 +161,20 @@ export function DesignCard({
             <Link to={`/design/${id}`}>Book Now</Link>
           </Button>
           <Button 
-            variant="outline" 
+            variant={justAddedToCart ? "default" : "outline"}
             size="sm" 
-            className="h-8 w-8 p-0"
+            className={`h-8 w-8 p-0 transition-all duration-300 ${
+              justAddedToCart 
+                ? "bg-green-500 hover:bg-green-600 border-green-500 scale-110" 
+                : ""
+            }`}
             onClick={handleAddToCart}
           >
-            <ShoppingCart className="w-3.5 h-3.5" />
+            {justAddedToCart ? (
+              <Check className="w-3.5 h-3.5 text-white" />
+            ) : (
+              <ShoppingCart className="w-3.5 h-3.5" />
+            )}
           </Button>
         </div>
       </div>
