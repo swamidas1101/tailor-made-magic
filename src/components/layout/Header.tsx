@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, Scissors, Phone, Heart, ShoppingBag, ChevronRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, Scissors, Phone, Heart, ShoppingBag, ChevronRight, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { UserMenu } from "@/components/auth/UserMenu";
@@ -22,61 +23,75 @@ export function Header() {
   const { totalItems: wishlistCount } = useWishlist();
 
   return (
-    <header className="sticky top-0 z-50 glass border-b border-border/50">
+    <motion.header 
+      className="sticky top-0 z-50 glass border-b border-border/30"
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+    >
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-14 md:h-16">
+        <div className="flex items-center justify-between h-16 md:h-18">
           {/* Left: Mobile Menu + Logo */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {/* Mobile Menu Trigger */}
             <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
               <SheetTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="lg:hidden"
+                  className="lg:hidden hover:bg-rose/10"
                   aria-label="Open menu"
                 >
                   <Menu className="w-5 h-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-[300px] p-0">
-                <SheetHeader className="p-4 border-b border-border/50 bg-muted/30">
+              <SheetContent side="left" className="w-[320px] p-0 bg-card">
+                <SheetHeader className="p-5 border-b border-border/50 bg-gradient-to-r from-burgundy to-burgundy-light">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full gradient-hero flex items-center justify-center">
-                      <Scissors className="w-5 h-5 text-primary-foreground" />
+                    <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-glow">
+                      <Scissors className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <SheetTitle className="text-left font-display text-lg">Tailo</SheetTitle>
-                      <SheetDescription className="text-xs text-muted-foreground">Premium Tailoring Services</SheetDescription>
+                      <SheetTitle className="text-left font-display text-xl text-white">Tailo</SheetTitle>
+                      <SheetDescription className="text-xs text-white/70">Premium Tailoring Services</SheetDescription>
                     </div>
                   </div>
                 </SheetHeader>
                 
-                <nav className="flex flex-col py-2">
-                  {navLinks.map((link) => (
-                    <Link
+                <nav className="flex flex-col py-4">
+                  {navLinks.map((link, i) => (
+                    <motion.div
                       key={link.path}
-                      to={link.path}
-                      onClick={() => setIsMenuOpen(false)}
-                      className={`flex items-center justify-between px-4 py-3.5 text-sm font-medium transition-colors border-b border-border/30 ${
-                        location.pathname === link.path
-                          ? "bg-primary/10 text-primary border-l-4 border-l-primary"
-                          : "text-foreground hover:bg-muted/50"
-                      }`}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.1 }}
                     >
-                      <span>{link.name}</span>
-                      <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                    </Link>
+                      <Link
+                        to={link.path}
+                        onClick={() => setIsMenuOpen(false)}
+                        className={`flex items-center justify-between px-5 py-4 text-sm font-medium transition-all ${
+                          location.pathname === link.path
+                            ? "bg-rose/10 text-rose border-l-4 border-l-rose"
+                            : "text-foreground hover:bg-muted/50 hover:pl-6"
+                        }`}
+                      >
+                        <span>{link.name}</span>
+                        <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                      </Link>
+                    </motion.div>
                   ))}
                 </nav>
 
-                <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border/50 bg-muted/30">
-                  <div className="flex flex-col gap-2">
-                    <Button variant="outline" size="sm" className="w-full justify-start">
+                <div className="absolute bottom-0 left-0 right-0 p-5 border-t border-border/50 bg-muted/30">
+                  <div className="flex flex-col gap-3">
+                    <Button variant="outline" size="default" className="w-full justify-start">
                       <Phone className="w-4 h-4 mr-2" /> Call Us
                     </Button>
-                    <Button variant="gold" size="sm" className="w-full" asChild>
-                      <Link to="/categories">Explore Designs</Link>
+                    <Button variant="rose" size="default" className="w-full" asChild>
+                      <Link to="/categories">
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        Explore Designs
+                      </Link>
                     </Button>
                   </div>
                 </div>
@@ -84,15 +99,18 @@ export function Header() {
             </Sheet>
 
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 group">
-              <div className="w-9 h-9 md:w-10 md:h-10 rounded-full gradient-hero flex items-center justify-center shadow-soft group-hover:shadow-card transition-shadow">
-                <Scissors className="w-4 h-4 md:w-5 md:h-5 text-primary-foreground" />
-              </div>
+            <Link to="/" className="flex items-center gap-3 group">
+              <motion.div 
+                className="w-10 h-10 md:w-11 md:h-11 rounded-2xl bg-gradient-to-br from-burgundy to-rose flex items-center justify-center shadow-rose group-hover:shadow-glow transition-all duration-300"
+                whileHover={{ scale: 1.05, rotate: 5 }}
+              >
+                <Scissors className="w-5 h-5 md:w-5 md:h-5 text-white" />
+              </motion.div>
               <div className="hidden sm:block">
-                <h1 className="text-lg md:text-xl font-display font-bold text-foreground leading-none">
+                <h1 className="text-xl md:text-2xl font-display font-bold text-foreground leading-none">
                   Tailo
                 </h1>
-                <p className="text-[10px] md:text-xs text-muted-foreground">Premium Tailoring</p>
+                <p className="text-[10px] md:text-xs text-rose font-medium">Premium Tailoring</p>
               </div>
             </Link>
           </div>
@@ -103,64 +121,100 @@ export function Header() {
               <Link
                 key={link.path}
                 to={link.path}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  location.pathname === link.path
-                    ? "bg-primary text-primary-foreground"
-                    : "text-foreground/80 hover:text-foreground hover:bg-muted"
-                }`}
+                className="relative px-4 py-2 text-sm font-medium transition-colors group"
               >
-                {link.name}
+                <span className={location.pathname === link.path ? "text-rose" : "text-foreground/80 group-hover:text-foreground"}>
+                  {link.name}
+                </span>
+                {location.pathname === link.path && (
+                  <motion.div 
+                    className="absolute bottom-0 left-2 right-2 h-0.5 bg-gradient-to-r from-rose to-gold rounded-full"
+                    layoutId="activeNav"
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  />
+                )}
               </Link>
             ))}
           </nav>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-1 md:gap-2">
-            <Button variant="ghost" size="icon" className="hidden md:flex" aria-label="Contact">
-              <Phone className="w-5 h-5" />
-            </Button>
+          <div className="flex items-center gap-2 md:gap-3">
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button variant="ghost" size="icon" className="hidden md:flex hover:bg-rose/10" aria-label="Contact">
+                <Phone className="w-5 h-5" />
+              </Button>
+            </motion.div>
             
             <Link to="/wishlist">
-              <Button variant="ghost" size="icon" className="relative" aria-label="Wishlist">
-                <Heart className="w-5 h-5" />
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-accent text-[10px] font-bold text-accent-foreground rounded-full flex items-center justify-center">
-                  {wishlistCount}
-                </span>
-              </Button>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button variant="ghost" size="icon" className="relative hover:bg-rose/10" aria-label="Wishlist">
+                  <Heart className="w-5 h-5" />
+                  <AnimatePresence>
+                    {wishlistCount > 0 && (
+                      <motion.span 
+                        className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-rose to-gold text-[10px] font-bold text-white rounded-full flex items-center justify-center shadow-rose"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        exit={{ scale: 0 }}
+                      >
+                        {wishlistCount}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </Button>
+              </motion.div>
             </Link>
             
             <Link to="/cart">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className={`relative transition-all duration-500 ${justAdded ? "scale-125 bg-accent/20" : ""}`} 
-                aria-label="Cart"
-              >
-                <ShoppingBag className={`w-5 h-5 transition-all duration-500 ${justAdded ? "text-green-500 fill-green-500/30" : ""}`} />
-                <span className={`absolute -top-1 -right-1 min-w-5 h-5 px-1 text-[10px] font-bold rounded-full flex items-center justify-center transition-all duration-500 ${
-                  justAdded 
-                    ? "bg-green-500 text-white scale-150 animate-bounce shadow-lg shadow-green-500/50" 
-                    : cartCount > 0 
-                      ? "bg-accent text-accent-foreground" 
-                      : "bg-muted text-muted-foreground"
-                }`}>
-                  {cartCount}
-                </span>
-                {justAdded && (
-                  <span className="absolute inset-0 rounded-full animate-ping bg-green-500/30" />
-                )}
-              </Button>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className={`relative hover:bg-rose/10 transition-all duration-500 ${justAdded ? "scale-110" : ""}`} 
+                  aria-label="Cart"
+                >
+                  <ShoppingBag className={`w-5 h-5 transition-all duration-500 ${justAdded ? "text-green-500" : ""}`} />
+                  <AnimatePresence>
+                    <motion.span 
+                      className={`absolute -top-1 -right-1 min-w-5 h-5 px-1 text-[10px] font-bold rounded-full flex items-center justify-center shadow-rose ${
+                        justAdded 
+                          ? "bg-green-500 text-white" 
+                          : cartCount > 0 
+                            ? "bg-gradient-to-r from-rose to-gold text-white" 
+                            : "bg-muted text-muted-foreground"
+                      }`}
+                      key={cartCount}
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", stiffness: 500 }}
+                    >
+                      {cartCount}
+                    </motion.span>
+                  </AnimatePresence>
+                  {justAdded && (
+                    <motion.span 
+                      className="absolute inset-0 rounded-full bg-green-500/20"
+                      initial={{ scale: 1 }}
+                      animate={{ scale: 2, opacity: 0 }}
+                      transition={{ duration: 0.5 }}
+                    />
+                  )}
+                </Button>
+              </motion.div>
             </Link>
             
             {/* User Menu with Dropdown */}
             <UserMenu />
             
-            <Button variant="gold" size="sm" className="hidden md:flex" asChild>
-              <Link to="/categories">Book Now</Link>
+            <Button variant="rose" size="sm" className="hidden md:flex group" asChild>
+              <Link to="/categories">
+                Book Now
+                <Sparkles className="w-4 h-4 ml-1 group-hover:rotate-12 transition-transform" />
+              </Link>
             </Button>
           </div>
         </div>
       </div>
-    </header>
+    </motion.header>
   );
 }
