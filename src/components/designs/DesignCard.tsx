@@ -93,7 +93,7 @@ export function DesignCard({
       transition={{ duration: 0.4 }}
     >
       {/* Image Container - Smaller aspect ratio on mobile */}
-      <Link to={`/design/${id}`} className="block relative aspect-square md:aspect-[3/4] overflow-hidden">
+      <Link to={`/design/${id}`} className="block relative aspect-[4/5] overflow-hidden">
         <motion.img
           src={image}
           alt={name}
