@@ -9,19 +9,19 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-soft hover:shadow-card hover:-translate-y-0.5",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-md hover:shadow-lg hover:-translate-y-0.5",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border-2 border-input bg-background hover:bg-accent/10 hover:text-accent-foreground hover:border-accent/50",
+        outline: "border-2 border-primary/30 bg-background hover:bg-primary/5 hover:text-primary hover:border-primary/50",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent/10 hover:text-accent-foreground",
+        ghost: "hover:bg-primary/5 hover:text-primary",
         link: "text-primary underline-offset-4 hover:underline",
-        // Premium variants
-        hero: "bg-gradient-to-r from-rose to-rose-dark text-white hover:opacity-95 shadow-rose hover:shadow-glow font-semibold btn-glow",
-        heroOutline: "border-2 border-white/40 bg-white/10 text-white hover:bg-white/20 backdrop-blur-md font-medium",
-        gold: "bg-gradient-to-r from-gold via-gold-light to-gold text-noir hover:opacity-95 shadow-gold font-semibold animate-gradient bg-[length:200%_auto]",
-        rose: "bg-gradient-to-r from-rose to-accent text-white hover:opacity-95 shadow-rose font-semibold",
-        luxury: "bg-gradient-to-r from-burgundy via-burgundy-light to-rose text-white shadow-luxury hover:shadow-glow font-semibold",
-        burgundy: "bg-burgundy text-primary-foreground hover:bg-burgundy-light shadow-soft",
+        // Premium variants - Bright & Vibrant
+        hero: "bg-gradient-to-r from-primary via-accent to-gold text-white hover:opacity-95 shadow-lg hover:shadow-xl font-semibold btn-glow",
+        heroOutline: "border-2 border-white/50 bg-white/15 text-white hover:bg-white/25 backdrop-blur-md font-medium",
+        gold: "bg-gradient-to-r from-gold via-gold-light to-gold text-white hover:opacity-95 shadow-lg font-semibold animate-gradient bg-[length:200%_auto]",
+        rose: "bg-gradient-to-r from-primary to-accent text-white hover:opacity-95 shadow-lg font-semibold",
+        luxury: "bg-gradient-to-r from-primary via-accent to-gold text-white shadow-lg hover:shadow-xl font-semibold",
+        burgundy: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-md",
       },
       size: {
         default: "h-11 px-5 py-2.5",

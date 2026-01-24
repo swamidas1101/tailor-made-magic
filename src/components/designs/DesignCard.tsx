@@ -84,16 +84,16 @@ export function DesignCard({
 
   return (
     <motion.div
-      className="group block bg-card rounded-2xl overflow-hidden shadow-soft border border-border/50 hover:shadow-luxury transition-all duration-500"
+      className="group block bg-card rounded-2xl overflow-hidden shadow-card border border-border/40 hover:shadow-elevated transition-all duration-500"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      whileHover={{ y: -8 }}
+      whileHover={{ y: -6 }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      {/* Image Container */}
-      <Link to={`/design/${id}`} className="block relative aspect-[3/4] overflow-hidden">
+      {/* Image Container - Smaller aspect ratio on mobile */}
+      <Link to={`/design/${id}`} className="block relative aspect-square md:aspect-[3/4] overflow-hidden">
         <motion.img
           src={image}
           alt={name}

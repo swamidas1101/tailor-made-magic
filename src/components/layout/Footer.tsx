@@ -25,19 +25,19 @@ const footerLinks = {
 
 export function Footer() {
   return (
-    <footer className="bg-foreground text-background pattern-fabric">
+    <footer className="bg-gradient-to-br from-noir via-noir to-primary/20 text-background pattern-fabric">
       <div className="container mx-auto px-4">
         {/* Main Footer */}
         <div className="py-12 md:py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Brand */}
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-full gradient-gold flex items-center justify-center">
-                <Scissors className="w-5 h-5 text-charcoal" />
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary via-accent to-gold flex items-center justify-center">
+                <Scissors className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h3 className="text-xl font-display font-bold leading-none">Tailo</h3>
-                <p className="text-xs text-background/60">Premium Tailoring</p>
+                <h3 className="text-xl font-display font-bold leading-none text-white">Tailo</h3>
+                <p className="text-xs text-white/60">Premium Tailoring</p>
               </div>
             </Link>
             <p className="text-background/70 text-sm mb-6 max-w-sm">
