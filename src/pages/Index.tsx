@@ -162,7 +162,7 @@ const Index = () => {
       </section>
 
       {/* Features Marquee */}
-      <section className="py-6 bg-gradient-to-r from-burgundy via-burgundy-light to-burgundy overflow-hidden">
+      <section className="py-5 bg-gradient-to-r from-primary via-accent to-gold overflow-hidden">
         <motion.div 
           className="flex gap-12 whitespace-nowrap"
           animate={{ x: ["0%", "-50%"] }}
@@ -178,9 +178,9 @@ const Index = () => {
                 { icon: Sparkles, text: "AI Measurements Coming" },
                 { icon: Heart, text: "10,000+ Happy Customers" },
               ].map((item, i) => (
-                <div key={i} className="flex items-center gap-2 text-white/90">
-                  <item.icon className="w-4 h-4 text-gold" />
-                  <span className="font-medium">{item.text}</span>
+                <div key={i} className="flex items-center gap-2 text-white">
+                  <item.icon className="w-4 h-4 text-white" />
+                  <span className="font-semibold">{item.text}</span>
                 </div>
               ))}
             </div>
@@ -277,23 +277,23 @@ const Index = () => {
               transition={{ duration: 0.5, delay: 0.3 }}
             >
               <Link to="/measurements" className="group block">
-                <div className="relative h-80 rounded-3xl overflow-hidden bg-gradient-to-br from-burgundy via-burgundy-light to-rose shadow-luxury hover:shadow-glow transition-all duration-500">
-                  <div className="absolute inset-0 pattern-luxury opacity-30" />
+                <div className="relative h-80 rounded-3xl overflow-hidden bg-gradient-to-br from-primary via-accent to-gold shadow-xl hover:shadow-2xl transition-all duration-500">
+                  <div className="absolute inset-0 pattern-luxury opacity-20" />
                   <motion.div 
-                    className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-gold/20 blur-3xl"
+                    className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-white/20 blur-3xl"
                     animate={{ scale: [1, 1.2, 1] }}
                     transition={{ duration: 4, repeat: Infinity }}
                   />
                   <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
                     <motion.div 
-                      className="w-20 h-20 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center mb-6 shadow-glow"
+                      className="w-20 h-20 rounded-2xl bg-white/30 backdrop-blur-sm flex items-center justify-center mb-6 shadow-lg"
                       whileHover={{ scale: 1.1, rotate: 5 }}
                     >
                       <Ruler className="w-10 h-10 text-white" />
                     </motion.div>
                     <h3 className="text-2xl font-display font-bold text-white mb-2">Save Measurements</h3>
-                    <p className="text-white/80 text-sm mb-6">Enter once, use for all orders</p>
-                    <Button variant="gold" size="lg" className="group">
+                    <p className="text-white/90 text-sm mb-6">Enter once, use for all orders</p>
+                    <Button variant="heroOutline" size="lg" className="group">
                       Get Started 
                       <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                     </Button>
