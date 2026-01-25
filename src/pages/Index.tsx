@@ -162,7 +162,7 @@ const Index = () => {
       </section>
 
       {/* Features Marquee */}
-      <section className="py-5 bg-gradient-to-r from-primary via-accent to-gold overflow-hidden">
+      <section className="py-4 bg-foreground overflow-hidden">
         <motion.div 
           className="flex gap-12 whitespace-nowrap"
           animate={{ x: ["0%", "-50%"] }}
@@ -178,9 +178,9 @@ const Index = () => {
                 { icon: Sparkles, text: "AI Measurements Coming" },
                 { icon: Heart, text: "10,000+ Happy Customers" },
               ].map((item, i) => (
-                <div key={i} className="flex items-center gap-2 text-white">
-                  <item.icon className="w-4 h-4 text-white" />
-                  <span className="font-semibold">{item.text}</span>
+                <div key={i} className="flex items-center gap-2 text-background">
+                  <item.icon className="w-4 h-4 text-gold" />
+                  <span className="font-medium text-sm">{item.text}</span>
                 </div>
               ))}
             </div>
@@ -198,12 +198,12 @@ const Index = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-flex items-center gap-2 bg-rose/10 rounded-full px-4 py-1.5 mb-4">
-              <Sparkles className="w-4 h-4 text-rose" />
-              <span className="text-rose font-semibold text-sm">What We Offer</span>
+            <div className="inline-flex items-center gap-2 bg-foreground/5 rounded-full px-4 py-1.5 mb-4">
+              <Sparkles className="w-4 h-4 text-foreground" />
+              <span className="text-foreground font-medium text-sm">What We Offer</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-display font-bold text-foreground">
-              Tailoring <span className="text-gradient-rose">Services</span>
+              Tailoring Services
             </h2>
           </motion.div>
           
@@ -252,14 +252,14 @@ const Index = () => {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-noir/90 via-noir/40 to-transparent" />
                     <motion.div 
-                      className="absolute inset-0 bg-gradient-to-r from-rose/20 to-gold/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                      className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                     />
                     <div className="absolute bottom-0 left-0 right-0 p-6">
                       <div className="flex items-center gap-2 mb-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-rose to-gold flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
                           <card.icon className="w-4 h-4 text-white" />
                         </div>
-                        <span className="text-rose-light text-sm font-medium">{card.badge}</span>
+                        <span className="text-white/80 text-sm font-medium">{card.badge}</span>
                       </div>
                       <h3 className="text-2xl font-display font-bold text-white mb-1">{card.title}</h3>
                       <p className="text-white/70 text-sm">{card.desc}</p>
@@ -277,7 +277,7 @@ const Index = () => {
               transition={{ duration: 0.5, delay: 0.3 }}
             >
               <Link to="/measurements" className="group block">
-                <div className="relative h-80 rounded-3xl overflow-hidden bg-gradient-to-br from-primary via-accent to-gold shadow-xl hover:shadow-2xl transition-all duration-500">
+                <div className="relative h-80 rounded-3xl overflow-hidden bg-foreground shadow-xl hover:shadow-2xl transition-all duration-500">
                   <div className="absolute inset-0 pattern-luxury opacity-20" />
                   <motion.div 
                     className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-white/20 blur-3xl"
@@ -315,9 +315,9 @@ const Index = () => {
             viewport={{ once: true }}
           >
             <div>
-              <div className="inline-flex items-center gap-2 bg-rose/10 rounded-full px-4 py-1.5 mb-4">
-                <Gem className="w-4 h-4 text-rose" />
-                <span className="text-rose font-semibold text-sm">Browse by Category</span>
+              <div className="inline-flex items-center gap-2 bg-foreground/5 rounded-full px-4 py-1.5 mb-4">
+                <Gem className="w-4 h-4 text-foreground" />
+                <span className="text-foreground font-medium text-sm">Browse by Category</span>
               </div>
               <h2 className="text-4xl md:text-5xl font-display font-bold">Women's <span className="text-gradient-rose">Collection</span></h2>
             </div>

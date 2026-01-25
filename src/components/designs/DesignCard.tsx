@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Star, Clock, IndianRupee, Heart, ShoppingCart, Check, Plus, Sparkles } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Star, Clock, IndianRupee, Heart, ShoppingCart, Check, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
@@ -13,6 +13,7 @@ export interface DesignCardProps {
   name: string;
   category: string;
   image: string;
+  images?: string[];
   price: number;
   priceWithMaterial: number;
   rating: number;
@@ -28,6 +29,7 @@ export function DesignCard({
   name,
   category,
   image,
+  images,
   price,
   rating,
   reviewCount,
@@ -40,7 +42,20 @@ export function DesignCard({
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const wishlisted = isInWishlist(id);
   const [justAddedToCart, setJustAddedToCart] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  // Combine main image with additional images
+  const allImages = useMemo(() => {
+    const imageList = [image];
+    if (images && images.length > 0) {
+      imageList.push(...images);
+    }
+    return imageList;
+  }, [image, images]);
+
+  const hasMultipleImages = allImages.length > 1;
 
   const cartItemCount = useMemo(() => {
     return cartItems.filter(item => item.designId === id).reduce((sum, item) => sum + item.quantity, 0);
@@ -82,153 +97,211 @@ export function DesignCard({
     }
   };
 
+  // Touch handlers for mobile swipe
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe && currentImageIndex < allImages.length - 1) {
+      setCurrentImageIndex(prev => prev + 1);
+    }
+    if (isRightSwipe && currentImageIndex > 0) {
+      setCurrentImageIndex(prev => prev - 1);
+    }
+  };
+
+  const goToImage = (index: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImageIndex(index);
+  };
+
+  const nextImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (currentImageIndex < allImages.length - 1) {
+      setCurrentImageIndex(prev => prev + 1);
+    }
+  };
+
+  const prevImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (currentImageIndex > 0) {
+      setCurrentImageIndex(prev => prev - 1);
+    }
+  };
+
   return (
     <motion.div
-      className="group block bg-card rounded-2xl overflow-hidden shadow-card border border-border/40 hover:shadow-elevated transition-all duration-500"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      whileHover={{ y: -6 }}
-      initial={{ opacity: 0, y: 20 }}
+      className="group block bg-card rounded-xl overflow-hidden border border-border/30 hover:border-border/60 transition-all duration-300"
+      initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
+      transition={{ duration: 0.3 }}
     >
-      {/* Image Container - Smaller aspect ratio on mobile */}
-      <Link to={`/design/${id}`} className="block relative aspect-[4/5] overflow-hidden">
-        <motion.img
-          src={image}
-          alt={name}
-          className="w-full h-full object-cover"
-          animate={{ scale: isHovered ? 1.1 : 1 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-        />
+      {/* Image Container - Compact aspect ratio */}
+      <div 
+        className="relative aspect-[4/5] overflow-hidden bg-muted"
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
+        <Link to={`/design/${id}`} className="block w-full h-full">
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={currentImageIndex}
+              src={allImages[currentImageIndex]}
+              alt={name}
+              className="w-full h-full object-cover"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            />
+          </AnimatePresence>
+        </Link>
         
-        {/* Premium Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-noir/80 via-noir/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-        
-        {/* Shine effect on hover */}
-        <motion.div 
-          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-          initial={{ x: "-100%" }}
-          animate={{ x: isHovered ? "100%" : "-100%" }}
-          transition={{ duration: 0.8, ease: "easeInOut" }}
-        />
-        
-        {/* Popular Badge */}
+        {/* Popular Badge - Subtle */}
         {isPopular && (
-          <Badge className="absolute top-3 left-3 bg-gradient-to-r from-rose to-gold text-white shadow-glow text-[10px] px-3 py-1 flex items-center gap-1">
-            <Sparkles className="w-3 h-3" />
+          <Badge className="absolute top-2 left-2 bg-foreground/80 text-background text-[10px] px-2 py-0.5 font-medium">
             Trending
           </Badge>
         )}
 
         {/* Wishlist Button */}
-        <motion.button
+        <button
           onClick={handleWishlist}
-          className={`absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center transition-all backdrop-blur-sm ${
+          className={`absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-all ${
             wishlisted 
-              ? "bg-rose text-white shadow-rose" 
-              : "bg-white/90 text-foreground hover:bg-white hover:shadow-card"
+              ? "bg-rose-500 text-white" 
+              : "bg-white/90 text-foreground hover:bg-white"
           }`}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
         >
           <Heart className={`w-4 h-4 ${wishlisted ? "fill-current" : ""}`} />
-        </motion.button>
-        
-        {/* Quick Info Overlay */}
-        <motion.div 
-          className="absolute bottom-0 left-0 right-0 p-4 flex justify-between items-end"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : 20 }}
-          transition={{ duration: 0.3 }}
-        >
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 bg-white/95 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-soft">
-              <Clock className="w-3.5 h-3.5 text-muted-foreground" />
-              <span className="text-xs font-medium">{timeInDays} days</span>
-            </div>
-            {workType && (
-              <div className="bg-white/95 backdrop-blur-sm rounded-full px-3 py-1.5 text-xs font-medium shadow-soft">
-                {workType}
-              </div>
-            )}
-          </div>
-        </motion.div>
-      </Link>
+        </button>
 
-      {/* Content */}
-      <div className="p-4">
+        {/* Image Navigation - Desktop arrows */}
+        {hasMultipleImages && (
+          <>
+            <button
+              onClick={prevImage}
+              className={`absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/90 text-foreground hidden md:flex items-center justify-center transition-opacity ${
+                currentImageIndex === 0 ? "opacity-40 cursor-not-allowed" : "hover:bg-white"
+              }`}
+              disabled={currentImageIndex === 0}
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={nextImage}
+              className={`absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/90 text-foreground hidden md:flex items-center justify-center transition-opacity ${
+                currentImageIndex === allImages.length - 1 ? "opacity-40 cursor-not-allowed" : "hover:bg-white"
+              }`}
+              disabled={currentImageIndex === allImages.length - 1}
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </>
+        )}
+
+        {/* Image Dots Indicator */}
+        {hasMultipleImages && (
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+            {allImages.map((_, index) => (
+              <button
+                key={index}
+                onClick={(e) => goToImage(index, e)}
+                className={`w-1.5 h-1.5 rounded-full transition-all ${
+                  index === currentImageIndex 
+                    ? "bg-white w-3" 
+                    : "bg-white/50 hover:bg-white/70"
+                }`}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Delivery time badge */}
+        <div className="absolute bottom-2 right-2 flex items-center gap-1 bg-white/90 rounded-full px-2 py-1 text-[10px] font-medium text-foreground">
+          <Clock className="w-3 h-3" />
+          {timeInDays}d
+        </div>
+      </div>
+
+      {/* Content - Compact */}
+      <div className="p-3">
         <Link to={`/design/${id}`}>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-[10px] text-rose font-semibold uppercase tracking-wider bg-rose/10 px-2 py-0.5 rounded-full">
+          <div className="flex items-center gap-1.5 mb-1">
+            <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">
               {category}
             </span>
-            {neckType && (
-              <span className="text-[10px] text-muted-foreground">{neckType}</span>
+            {workType && (
+              <>
+                <span className="text-muted-foreground/40">•</span>
+                <span className="text-[10px] text-muted-foreground">{workType}</span>
+              </>
             )}
           </div>
-          <h3 className="font-display font-bold text-lg text-foreground group-hover:text-primary transition-colors line-clamp-1">
+          <h3 className="font-medium text-sm text-foreground line-clamp-1 mb-1">
             {name}
           </h3>
         </Link>
         
-        {/* Rating */}
-        <div className="flex items-center gap-1.5 mt-2">
-          <div className="flex items-center gap-0.5">
-            {[...Array(5)].map((_, i) => (
-              <Star 
-                key={i} 
-                className={`w-3.5 h-3.5 ${i < Math.floor(rating) ? "fill-gold text-gold" : "fill-muted text-muted"}`} 
-              />
-            ))}
-          </div>
+        {/* Rating - Compact */}
+        <div className="flex items-center gap-1 mb-2">
+          <Star className="w-3 h-3 fill-gold text-gold" />
           <span className="text-xs font-medium text-foreground">{rating.toFixed(1)}</span>
           <span className="text-[10px] text-muted-foreground">({reviewCount})</span>
         </div>
         
-        {/* Price */}
-        <div className="flex items-baseline gap-1 mt-3 pt-3 border-t border-border">
-          <IndianRupee className="w-4 h-4 text-primary" />
-          <span className="text-xl font-bold text-primary font-display">{price.toLocaleString()}</span>
-          <span className="text-xs text-muted-foreground ml-1">onwards</span>
-        </div>
+        {/* Price & Action */}
+        <div className="flex items-center justify-between pt-2 border-t border-border/50">
+          <div className="flex items-baseline gap-0.5">
+            <IndianRupee className="w-3 h-3 text-foreground" />
+            <span className="text-base font-bold text-foreground">{price.toLocaleString()}</span>
+          </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-2 mt-4">
-          <Button 
-            variant="rose" 
-            size="sm" 
-            className="flex-1 h-10"
-            asChild
-          >
-            <Link to={`/design/${id}`}>Book Now</Link>
-          </Button>
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <div className="flex gap-1.5">
+            <Button 
+              variant="default" 
+              size="sm" 
+              className="h-8 px-3 text-xs"
+              asChild
+            >
+              <Link to={`/design/${id}`}>Book</Link>
+            </Button>
             <Button 
               variant={justAddedToCart || cartItemCount > 0 ? "default" : "outline"}
               size="sm" 
-              className={`h-10 min-w-10 p-0 transition-all duration-300 ${
+              className={`h-8 w-8 p-0 ${
                 justAddedToCart 
-                  ? "bg-green-500 hover:bg-green-600 border-green-500" 
-                  : cartItemCount > 0
-                    ? "bg-primary hover:bg-primary/90 border-primary"
-                    : ""
+                  ? "bg-green-600 hover:bg-green-700 border-green-600" 
+                  : ""
               }`}
               onClick={handleAddToCart}
             >
               {justAddedToCart ? (
-                <Check className="w-4 h-4 text-white" />
+                <Check className="w-3.5 h-3.5" />
               ) : cartItemCount > 0 ? (
-                <div className="flex items-center gap-0.5 px-2">
-                  <ShoppingCart className="w-3.5 h-3.5 text-primary-foreground" />
-                  <span className="text-xs font-bold text-primary-foreground">{cartItemCount}</span>
-                  <Plus className="w-3 h-3 text-primary-foreground" />
-                </div>
+                <span className="text-xs font-bold">{cartItemCount}</span>
               ) : (
-                <ShoppingCart className="w-4 h-4" />
+                <ShoppingCart className="w-3.5 h-3.5" />
               )}
             </Button>
-          </motion.div>
+          </div>
         </div>
       </div>
     </motion.div>

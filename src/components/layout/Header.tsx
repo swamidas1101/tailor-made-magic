@@ -46,14 +46,14 @@ export function Header() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-[320px] p-0 bg-card">
-                <SheetHeader className="p-5 border-b border-border/50 bg-gradient-to-r from-primary via-accent to-gold">
+                <SheetHeader className="p-5 border-b border-border/50 bg-foreground">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-white/30 backdrop-blur-sm flex items-center justify-center shadow-lg">
-                      <Scissors className="w-6 h-6 text-white" />
+                    <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg">
+                      <Scissors className="w-6 h-6 text-background" />
                     </div>
                     <div>
-                      <SheetTitle className="text-left font-display text-xl text-white">Tailo</SheetTitle>
-                      <SheetDescription className="text-xs text-white/80">Premium Tailoring Services</SheetDescription>
+                      <SheetTitle className="text-left font-display text-xl text-background">Tailo</SheetTitle>
+                      <SheetDescription className="text-xs text-background/70">Premium Tailoring Services</SheetDescription>
                     </div>
                   </div>
                 </SheetHeader>
@@ -101,16 +101,16 @@ export function Header() {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3 group">
               <motion.div 
-                className="w-10 h-10 md:w-11 md:h-11 rounded-2xl bg-gradient-to-br from-primary via-accent to-gold flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300"
+                className="w-10 h-10 md:w-11 md:h-11 rounded-2xl bg-foreground flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-300"
                 whileHover={{ scale: 1.05, rotate: 5 }}
               >
-                <Scissors className="w-5 h-5 md:w-5 md:h-5 text-white" />
+                <Scissors className="w-5 h-5 md:w-5 md:h-5 text-background" />
               </motion.div>
               <div className="hidden sm:block">
                 <h1 className="text-xl md:text-2xl font-display font-bold text-foreground leading-none">
                   Tailo
                 </h1>
-                <p className="text-[10px] md:text-xs text-primary font-semibold">Premium Tailoring</p>
+                <p className="text-[10px] md:text-xs text-muted-foreground font-medium">Premium Tailoring</p>
               </div>
             </Link>
           </div>
@@ -206,7 +206,7 @@ export function Header() {
             {/* User Menu with Dropdown */}
             <UserMenu />
             
-            <Button variant="rose" size="sm" className="hidden md:flex group" asChild>
+            <Button variant="default" size="sm" className="hidden md:flex group" asChild>
               <Link to="/categories">
                 Book Now
                 <Sparkles className="w-4 h-4 ml-1 group-hover:rotate-12 transition-transform" />
