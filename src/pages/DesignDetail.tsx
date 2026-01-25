@@ -1,17 +1,47 @@
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Star, Clock, IndianRupee, Check, Heart, Share2 } from "lucide-react";
+import { ArrowLeft, Star, Clock, IndianRupee, Check, Heart, Share2, Ruler, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Layout } from "@/components/layout/Layout";
 import { designs } from "@/data/mockData";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { MeasurementSelector } from "@/components/measurements/MeasurementSelector";
 
 export default function DesignDetail() {
   const { id } = useParams();
   const design = designs.find((d) => d.id === id);
   const [withMaterial, setWithMaterial] = useState(false);
-  const [selectedSize, setSelectedSize] = useState<string>("");
+  const [showMeasurementSelector, setShowMeasurementSelector] = useState(false);
+  const [selectedMeasurements, setSelectedMeasurements] = useState<Record<string, string> | null>(null);
+  const [hasSavedMeasurements, setHasSavedMeasurements] = useState(false);
+
+  // Check for saved measurements on mount
+  useEffect(() => {
+    if (design) {
+      const stored = localStorage.getItem("measurements");
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          const categoryMappings: Record<string, string> = {
+            "Blouse": "blouse",
+            "Kurti": "kurti",
+            "Saree": "saree",
+            "Frock": "kurti",
+            "Lehenga": "blouse",
+            "Half Saree": "blouse",
+            "Suits": "kurti",
+          };
+          const key = categoryMappings[design.category] || "blouse";
+          if (parsed[key] && Object.keys(parsed[key]).length > 0) {
+            setHasSavedMeasurements(true);
+          }
+        } catch (e) {
+          console.error("Error parsing measurements", e);
+        }
+      }
+    }
+  }, [design]);
 
   if (!design) {
     return (
@@ -26,15 +56,25 @@ export default function DesignDetail() {
     );
   }
 
+  const handleMeasurementConfirm = (measurements: Record<string, string>, isNew: boolean) => {
+    setSelectedMeasurements(measurements);
+    toast.success(isNew ? "Measurements saved!" : "Using saved measurements", {
+      description: `${Object.keys(measurements).length} measurements applied`,
+    });
+  };
+
   const handleBookNow = () => {
-    if (!selectedSize) {
-      toast.error("Please select a size or provide measurements");
+    if (!selectedMeasurements) {
+      toast.error("Please provide your measurements first");
+      setShowMeasurementSelector(true);
       return;
     }
-    toast.success("Redirecting to booking...", {
+    toast.success("Proceeding to checkout...", {
       description: `${design.name} - ₹${withMaterial ? design.priceWithMaterial : design.price}`,
     });
   };
+
+  const measurementCount = selectedMeasurements ? Object.keys(selectedMeasurements).length : 0;
 
   return (
     <Layout>
@@ -51,7 +91,7 @@ export default function DesignDetail() {
           <div className="relative aspect-[4/5] rounded-2xl overflow-hidden shadow-elevated">
             <img src={design.image} alt={design.name} className="w-full h-full object-cover" />
             {design.isPopular && (
-              <Badge className="absolute top-4 left-4 bg-accent text-accent-foreground">Popular</Badge>
+              <Badge className="absolute top-4 left-4 bg-foreground text-background">Popular</Badge>
             )}
             <div className="absolute top-4 right-4 flex gap-2">
               <Button variant="secondary" size="icon" className="rounded-full bg-background/80 backdrop-blur-sm">
@@ -65,12 +105,12 @@ export default function DesignDetail() {
 
           {/* Details */}
           <div className="flex flex-col">
-            <p className="text-accent font-medium uppercase tracking-wide text-sm mb-2">{design.category}</p>
+            <p className="text-muted-foreground font-medium uppercase tracking-wide text-sm mb-2">{design.category}</p>
             <h1 className="text-3xl md:text-4xl font-display font-bold mb-4">{design.name}</h1>
             
             <div className="flex items-center gap-4 mb-6">
               <div className="flex items-center gap-1">
-                <Star className="w-5 h-5 fill-accent text-accent" />
+                <Star className="w-5 h-5 fill-gold text-gold" />
                 <span className="font-semibold">{design.rating}</span>
                 <span className="text-muted-foreground">({design.reviewCount} reviews)</span>
               </div>
@@ -83,17 +123,19 @@ export default function DesignDetail() {
             <p className="text-foreground/80 mb-6">{design.description}</p>
 
             {/* Features */}
-            <div className="mb-6">
-              <h3 className="font-semibold mb-3">Features</h3>
-              <ul className="space-y-2">
-                {design.features.map((feature, i) => (
-                  <li key={i} className="flex items-center gap-2 text-sm">
-                    <Check className="w-4 h-4 text-accent" />
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {design.features && design.features.length > 0 && (
+              <div className="mb-6">
+                <h3 className="font-semibold mb-3">Features</h3>
+                <ul className="space-y-2">
+                  {design.features.map((feature, i) => (
+                    <li key={i} className="flex items-center gap-2 text-sm">
+                      <Check className="w-4 h-4 text-foreground" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {/* Material Option */}
             <div className="mb-6 p-4 bg-muted/50 rounded-xl">
@@ -102,49 +144,68 @@ export default function DesignDetail() {
                 <button
                   onClick={() => setWithMaterial(false)}
                   className={`flex-1 p-4 rounded-lg border-2 transition-colors ${
-                    !withMaterial ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                    !withMaterial ? "border-foreground bg-foreground/5" : "border-border hover:border-foreground/30"
                   }`}
                 >
                   <p className="font-medium">Without Material</p>
                   <p className="text-sm text-muted-foreground">You provide the fabric</p>
-                  <p className="text-lg font-bold text-primary mt-2">₹{design.price.toLocaleString()}</p>
+                  <p className="text-lg font-bold text-foreground mt-2">₹{design.price.toLocaleString()}</p>
                 </button>
                 <button
                   onClick={() => setWithMaterial(true)}
                   className={`flex-1 p-4 rounded-lg border-2 transition-colors ${
-                    withMaterial ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                    withMaterial ? "border-foreground bg-foreground/5" : "border-border hover:border-foreground/30"
                   }`}
                 >
                   <p className="font-medium">With Material</p>
                   <p className="text-sm text-muted-foreground">Premium fabric included</p>
-                  <p className="text-lg font-bold text-primary mt-2">₹{design.priceWithMaterial.toLocaleString()}</p>
+                  <p className="text-lg font-bold text-foreground mt-2">₹{design.priceWithMaterial.toLocaleString()}</p>
                 </button>
               </div>
             </div>
 
-            {/* Size Selection */}
+            {/* Measurements Section */}
             <div className="mb-6">
-              <h3 className="font-semibold mb-3">Select Size</h3>
-              <div className="flex flex-wrap gap-2">
-                {["XS", "S", "M", "L", "XL", "XXL", "Custom"].map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-colors ${
-                      selectedSize === size
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-border hover:border-primary/50"
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-              {selectedSize === "Custom" && (
-                <p className="text-sm text-accent mt-2">
-                  <Link to="/measurements" className="underline">Click here</Link> to provide custom measurements
-                </p>
-              )}
+              <h3 className="font-semibold mb-3">Your Measurements</h3>
+              <button
+                onClick={() => setShowMeasurementSelector(true)}
+                className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
+                  selectedMeasurements 
+                    ? "border-foreground bg-foreground/5" 
+                    : "border-border hover:border-foreground/30"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                      selectedMeasurements ? "bg-foreground text-background" : "bg-muted text-foreground"
+                    }`}>
+                      <Ruler className="w-5 h-5" />
+                    </div>
+                    <div>
+                      {selectedMeasurements ? (
+                        <>
+                          <p className="font-medium text-foreground">Measurements Added</p>
+                          <p className="text-sm text-muted-foreground">
+                            {measurementCount} measurements • Tap to change
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="font-medium text-foreground">Add Measurements</p>
+                          <p className="text-sm text-muted-foreground">
+                            {hasSavedMeasurements 
+                              ? "Use saved or enter new measurements" 
+                              : "Required for custom fitting"
+                            }
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                </div>
+              </button>
             </div>
 
             {/* Price & Book */}
@@ -152,7 +213,7 @@ export default function DesignDetail() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <p className="text-sm text-muted-foreground">Total Price</p>
-                  <p className="text-3xl font-bold text-primary flex items-center">
+                  <p className="text-3xl font-bold text-foreground flex items-center">
                     <IndianRupee className="w-6 h-6" />
                     {(withMaterial ? design.priceWithMaterial : design.price).toLocaleString()}
                   </p>
@@ -162,13 +223,21 @@ export default function DesignDetail() {
                   <p className="font-semibold">{design.timeInDays} working days</p>
                 </div>
               </div>
-              <Button variant="gold" size="xl" className="w-full" onClick={handleBookNow}>
-                Book Now
+              <Button variant="default" size="xl" className="w-full" onClick={handleBookNow}>
+                {selectedMeasurements ? "Proceed to Checkout" : "Add Measurements & Book"}
               </Button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Measurement Selector Modal */}
+      <MeasurementSelector
+        isOpen={showMeasurementSelector}
+        onClose={() => setShowMeasurementSelector(false)}
+        category={design.category}
+        onConfirm={handleMeasurementConfirm}
+      />
     </Layout>
   );
 }
