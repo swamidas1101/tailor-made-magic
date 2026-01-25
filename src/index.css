@@ -6,64 +6,64 @@
 
 @layer base {
   :root {
-    /* ✨ Bright Luxury Blush Pink & Coral Palette ✨ */
-    --background: 30 40% 99%;
-    --foreground: 350 25% 20%;
+    /* ✨ Refined Neutral Luxury Palette ✨ */
+    --background: 30 20% 98%;
+    --foreground: 20 15% 18%;
     
     --card: 0 0% 100%;
-    --card-foreground: 350 25% 20%;
+    --card-foreground: 20 15% 18%;
     
     --popover: 0 0% 100%;
-    --popover-foreground: 350 25% 20%;
+    --popover-foreground: 20 15% 18%;
     
-    /* Elegant Coral Pink Primary */
-    --primary: 350 72% 58%;
+    /* Soft Neutral Primary */
+    --primary: 20 10% 25%;
     --primary-foreground: 0 0% 100%;
     
-    /* Soft Blush Secondary */
-    --secondary: 350 45% 92%;
-    --secondary-foreground: 350 60% 45%;
+    /* Light Warm Secondary */
+    --secondary: 30 15% 94%;
+    --secondary-foreground: 20 15% 30%;
     
-    --muted: 30 30% 96%;
-    --muted-foreground: 350 15% 45%;
+    --muted: 30 10% 95%;
+    --muted-foreground: 20 10% 50%;
     
-    /* Warm Coral Accent */
-    --accent: 15 85% 60%;
+    /* Warm Accent */
+    --accent: 25 35% 50%;
     --accent-foreground: 0 0% 100%;
     
-    --destructive: 0 84% 60%;
+    --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
     
-    --border: 350 30% 90%;
-    --input: 350 30% 90%;
-    --ring: 350 72% 58%;
+    --border: 30 15% 90%;
+    --input: 30 15% 90%;
+    --ring: 20 10% 25%;
     
-    --radius: 1rem;
+    --radius: 0.75rem;
     
     /* Premium Design Tokens */
-    --cream: 35 50% 98%;
-    --cream-dark: 30 30% 94%;
-    --burgundy: 350 60% 50%;
-    --burgundy-light: 350 65% 62%;
-    --burgundy-dark: 350 55% 42%;
-    --rose: 350 72% 58%;
-    --rose-light: 350 60% 75%;
-    --rose-dark: 350 70% 50%;
-    --gold: 38 95% 55%;
-    --gold-light: 40 90% 68%;
-    --gold-dark: 35 100% 45%;
-    --champagne: 38 55% 88%;
-    --noir: 350 20% 15%;
+    --cream: 35 35% 97%;
+    --cream-dark: 30 20% 92%;
+    --burgundy: 350 50% 42%;
+    --burgundy-light: 350 45% 55%;
+    --burgundy-dark: 350 55% 35%;
+    --rose: 350 55% 55%;
+    --rose-light: 350 50% 75%;
+    --rose-dark: 350 60% 45%;
+    --gold: 38 75% 52%;
+    --gold-light: 40 70% 65%;
+    --gold-dark: 35 85% 40%;
+    --champagne: 38 40% 88%;
+    --noir: 20 15% 12%;
     
-    /* Sidebar - Soft Gradient Feel */
-    --sidebar-background: 350 50% 55%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 38 95% 55%;
-    --sidebar-primary-foreground: 350 20% 15%;
-    --sidebar-accent: 350 60% 75%;
-    --sidebar-accent-foreground: 350 20% 15%;
-    --sidebar-border: 350 40% 60%;
-    --sidebar-ring: 38 95% 55%;
+    /* Sidebar - Clean & Modern */
+    --sidebar-background: 20 10% 22%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 38 75% 52%;
+    --sidebar-primary-foreground: 20 15% 12%;
+    --sidebar-accent: 30 25% 85%;
+    --sidebar-accent-foreground: 20 15% 18%;
+    --sidebar-border: 20 10% 30%;
+    --sidebar-ring: 38 75% 52%;
   }
 
   .dark {

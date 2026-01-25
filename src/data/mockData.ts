@@ -16,6 +16,7 @@ export interface Design extends DesignSubcategory {
   name: string;
   category: string;
   image: string;
+  images?: string[]; // Multiple images for carousel
   price: number;
   priceWithMaterial: number;
   rating: number;
@@ -105,6 +106,10 @@ export const designs: Design[] = [
     workType: "Maggam Work",
     occasion: "Bridal",
     image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400&h=500&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1594463750939-ebb28c3f7f75?w=400&h=500&fit=crop",
+      "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400&h=500&fit=crop",
+    ],
     price: 3500,
     priceWithMaterial: 5500,
     rating: 4.9,
@@ -125,6 +130,10 @@ export const designs: Design[] = [
     workType: "Embroidery",
     occasion: "Party",
     image: "https://images.unsplash.com/photo-1594463750939-ebb28c3f7f75?w=400&h=500&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400&h=500&fit=crop",
+      "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=400&h=500&fit=crop",
+    ],
     price: 1200,
     priceWithMaterial: 2200,
     rating: 4.8,
