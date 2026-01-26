@@ -62,7 +62,7 @@ export function CategoryCard({ id, name, description, image, designCount }: Cate
         }}
         transition={{ duration: 0.5 }}
       >
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/90 to-gold/90 backdrop-blur-sm flex items-center justify-center shadow-lg">
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-amber-500 backdrop-blur-sm flex items-center justify-center shadow-lg">
           <Sparkles className="w-4 h-4 text-white" />
         </div>
       </motion.div>
@@ -71,7 +71,7 @@ export function CategoryCard({ id, name, description, image, designCount }: Cate
       <div className="absolute inset-0 p-5 flex flex-col justify-end">
         {/* Design Count Badge */}
         <motion.div 
-          className="inline-flex items-center gap-1.5 bg-gradient-to-r from-primary/95 to-accent/95 backdrop-blur-sm rounded-full px-3 py-1 mb-3 w-fit shadow-lg"
+          className="inline-flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-amber-500 backdrop-blur-sm rounded-full px-3 py-1 mb-3 w-fit shadow-lg"
           initial={{ x: -20, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ delay: 0.1, duration: 0.4 }}
@@ -87,7 +87,7 @@ export function CategoryCard({ id, name, description, image, designCount }: Cate
         
         {/* CTA */}
         <motion.div 
-          className="flex items-center gap-2 text-gold-light text-sm font-semibold"
+          className="flex items-center gap-2 text-amber-300 text-sm font-semibold"
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : -10 }}
           transition={{ duration: 0.3 }}

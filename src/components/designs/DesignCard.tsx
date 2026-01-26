@@ -174,9 +174,9 @@ export function DesignCard({
           </AnimatePresence>
         </Link>
         
-        {/* Popular Badge - Subtle */}
+        {/* Popular Badge - Vibrant */}
         {isPopular && (
-          <Badge className="absolute top-2 left-2 bg-foreground/80 text-background text-[10px] px-2 py-0.5 font-medium">
+          <Badge className="absolute top-2 left-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[10px] px-2 py-0.5 font-semibold border-0">
             Trending
           </Badge>
         )}
