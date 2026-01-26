@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { ChevronDown, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -16,12 +16,17 @@ export interface ActiveFilters {
   occasions: string[];
   priceRange: [number, number];
   deliveryDays: number | null;
+  // Half Saree specific
+  dupattaStyles: string[];
+  skirtTypes: string[];
+  blousePatterns: string[];
 }
 
 interface DesignFiltersProps {
   filters: ActiveFilters;
   onFilterChange: (filters: ActiveFilters) => void;
   onClearAll: () => void;
+  categoryId?: string; // Current category for showing relevant filters
 }
 
 const defaultFilters: ActiveFilters = {
@@ -33,10 +38,46 @@ const defaultFilters: ActiveFilters = {
   occasions: [],
   priceRange: [0, 10000],
   deliveryDays: null,
+  dupattaStyles: [],
+  skirtTypes: [],
+  blousePatterns: [],
 };
 
-export function DesignFilters({ filters, onFilterChange, onClearAll }: DesignFiltersProps) {
-  const [openSections, setOpenSections] = useState<string[]>(["neckTypes", "workTypes"]);
+// Define which filters apply to which categories
+const categoryFilterConfig: Record<string, string[]> = {
+  blouse: ["neckTypes", "sleeveTypes", "backDesigns", "cutStyles", "workTypes", "occasions"],
+  kurti: ["neckTypes", "sleeveTypes", "cutStyles", "workTypes", "occasions"],
+  lehenga: ["workTypes", "occasions", "cutStyles"],
+  halfsaree: ["dupattaStyles", "skirtTypes", "blousePatterns", "workTypes", "occasions"],
+  saree: ["workTypes", "occasions"],
+  frock: ["neckTypes", "sleeveTypes", "cutStyles", "occasions"],
+  suits: ["neckTypes", "sleeveTypes", "workTypes", "occasions"],
+  default: ["workTypes", "occasions"],
+};
+
+// Human-readable filter section names
+const filterSectionNames: Record<string, string> = {
+  neckTypes: "Neck Type",
+  sleeveTypes: "Sleeve Type",
+  backDesigns: "Back Design",
+  cutStyles: "Cut Style",
+  workTypes: "Work Type",
+  occasions: "Occasion",
+  dupattaStyles: "Dupatta Style",
+  skirtTypes: "Skirt Type",
+  blousePatterns: "Blouse Pattern",
+};
+
+export function DesignFilters({ filters, onFilterChange, onClearAll, categoryId }: DesignFiltersProps) {
+  // Determine which filter sections to show based on category
+  const visibleFilters = useMemo(() => {
+    const config = categoryId 
+      ? categoryFilterConfig[categoryId] || categoryFilterConfig.default
+      : Object.keys(filterSectionNames); // Show all for general browse
+    return config;
+  }, [categoryId]);
+
+  const [openSections, setOpenSections] = useState<string[]>(visibleFilters.slice(0, 2));
 
   const toggleSection = (section: string) => {
     setOpenSections((prev) =>
@@ -70,8 +111,24 @@ export function DesignFilters({ filters, onFilterChange, onClearAll }: DesignFil
     filters.cutStyles.length +
     filters.workTypes.length +
     filters.occasions.length +
+    filters.dupattaStyles.length +
+    filters.skirtTypes.length +
+    filters.blousePatterns.length +
     (filters.deliveryDays ? 1 : 0) +
     (filters.priceRange[0] > 0 || filters.priceRange[1] < 10000 ? 1 : 0);
+
+  // Get all active filter values for chip display
+  const allActiveFilterValues = [
+    ...filters.neckTypes,
+    ...filters.sleeveTypes,
+    ...filters.backDesigns,
+    ...filters.cutStyles,
+    ...filters.workTypes,
+    ...filters.occasions,
+    ...filters.dupattaStyles,
+    ...filters.skirtTypes,
+    ...filters.blousePatterns,
+  ];
 
   const FilterSection = ({
     title,
@@ -89,7 +146,7 @@ export function DesignFilters({ filters, onFilterChange, onClearAll }: DesignFil
         <span className="flex items-center gap-2">
           {title}
           {(filters[filterKey] as string[]).length > 0 && (
-            <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">
+            <Badge className="h-5 px-1.5 text-[10px] bg-gradient-to-r from-orange-500 to-amber-500 text-white border-0">
               {(filters[filterKey] as string[]).length}
             </Badge>
           )}
@@ -102,6 +159,7 @@ export function DesignFilters({ filters, onFilterChange, onClearAll }: DesignFil
             <Checkbox
               checked={(filters[filterKey] as string[]).includes(option)}
               onCheckedChange={() => handleCheckboxChange(filterKey, option)}
+              className="border-orange-300 data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500"
             />
             <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">
               {option}
@@ -112,13 +170,26 @@ export function DesignFilters({ filters, onFilterChange, onClearAll }: DesignFil
     </Collapsible>
   );
 
+  // Map filter keys to their options
+  const filterOptionsMap: Record<string, string[]> = {
+    neckTypes: filterOptions.neckTypes,
+    sleeveTypes: filterOptions.sleeveTypes,
+    backDesigns: filterOptions.backDesigns,
+    cutStyles: filterOptions.cutStyles,
+    workTypes: filterOptions.workTypes,
+    occasions: filterOptions.occasions,
+    dupattaStyles: filterOptions.dupattaStyles,
+    skirtTypes: filterOptions.skirtTypes,
+    blousePatterns: filterOptions.blousePatterns,
+  };
+
   return (
     <div className="space-y-1">
       {/* Header */}
       <div className="flex items-center justify-between pb-3 border-b border-border">
-        <h3 className="font-semibold">Filters</h3>
+        <h3 className="font-semibold text-foreground">Filters</h3>
         {totalActiveFilters > 0 && (
-          <Button variant="ghost" size="sm" onClick={onClearAll} className="h-7 text-xs text-destructive hover:text-destructive">
+          <Button variant="ghost" size="sm" onClick={onClearAll} className="h-7 text-xs text-orange-600 hover:text-orange-700 hover:bg-orange-50">
             Clear All ({totalActiveFilters})
           </Button>
         )}
@@ -127,10 +198,13 @@ export function DesignFilters({ filters, onFilterChange, onClearAll }: DesignFil
       {/* Active Filter Chips */}
       {totalActiveFilters > 0 && (
         <div className="flex flex-wrap gap-1 py-3 border-b border-border">
-          {[...filters.neckTypes, ...filters.sleeveTypes, ...filters.backDesigns, ...filters.cutStyles, ...filters.workTypes, ...filters.occasions].map((filter) => (
-            <Badge key={filter} variant="outline" className="gap-1 text-xs cursor-pointer hover:bg-destructive/10" onClick={() => {
+          {allActiveFilterValues.map((filter) => (
+            <Badge key={filter} variant="outline" className="gap-1 text-xs cursor-pointer hover:bg-orange-50 border-orange-200 text-orange-700" onClick={() => {
               // Find which category this filter belongs to and remove it
-              const categories: (keyof Omit<ActiveFilters, "priceRange" | "deliveryDays">)[] = ["neckTypes", "sleeveTypes", "backDesigns", "cutStyles", "workTypes", "occasions"];
+              const categories: (keyof Omit<ActiveFilters, "priceRange" | "deliveryDays">)[] = [
+                "neckTypes", "sleeveTypes", "backDesigns", "cutStyles", "workTypes", "occasions",
+                "dupattaStyles", "skirtTypes", "blousePatterns"
+              ];
               for (const cat of categories) {
                 if ((filters[cat] as string[]).includes(filter)) {
                   handleCheckboxChange(cat, filter);
@@ -145,13 +219,16 @@ export function DesignFilters({ filters, onFilterChange, onClearAll }: DesignFil
         </div>
       )}
 
-      {/* Filter Sections */}
-      <FilterSection title="Neck Type" sectionKey="neckTypes" options={filterOptions.neckTypes} filterKey="neckTypes" />
-      <FilterSection title="Sleeve Type" sectionKey="sleeveTypes" options={filterOptions.sleeveTypes} filterKey="sleeveTypes" />
-      <FilterSection title="Back Design" sectionKey="backDesigns" options={filterOptions.backDesigns} filterKey="backDesigns" />
-      <FilterSection title="Cut Style" sectionKey="cutStyles" options={filterOptions.cutStyles} filterKey="cutStyles" />
-      <FilterSection title="Work Type" sectionKey="workTypes" options={filterOptions.workTypes} filterKey="workTypes" />
-      <FilterSection title="Occasion" sectionKey="occasions" options={filterOptions.occasions} filterKey="occasions" />
+      {/* Dynamic Filter Sections based on category */}
+      {visibleFilters.map((filterKey) => (
+        <FilterSection
+          key={filterKey}
+          title={filterSectionNames[filterKey]}
+          sectionKey={filterKey}
+          options={filterOptionsMap[filterKey] || []}
+          filterKey={filterKey as keyof Omit<ActiveFilters, "priceRange" | "deliveryDays">}
+        />
+      ))}
 
       {/* Price Range */}
       <Collapsible open={openSections.includes("price")} onOpenChange={() => toggleSection("price")}>
@@ -187,6 +264,7 @@ export function DesignFilters({ filters, onFilterChange, onClearAll }: DesignFil
               <Checkbox
                 checked={filters.deliveryDays === days}
                 onCheckedChange={() => handleDeliveryChange(days)}
+                className="border-orange-300 data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500"
               />
               <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">
                 Within {days} days

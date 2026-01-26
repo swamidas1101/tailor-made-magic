@@ -46,14 +46,14 @@ export function Header() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-[320px] p-0 bg-card">
-                <SheetHeader className="p-5 border-b border-border/50 bg-foreground">
+                <SheetHeader className="p-5 border-b border-border/50 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg">
-                      <Scissors className="w-6 h-6 text-background" />
+                      <Scissors className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <SheetTitle className="text-left font-display text-xl text-background">Tailo</SheetTitle>
-                      <SheetDescription className="text-xs text-background/70">Premium Tailoring Services</SheetDescription>
+                      <SheetTitle className="text-left font-display text-xl text-white">Tailo</SheetTitle>
+                      <SheetDescription className="text-xs text-white/80">Premium Tailoring Services</SheetDescription>
                     </div>
                   </div>
                 </SheetHeader>
@@ -71,7 +71,7 @@ export function Header() {
                         onClick={() => setIsMenuOpen(false)}
                         className={`flex items-center justify-between px-5 py-4 text-sm font-medium transition-all ${
                           location.pathname === link.path
-                            ? "bg-rose/10 text-rose border-l-4 border-l-rose"
+                            ? "bg-orange-50 text-orange-600 border-l-4 border-l-orange-500"
                             : "text-foreground hover:bg-muted/50 hover:pl-6"
                         }`}
                       >
@@ -101,10 +101,10 @@ export function Header() {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3 group">
               <motion.div 
-                className="w-10 h-10 md:w-11 md:h-11 rounded-2xl bg-foreground flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-300"
+                className="w-10 h-10 md:w-11 md:h-11 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-300"
                 whileHover={{ scale: 1.05, rotate: 5 }}
               >
-                <Scissors className="w-5 h-5 md:w-5 md:h-5 text-background" />
+                <Scissors className="w-5 h-5 md:w-5 md:h-5 text-white" />
               </motion.div>
               <div className="hidden sm:block">
                 <h1 className="text-xl md:text-2xl font-display font-bold text-foreground leading-none">
@@ -123,12 +123,12 @@ export function Header() {
                 to={link.path}
                 className="relative px-4 py-2 text-sm font-medium transition-colors group"
               >
-                <span className={location.pathname === link.path ? "text-rose" : "text-foreground/80 group-hover:text-foreground"}>
+                <span className={location.pathname === link.path ? "text-orange-600" : "text-foreground/80 group-hover:text-foreground"}>
                   {link.name}
                 </span>
                 {location.pathname === link.path && (
                   <motion.div 
-                    className="absolute bottom-0 left-2 right-2 h-0.5 bg-gradient-to-r from-rose to-gold rounded-full"
+                    className="absolute bottom-0 left-2 right-2 h-0.5 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full"
                     layoutId="activeNav"
                     transition={{ type: "spring", stiffness: 380, damping: 30 }}
                   />
@@ -140,19 +140,19 @@ export function Header() {
           {/* Right Actions */}
           <div className="flex items-center gap-2 md:gap-3">
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button variant="ghost" size="icon" className="hidden md:flex hover:bg-rose/10" aria-label="Contact">
+              <Button variant="ghost" size="icon" className="hidden md:flex hover:bg-orange-50" aria-label="Contact">
                 <Phone className="w-5 h-5" />
               </Button>
             </motion.div>
             
             <Link to="/wishlist">
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button variant="ghost" size="icon" className="relative hover:bg-rose/10" aria-label="Wishlist">
+                <Button variant="ghost" size="icon" className="relative hover:bg-orange-50" aria-label="Wishlist">
                   <Heart className="w-5 h-5" />
                   <AnimatePresence>
                     {wishlistCount > 0 && (
                       <motion.span 
-                        className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-rose to-gold text-[10px] font-bold text-white rounded-full flex items-center justify-center shadow-rose"
+                        className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-orange-500 to-amber-500 text-[10px] font-bold text-white rounded-full flex items-center justify-center shadow-md"
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         exit={{ scale: 0 }}
@@ -170,17 +170,17 @@ export function Header() {
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className={`relative hover:bg-rose/10 transition-all duration-500 ${justAdded ? "scale-110" : ""}`} 
+                  className={`relative hover:bg-orange-50 transition-all duration-500 ${justAdded ? "scale-110" : ""}`} 
                   aria-label="Cart"
                 >
                   <ShoppingBag className={`w-5 h-5 transition-all duration-500 ${justAdded ? "text-green-500" : ""}`} />
                   <AnimatePresence>
                     <motion.span 
-                      className={`absolute -top-1 -right-1 min-w-5 h-5 px-1 text-[10px] font-bold rounded-full flex items-center justify-center shadow-rose ${
+                      className={`absolute -top-1 -right-1 min-w-5 h-5 px-1 text-[10px] font-bold rounded-full flex items-center justify-center shadow-md ${
                         justAdded 
                           ? "bg-green-500 text-white" 
                           : cartCount > 0 
-                            ? "bg-gradient-to-r from-rose to-gold text-white" 
+                            ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white" 
                             : "bg-muted text-muted-foreground"
                       }`}
                       key={cartCount}

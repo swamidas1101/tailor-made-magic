@@ -162,7 +162,7 @@ const Index = () => {
       </section>
 
       {/* Features Marquee */}
-      <section className="py-4 bg-foreground overflow-hidden">
+      <section className="py-4 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 overflow-hidden">
         <motion.div 
           className="flex gap-12 whitespace-nowrap"
           animate={{ x: ["0%", "-50%"] }}
@@ -178,9 +178,9 @@ const Index = () => {
                 { icon: Sparkles, text: "AI Measurements Coming" },
                 { icon: Heart, text: "10,000+ Happy Customers" },
               ].map((item, i) => (
-                <div key={i} className="flex items-center gap-2 text-background">
-                  <item.icon className="w-4 h-4 text-gold" />
-                  <span className="font-medium text-sm">{item.text}</span>
+                <div key={i} className="flex items-center gap-2 text-white">
+                  <item.icon className="w-4 h-4" />
+                  <span className="font-semibold text-sm">{item.text}</span>
                 </div>
               ))}
             </div>
@@ -269,7 +269,7 @@ const Index = () => {
               </motion.div>
             ))}
 
-            {/* Measurements Card - Special */}
+            {/* Measurements Card - Special with gradient */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -277,7 +277,7 @@ const Index = () => {
               transition={{ duration: 0.5, delay: 0.3 }}
             >
               <Link to="/measurements" className="group block">
-                <div className="relative h-80 rounded-3xl overflow-hidden bg-foreground shadow-xl hover:shadow-2xl transition-all duration-500">
+                <div className="relative h-80 rounded-3xl overflow-hidden bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500 shadow-xl hover:shadow-2xl transition-all duration-500">
                   <div className="absolute inset-0 pattern-luxury opacity-20" />
                   <motion.div 
                     className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-white/20 blur-3xl"

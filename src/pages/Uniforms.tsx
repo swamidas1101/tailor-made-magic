@@ -34,16 +34,16 @@ export default function Uniforms() {
   return (
     <Layout>
       {/* Hero */}
-      <section className="py-16 md:py-24 gradient-hero">
+      <section className="py-16 md:py-24 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500">
         <div className="container px-4 text-center">
-          <h1 className="text-3xl md:text-5xl font-display font-bold text-primary-foreground mb-4">
+          <h1 className="text-3xl md:text-5xl font-display font-bold text-white mb-4">
             Uniform Tailoring
           </h1>
-          <p className="text-primary-foreground/80 max-w-2xl mx-auto text-lg mb-8">
+          <p className="text-white/90 max-w-2xl mx-auto text-lg mb-8">
             Professional uniforms for schools, colleges, and corporates. 
             Bulk orders with customization and competitive pricing.
           </p>
-          <Button variant="hero" size="xl">
+          <Button variant="hero" size="xl" className="bg-white text-orange-600 hover:bg-white/90">
             Get Bulk Quote <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
         </div>
@@ -54,8 +54,8 @@ export default function Uniforms() {
         <div className="container px-4">
           <div className="grid md:grid-cols-3 gap-8">
             {uniformTypes.map((type) => (
-              <div key={type.id} className="bg-card rounded-2xl p-8 shadow-card hover-lift">
-                <div className="w-14 h-14 rounded-xl gradient-hero flex items-center justify-center mb-6">
+              <div key={type.id} className="bg-card rounded-2xl p-8 shadow-card hover-lift border border-border">
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 flex items-center justify-center mb-6">
                   <type.icon className="w-7 h-7 text-primary-foreground" />
                 </div>
                 <h3 className="text-xl font-display font-bold mb-3">{type.title}</h3>

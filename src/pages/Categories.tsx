@@ -78,6 +78,9 @@ export default function Categories() {
     filters.cutStyles.length +
     filters.workTypes.length +
     filters.occasions.length +
+    filters.dupattaStyles.length +
+    filters.skirtTypes.length +
+    filters.blousePatterns.length +
     (filters.deliveryDays ? 1 : 0) +
     (filters.priceRange[0] > 0 || filters.priceRange[1] < 10000 ? 1 : 0);
 
@@ -109,11 +112,12 @@ export default function Categories() {
             <div className="flex gap-6">
               {/* Desktop Sidebar Filters */}
               <aside className="hidden lg:block w-64 flex-shrink-0">
-                <div className="sticky top-20 bg-card rounded-lg p-4 border border-border">
+                <div className="sticky top-20 bg-card rounded-lg p-4 border border-border shadow-soft">
                   <DesignFilters
                     filters={filters}
                     onFilterChange={setFilters}
                     onClearAll={() => setFilters(defaultFilters)}
+                    categoryId={id}
                   />
                 </div>
               </aside>
@@ -125,11 +129,11 @@ export default function Categories() {
                   {/* Mobile Filter Button */}
                   <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
                     <SheetTrigger asChild>
-                      <Button variant="outline" size="sm" className="lg:hidden">
+                      <Button variant="outline" size="sm" className="lg:hidden border-orange-300 text-orange-600 hover:bg-orange-50">
                         <Filter className="w-4 h-4 mr-1" />
                         Filters
                         {totalActiveFilters > 0 && (
-                          <span className="ml-1 bg-primary text-primary-foreground rounded-full w-5 h-5 text-[10px] flex items-center justify-center">
+                          <span className="ml-1 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-full w-5 h-5 text-[10px] flex items-center justify-center">
                             {totalActiveFilters}
                           </span>
                         )}
@@ -143,6 +147,7 @@ export default function Categories() {
                         filters={filters}
                         onFilterChange={setFilters}
                         onClearAll={() => setFilters(defaultFilters)}
+                        categoryId={id}
                       />
                     </SheetContent>
                   </Sheet>
