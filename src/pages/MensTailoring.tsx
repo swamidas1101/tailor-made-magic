@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Shirt, ArrowRight, Check, Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { Shirt, ArrowRight, Check, Star, ChevronLeft, ChevronRight, Ruler, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/layout/Layout";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
+import { SizeChartModal } from "@/components/size-chart/SizeChartModal";
 
 interface MenService {
   id: string;
@@ -178,6 +179,15 @@ export default function MensTailoring() {
               <Button variant="heroOutline" size="default" asChild>
                 <Link to="/measurements">Get Measured</Link>
               </Button>
+              <SizeChartModal 
+                defaultCategory="menShirt" 
+                trigger={
+                  <Button variant="heroOutline" size="default" className="gap-2">
+                    <Ruler className="w-4 h-4" />
+                    Size Chart
+                  </Button>
+                }
+              />
             </div>
           </div>
         </div>
@@ -209,7 +219,7 @@ export default function MensTailoring() {
               <p className="text-muted-foreground text-sm mb-4">
                 Have a favorite fabric? Bring your own material or choose from our premium collection.
               </p>
-              <div className="space-y-3">
+              <div className="space-y-3 mb-4">
                 <div className="flex items-start gap-3 p-3 bg-card rounded-lg shadow-soft">
                   <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                     <Star className="w-4 h-4 text-primary" />
@@ -221,7 +231,7 @@ export default function MensTailoring() {
                 </div>
                 <div className="flex items-start gap-3 p-3 bg-card rounded-lg shadow-soft">
                   <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
-                    <Star className="w-4 h-4 text-accent" />
+                    <Palette className="w-4 h-4 text-accent" />
                   </div>
                   <div>
                     <p className="font-semibold text-sm">Our Premium Fabrics</p>
@@ -229,6 +239,9 @@ export default function MensTailoring() {
                   </div>
                 </div>
               </div>
+              <Button variant="gold" asChild>
+                <Link to="/materials">Browse Materials <ArrowRight className="w-4 h-4 ml-2" /></Link>
+              </Button>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="aspect-square rounded-lg overflow-hidden">
