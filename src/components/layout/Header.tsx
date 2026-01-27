@@ -11,6 +11,7 @@ import { useWishlist } from "@/contexts/WishlistContext";
 const navLinks = [
   { name: "Home", path: "/" },
   { name: "Categories", path: "/categories" },
+  { name: "Materials", path: "/materials" },
   { name: "Uniforms", path: "/uniforms" },
   { name: "Men's Tailoring", path: "/mens" },
   { name: "Measurements", path: "/measurements" },

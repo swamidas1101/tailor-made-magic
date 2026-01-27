@@ -7,6 +7,7 @@ import { designs } from "@/data/mockData";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { MeasurementSelector } from "@/components/measurements/MeasurementSelector";
+import { SizeChartModal } from "@/components/size-chart/SizeChartModal";
 
 export default function DesignDetail() {
   const { id } = useParams();
@@ -206,6 +207,19 @@ export default function DesignDetail() {
                   <ChevronRight className="w-5 h-5 text-muted-foreground" />
                 </div>
               </button>
+              
+              {/* Size Chart Link */}
+              <div className="mt-3">
+                <SizeChartModal 
+                  defaultCategory={design.category}
+                  trigger={
+                    <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground gap-2">
+                      <Ruler className="w-4 h-4" />
+                      View Size Chart
+                    </Button>
+                  }
+                />
+              </div>
             </div>
 
             {/* Price & Book */}

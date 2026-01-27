@@ -12,6 +12,7 @@ import DesignDetail from "./pages/DesignDetail";
 import Measurements from "./pages/Measurements";
 import Uniforms from "./pages/Uniforms";
 import MensTailoring from "./pages/MensTailoring";
+import Materials from "./pages/Materials";
 import Cart from "./pages/Cart";
 import Wishlist from "./pages/Wishlist";
 import Login from "./pages/Login";
@@ -49,6 +50,7 @@ const App = () => (
                 <Route path="/measurements" element={<Measurements />} />
                 <Route path="/uniforms" element={<Uniforms />} />
                 <Route path="/mens" element={<MensTailoring />} />
+                <Route path="/materials" element={<Materials />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/wishlist" element={<Wishlist />} />
                 <Route path="/user-login" element={<UserLogin />} />

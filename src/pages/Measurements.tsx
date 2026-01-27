@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { Ruler, Info, Sparkles, Check, Shirt, Users } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Ruler, Info, Sparkles, Check, Shirt, Users, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Layout } from "@/components/layout/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SizeChartModal } from "@/components/size-chart/SizeChartModal";
 import { toast } from "sonner";
-
-// Category-specific measurement configurations
 const measurementCategories = {
   blouse: {
     name: "Blouse",
@@ -160,15 +160,16 @@ export default function Measurements() {
           </p>
         </div>
 
-        {/* AI Banner - Compact */}
-        <div className="bg-gradient-to-r from-accent/20 to-primary/20 rounded-xl p-4 mb-6 flex items-center gap-3">
+        {/* AI Banner - with Size Chart */}
+        <div className="bg-gradient-to-r from-accent/20 to-primary/20 rounded-xl p-4 mb-6 flex flex-col sm:flex-row items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
             <Sparkles className="w-5 h-5 text-accent" />
           </div>
-          <div className="flex-1">
+          <div className="flex-1 text-center sm:text-left">
             <h3 className="font-semibold text-sm">AI Measurement Coming Soon!</h3>
             <p className="text-xs text-muted-foreground">Auto-calculate from a photo</p>
           </div>
+          <SizeChartModal defaultCategory={activeCategory} />
         </div>
 
         {/* Category Tabs - Scrollable on mobile */}
@@ -292,32 +293,34 @@ export default function Measurements() {
           })}
         </Tabs>
 
-        {/* Quick Links - Compact */}
-        <div className="mt-8 grid grid-cols-2 gap-3">
-          <div className="bg-muted/30 rounded-lg p-3 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
-              <Shirt className="w-4 h-4 text-primary" />
+        {/* Quick Links - Fixed layout */}
+        <div className="mt-6 flex flex-col sm:flex-row gap-3">
+          <Link 
+            to="/categories" 
+            className="flex-1 bg-muted/30 rounded-lg p-3 flex items-center gap-3 hover:bg-muted/50 transition-colors"
+          >
+            <div className="w-9 h-9 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 flex items-center justify-center flex-shrink-0">
+              <Shirt className="w-4 h-4 text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-xs">Ready to Order?</h3>
-              <p className="text-[10px] text-muted-foreground truncate">Browse our collection</p>
+              <h3 className="font-semibold text-sm">Ready to Order?</h3>
+              <p className="text-xs text-muted-foreground">Browse our collection</p>
             </div>
-            <Button variant="outline" size="sm" className="h-7 text-xs" asChild>
-              <a href="/categories">Shop</a>
-            </Button>
-          </div>
-          <div className="bg-muted/30 rounded-lg p-3 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-accent/10 flex items-center justify-center">
-              <Users className="w-4 h-4 text-accent" />
+            <ArrowRight className="w-4 h-4 text-muted-foreground" />
+          </Link>
+          <Link 
+            to="/uniforms" 
+            className="flex-1 bg-muted/30 rounded-lg p-3 flex items-center gap-3 hover:bg-muted/50 transition-colors"
+          >
+            <div className="w-9 h-9 rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 flex items-center justify-center flex-shrink-0">
+              <Users className="w-4 h-4 text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-xs">Bulk Orders?</h3>
-              <p className="text-[10px] text-muted-foreground truncate">Schools & offices</p>
+              <h3 className="font-semibold text-sm">Bulk Orders?</h3>
+              <p className="text-xs text-muted-foreground">Schools & offices</p>
             </div>
-            <Button variant="outline" size="sm" className="h-7 text-xs" asChild>
-              <a href="/uniforms">View</a>
-            </Button>
-          </div>
+            <ArrowRight className="w-4 h-4 text-muted-foreground" />
+          </Link>
         </div>
       </div>
     </Layout>
