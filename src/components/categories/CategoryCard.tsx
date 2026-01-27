@@ -1,7 +1,5 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 export interface CategoryCardProps {
   id: string;
@@ -12,94 +10,41 @@ export interface CategoryCardProps {
 }
 
 export function CategoryCard({ id, name, description, image, designCount }: CategoryCardProps) {
-  const [isHovered, setIsHovered] = useState(false);
-
   return (
     <Link
       to={`/category/${id}`}
-      className="group relative block rounded-2xl overflow-hidden aspect-square md:aspect-[4/3] shadow-card hover:shadow-xl transition-all duration-500"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      className="group relative block rounded-xl overflow-hidden aspect-[3/4] md:aspect-[4/3] shadow-md hover:shadow-lg transition-all duration-300"
     >
-      {/* Background Image with Zoom */}
-      <motion.div 
-        className="absolute inset-0"
-        animate={{ scale: isHovered ? 1.1 : 1 }}
-        transition={{ duration: 0.7, ease: "easeOut" }}
-      >
+      {/* Background Image */}
+      <div className="absolute inset-0">
         <img
           src={image}
           alt={name}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
-      </motion.div>
+      </div>
       
-      {/* Luxury Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-noir via-noir/50 to-transparent" />
-      
-      {/* Animated Shine Effect */}
-      <motion.div 
-        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent"
-        initial={{ x: "-100%" }}
-        animate={{ x: isHovered ? "100%" : "-100%" }}
-        transition={{ duration: 0.8, ease: "easeInOut" }}
-      />
-      
-      {/* Decorative Border */}
-      <motion.div 
-        className="absolute inset-3 border border-white/30 rounded-xl"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: isHovered ? 1 : 0 }}
-        transition={{ duration: 0.3 }}
-      />
-      
-      {/* Floating Sparkle */}
-      <motion.div
-        className="absolute top-4 right-4"
-        animate={{ 
-          rotate: isHovered ? 180 : 0,
-          scale: isHovered ? 1.2 : 1
-        }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-amber-500 backdrop-blur-sm flex items-center justify-center shadow-lg">
-          <Sparkles className="w-4 h-4 text-white" />
-        </div>
-      </motion.div>
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
       
       {/* Content */}
-      <div className="absolute inset-0 p-5 flex flex-col justify-end">
+      <div className="absolute inset-0 p-3 md:p-4 flex flex-col justify-end">
         {/* Design Count Badge */}
-        <motion.div 
-          className="inline-flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-amber-500 backdrop-blur-sm rounded-full px-3 py-1 mb-3 w-fit shadow-lg"
-          initial={{ x: -20, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ delay: 0.1, duration: 0.4 }}
-        >
-          <span className="text-[10px] font-bold text-white uppercase tracking-wider">{designCount}+ Designs</span>
-        </motion.div>
+        <div className="inline-flex items-center bg-gradient-to-r from-orange-500 to-amber-500 rounded-full px-2 py-0.5 mb-2 w-fit">
+          <span className="text-[10px] font-bold text-white">{designCount}+ Designs</span>
+        </div>
         
         {/* Title */}
-        <h3 className="font-display text-2xl font-bold text-white mb-1 drop-shadow-lg">{name}</h3>
+        <h3 className="font-display text-base md:text-lg font-bold text-white mb-0.5 line-clamp-1">{name}</h3>
         
-        {/* Description */}
-        <p className="text-white/80 text-sm line-clamp-1 mb-3">{description}</p>
+        {/* Description - hidden on mobile */}
+        <p className="text-white/70 text-xs line-clamp-1 hidden md:block">{description}</p>
         
-        {/* CTA */}
-        <motion.div 
-          className="flex items-center gap-2 text-amber-300 text-sm font-semibold"
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : -10 }}
-          transition={{ duration: 0.3 }}
-        >
-          <span>Explore Collection</span>
-          <motion.div
-            animate={{ x: isHovered ? 5 : 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <ArrowRight className="w-4 h-4" />
-          </motion.div>
-        </motion.div>
+        {/* CTA on hover */}
+        <div className="flex items-center gap-1 text-amber-300 text-xs font-medium mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <span>Explore</span>
+          <ArrowRight className="w-3 h-3" />
+        </div>
       </div>
     </Link>
   );

@@ -138,12 +138,8 @@ export default function Measurements() {
       return;
     }
     
-    // Save to localStorage
     localStorage.setItem(`tailo_measurements_${activeCategory}`, JSON.stringify(categoryMeasurements));
-    
-    toast.success(`${measurementCategories[activeCategory].name} measurements saved!`, {
-      description: "You can use these for your orders",
-    });
+    toast.success(`${measurementCategories[activeCategory].name} measurements saved!`);
   };
 
   const currentCategory = measurementCategories[activeCategory];
@@ -152,120 +148,117 @@ export default function Measurements() {
 
   return (
     <Layout>
-      <div className="container px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-10">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full gradient-hero flex items-center justify-center">
-            <Ruler className="w-8 h-8 text-primary-foreground" />
+      <div className="container px-4 py-6 md:py-10">
+        {/* Header - Compact */}
+        <div className="text-center mb-6">
+          <div className="w-12 h-12 mx-auto mb-3 rounded-full gradient-hero flex items-center justify-center">
+            <Ruler className="w-6 h-6 text-primary-foreground" />
           </div>
-          <h1 className="text-3xl md:text-4xl font-display font-bold mb-4">Save Your Measurements</h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Accurate measurements are key to a perfect fit. Select your garment type below and enter your measurements once – use them for all future orders!
+          <h1 className="text-xl md:text-3xl font-display font-bold mb-2">Save Your Measurements</h1>
+          <p className="text-muted-foreground text-sm max-w-md mx-auto">
+            Enter your measurements once – use them for all future orders!
           </p>
         </div>
 
-        {/* AI Coming Soon Banner */}
-        <div className="bg-gradient-to-r from-accent/20 to-primary/20 rounded-2xl p-6 mb-10 flex flex-col md:flex-row items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
-            <Sparkles className="w-6 h-6 text-accent" />
+        {/* AI Banner - Compact */}
+        <div className="bg-gradient-to-r from-accent/20 to-primary/20 rounded-xl p-4 mb-6 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
+            <Sparkles className="w-5 h-5 text-accent" />
           </div>
-          <div className="flex-1 text-center md:text-left">
-            <h3 className="font-display font-bold text-lg mb-1">AI Measurement Coming Soon!</h3>
-            <p className="text-sm text-muted-foreground">
-              Take a photo and let our AI calculate your measurements automatically. No tape measure needed!
-            </p>
+          <div className="flex-1">
+            <h3 className="font-semibold text-sm">AI Measurement Coming Soon!</h3>
+            <p className="text-xs text-muted-foreground">Auto-calculate from a photo</p>
           </div>
-          <Button variant="outline" disabled>
-            Coming Soon
-          </Button>
         </div>
 
-        {/* Category Tabs */}
+        {/* Category Tabs - Scrollable on mobile */}
         <Tabs value={activeCategory} onValueChange={(v) => setActiveCategory(v as CategoryKey)} className="w-full">
-          <TabsList className="w-full flex flex-wrap h-auto gap-2 bg-transparent p-0 mb-8">
-            {(Object.keys(measurementCategories) as CategoryKey[]).map((key) => {
-              const cat = measurementCategories[key];
-              const saved = localStorage.getItem(`tailo_measurements_${key}`);
-              return (
-                <TabsTrigger 
-                  key={key} 
-                  value={key}
-                  className="flex-1 min-w-[140px] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-4 py-3 rounded-xl border border-border data-[state=active]:border-primary transition-all"
-                >
-                  <span className="text-lg mr-2">{cat.icon}</span>
-                  <span className="text-sm font-medium">{cat.name}</span>
-                  {saved && <Check className="w-4 h-4 ml-2 text-green-500" />}
-                </TabsTrigger>
-              );
-            })}
-          </TabsList>
+          <div className="overflow-x-auto -mx-4 px-4 mb-6">
+            <TabsList className="inline-flex h-auto gap-2 bg-transparent p-0 min-w-max">
+              {(Object.keys(measurementCategories) as CategoryKey[]).map((key) => {
+                const cat = measurementCategories[key];
+                const saved = localStorage.getItem(`tailo_measurements_${key}`);
+                return (
+                  <TabsTrigger 
+                    key={key} 
+                    value={key}
+                    className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-amber-500 data-[state=active]:text-white px-3 py-2 rounded-lg border border-border data-[state=active]:border-transparent transition-all text-xs md:text-sm whitespace-nowrap"
+                  >
+                    <span className="mr-1.5">{cat.icon}</span>
+                    <span>{cat.name}</span>
+                    {saved && <Check className="w-3 h-3 ml-1.5 text-green-400" />}
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
+          </div>
 
           {(Object.keys(measurementCategories) as CategoryKey[]).map((key) => {
             const cat = measurementCategories[key];
             return (
               <TabsContent key={key} value={key} className="mt-0">
-                <div className="grid lg:grid-cols-2 gap-10">
-                  {/* Instructions */}
-                  <div>
-                    <h2 className="text-2xl font-display font-bold mb-6 flex items-center gap-2">
-                      <span className="text-2xl">{cat.icon}</span> {cat.name} Measurements
-                    </h2>
-                    <div className="space-y-3 mb-6">
-                      {[
-                        "Use a soft measuring tape for accurate measurements",
-                        "Stand naturally, don't hold your breath",
-                        "Measure over undergarments for the best fit",
-                        "Get help from someone for back measurements",
-                        "Round up to the nearest 0.5 inch or 1 cm",
-                      ].map((tip, i) => (
-                        <div key={i} className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
-                          <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0 text-xs font-bold">
-                            {i + 1}
-                          </div>
-                          <p className="text-sm">{tip}</p>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="p-5 bg-accent/10 rounded-xl">
-                      <div className="flex items-start gap-3">
-                        <Info className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
-                        <div>
-                          <h4 className="font-semibold mb-2">Need Help?</h4>
-                          <p className="text-sm text-muted-foreground mb-3">
-                            Not sure how to measure? Schedule a video call with our expert and we'll guide you through the process.
-                          </p>
-                          <Button variant="outline" size="sm">
-                            Schedule Video Call
-                          </Button>
-                        </div>
+                <div className="grid lg:grid-cols-5 gap-6">
+                  {/* Instructions - Collapsible on mobile, sidebar on desktop */}
+                  <div className="lg:col-span-2 order-2 lg:order-1">
+                    {/* Progress - Always visible */}
+                    <div className="p-3 bg-muted/30 rounded-lg mb-4">
+                      <div className="flex justify-between items-center mb-1.5">
+                        <span className="text-xs font-medium">Progress</span>
+                        <span className="text-xs text-muted-foreground">{filledCount}/{cat.fields.length}</span>
                       </div>
-                    </div>
-
-                    {/* Progress Indicator */}
-                    <div className="mt-6 p-4 bg-muted/30 rounded-xl">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm font-medium">Completion</span>
-                        <span className="text-sm text-muted-foreground">{filledCount}/{cat.fields.length} filled</span>
-                      </div>
-                      <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                         <div 
-                          className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-500"
+                          className="h-full bg-gradient-to-r from-orange-500 to-amber-500 transition-all duration-500"
                           style={{ width: `${(filledCount / cat.fields.length) * 100}%` }}
                         />
                       </div>
                     </div>
+
+                    {/* Tips - Hidden on mobile */}
+                    <div className="hidden md:block space-y-2 mb-4">
+                      <h4 className="font-semibold text-sm mb-2">Measuring Tips</h4>
+                      {[
+                        "Use a soft measuring tape",
+                        "Stand naturally, don't hold breath",
+                        "Measure over undergarments",
+                      ].map((tip, i) => (
+                        <div key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
+                          <div className="w-4 h-4 rounded-full bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0 text-[10px]">
+                            {i + 1}
+                          </div>
+                          <span>{tip}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Help Card */}
+                    <div className="p-3 bg-accent/10 rounded-lg">
+                      <div className="flex items-start gap-2">
+                        <Info className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
+                        <div>
+                          <h4 className="font-semibold text-xs mb-1">Need Help?</h4>
+                          <p className="text-[11px] text-muted-foreground mb-2">
+                            Schedule a video call for guidance.
+                          </p>
+                          <Button variant="outline" size="sm" className="h-7 text-xs">
+                            Schedule Call
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Form */}
-                  <div>
-                    <div className="bg-card p-6 rounded-2xl shadow-soft">
-                      <h3 className="font-display font-bold text-lg mb-4">Enter Your {cat.name} Measurements</h3>
-                      <form onSubmit={handleSubmit} className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
+                  {/* Form - Primary on mobile */}
+                  <div className="lg:col-span-3 order-1 lg:order-2">
+                    <div className="bg-card p-4 md:p-6 rounded-xl shadow-soft">
+                      <h3 className="font-display font-bold text-sm md:text-base mb-4 flex items-center gap-2">
+                        <span>{cat.icon}</span> {cat.name} Measurements
+                      </h3>
+                      <form onSubmit={handleSubmit}>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                           {cat.fields.map((field) => (
-                            <div key={field.key} className="space-y-1.5">
-                              <Label htmlFor={`${key}-${field.key}`} className="text-sm font-medium">
+                            <div key={field.key} className="space-y-1">
+                              <Label htmlFor={`${key}-${field.key}`} className="text-xs font-medium">
                                 {field.label}
                               </Label>
                               <div className="relative">
@@ -275,20 +268,19 @@ export default function Measurements() {
                                   placeholder="e.g., 36"
                                   value={measurements[key]?.[field.key] || ""}
                                   onChange={(e) => handleChange(key, field.key, e.target.value)}
-                                  className="pr-14"
+                                  className="pr-10 h-9 text-sm"
                                 />
-                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-                                  inches
+                                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground">
+                                  in
                                 </span>
                               </div>
-                              <p className="text-xs text-muted-foreground">{field.hint}</p>
                             </div>
                           ))}
                         </div>
 
-                        <div className="pt-4 flex gap-3">
-                          <Button type="submit" variant="gold" size="lg" className="flex-1">
-                            <Check className="w-4 h-4 mr-2" /> Save {cat.name} Measurements
+                        <div className="pt-4 mt-4 border-t border-border">
+                          <Button type="submit" variant="gold" className="w-full h-10">
+                            <Check className="w-4 h-4 mr-2" /> Save Measurements
                           </Button>
                         </div>
                       </form>
@@ -300,30 +292,30 @@ export default function Measurements() {
           })}
         </Tabs>
 
-        {/* Quick Links */}
-        <div className="mt-12 grid md:grid-cols-2 gap-6">
-          <div className="bg-muted/30 rounded-xl p-6 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <Shirt className="w-6 h-6 text-primary" />
+        {/* Quick Links - Compact */}
+        <div className="mt-8 grid grid-cols-2 gap-3">
+          <div className="bg-muted/30 rounded-lg p-3 flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
+              <Shirt className="w-4 h-4 text-primary" />
             </div>
-            <div className="flex-1">
-              <h3 className="font-semibold mb-1">Ready to Order?</h3>
-              <p className="text-sm text-muted-foreground">Browse our collection and place your order</p>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-xs">Ready to Order?</h3>
+              <p className="text-[10px] text-muted-foreground truncate">Browse our collection</p>
             </div>
-            <Button variant="outline" size="sm" asChild>
-              <a href="/categories">Shop Now</a>
+            <Button variant="outline" size="sm" className="h-7 text-xs" asChild>
+              <a href="/categories">Shop</a>
             </Button>
           </div>
-          <div className="bg-muted/30 rounded-xl p-6 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
-              <Users className="w-6 h-6 text-accent" />
+          <div className="bg-muted/30 rounded-lg p-3 flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-accent/10 flex items-center justify-center">
+              <Users className="w-4 h-4 text-accent" />
             </div>
-            <div className="flex-1">
-              <h3 className="font-semibold mb-1">Need Bulk Orders?</h3>
-              <p className="text-sm text-muted-foreground">Uniforms for schools, offices & institutions</p>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-xs">Bulk Orders?</h3>
+              <p className="text-[10px] text-muted-foreground truncate">Schools & offices</p>
             </div>
-            <Button variant="outline" size="sm" asChild>
-              <a href="/uniforms">Uniforms</a>
+            <Button variant="outline" size="sm" className="h-7 text-xs" asChild>
+              <a href="/uniforms">View</a>
             </Button>
           </div>
         </div>
