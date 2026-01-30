@@ -1,159 +1,10 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Shirt, ArrowRight, Check, Star, ChevronLeft, ChevronRight, Ruler, Palette } from "lucide-react";
+import { Shirt, ArrowRight, Ruler, Palette, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/layout/Layout";
-import { motion, AnimatePresence, PanInfo } from "framer-motion";
 import { SizeChartModal } from "@/components/size-chart/SizeChartModal";
-
-interface MenService {
-  id: string;
-  title: string;
-  description: string;
-  images: string[];
-  priceFrom: number;
-  features: string[];
-}
-
-const menServices: MenService[] = [
-  {
-    id: "shirts",
-    title: "Formal Shirts",
-    description: "Crisp, well-fitted formal shirts tailored to your exact measurements.",
-    images: [
-      "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400&h=500&fit=crop",
-      "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=400&h=500&fit=crop",
-    ],
-    priceFrom: 1200,
-    features: ["Premium cotton", "Custom collar", "Monogramming"],
-  },
-  {
-    id: "pants",
-    title: "Trousers & Pants",
-    description: "Perfectly fitted trousers for formal and casual occasions.",
-    images: [
-      "https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=400&h=500&fit=crop",
-      "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=400&h=500&fit=crop",
-    ],
-    priceFrom: 1500,
-    features: ["Multiple fabrics", "Custom fit", "Pleated/flat"],
-  },
-  {
-    id: "suits",
-    title: "Full Suits",
-    description: "Complete suit tailoring including jacket and trousers.",
-    images: [
-      "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=400&h=500&fit=crop",
-      "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400&h=500&fit=crop",
-    ],
-    priceFrom: 8000,
-    features: ["Premium wool", "Full custom", "Multiple fittings"],
-  },
-  {
-    id: "kurta",
-    title: "Kurta Pajama",
-    description: "Traditional kurta sets for festivals and weddings.",
-    images: [
-      "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400&h=500&fit=crop",
-      "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=400&h=500&fit=crop",
-    ],
-    priceFrom: 2000,
-    features: ["Silk & cotton", "Embroidery", "Festival ready"],
-  },
-];
-
-function MenServiceCard({ service }: { service: MenService }) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const images = service.images;
-
-  const handleSwipe = (e: any, info: PanInfo) => {
-    if (Math.abs(info.offset.x) > 50) {
-      if (info.offset.x > 0 && currentIndex > 0) {
-        setCurrentIndex(currentIndex - 1);
-      } else if (info.offset.x < 0 && currentIndex < images.length - 1) {
-        setCurrentIndex(currentIndex + 1);
-      }
-    }
-  };
-
-  return (
-    <div className="group bg-card rounded-xl overflow-hidden shadow-soft border border-border">
-      {/* Image Carousel */}
-      <div className="relative aspect-[4/5] overflow-hidden bg-muted">
-        <AnimatePresence mode="wait">
-          <motion.img
-            key={currentIndex}
-            src={images[currentIndex]}
-            alt={service.title}
-            className="w-full h-full object-cover"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            onDragEnd={handleSwipe}
-          />
-        </AnimatePresence>
-
-        {/* Navigation Arrows - Desktop */}
-        {images.length > 1 && (
-          <>
-            <button
-              onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))}
-              className={`absolute left-1.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/90 shadow-md items-center justify-center hidden group-hover:flex transition-opacity ${currentIndex === 0 ? 'opacity-50' : 'opacity-100'}`}
-              disabled={currentIndex === 0}
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setCurrentIndex(Math.min(images.length - 1, currentIndex + 1))}
-              className={`absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/90 shadow-md items-center justify-center hidden group-hover:flex transition-opacity ${currentIndex === images.length - 1 ? 'opacity-50' : 'opacity-100'}`}
-              disabled={currentIndex === images.length - 1}
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </>
-        )}
-
-        {/* Dot Indicators */}
-        {images.length > 1 && (
-          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
-            {images.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => setCurrentIndex(idx)}
-                className={`w-1.5 h-1.5 rounded-full transition-colors ${idx === currentIndex ? 'bg-white' : 'bg-white/50'}`}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Content */}
-      <div className="p-3 md:p-4">
-        <h3 className="font-display font-bold text-sm md:text-base mb-1 line-clamp-1">{service.title}</h3>
-        <p className="text-xs text-muted-foreground mb-2 line-clamp-2 hidden md:block">{service.description}</p>
-        
-        <ul className="space-y-0.5 mb-2 hidden md:block">
-          {service.features.map((f, i) => (
-            <li key={i} className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-              <Check className="w-3 h-3 text-accent" /> {f}
-            </li>
-          ))}
-        </ul>
-        
-        <div className="pt-2 border-t border-border flex items-center justify-between">
-          <div>
-            <p className="text-[10px] text-muted-foreground">From</p>
-            <p className="text-sm md:text-base font-bold text-primary">₹{service.priceFrom.toLocaleString()}</p>
-          </div>
-          <Button variant="default" size="sm" className="text-xs h-7 md:h-8">Book Now</Button>
-        </div>
-      </div>
-    </div>
-  );
-}
+import { CategoryCard } from "@/components/categories/CategoryCard";
+import { menCategories } from "@/data/mockData";
 
 export default function MensTailoring() {
   return (
@@ -177,10 +28,10 @@ export default function MensTailoring() {
                 Explore <ArrowRight className="w-4 h-4 ml-1" />
               </Button>
               <Button variant="heroOutline" size="default" asChild>
-                <Link to="/measurements">Get Measured</Link>
+                <Link to="/measurements?type=men">Get Measured</Link>
               </Button>
-              <SizeChartModal 
-                defaultCategory="menShirt" 
+              <SizeChartModal
+                defaultCategory="menShirt"
                 trigger={
                   <Button variant="heroOutline" size="default" className="gap-2">
                     <Ruler className="w-4 h-4" />
@@ -202,8 +53,8 @@ export default function MensTailoring() {
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-            {menServices.map((service) => (
-              <MenServiceCard key={service.id} service={service} />
+            {menCategories.map((category) => (
+              <CategoryCard key={category.id} {...category} />
             ))}
           </div>
         </div>

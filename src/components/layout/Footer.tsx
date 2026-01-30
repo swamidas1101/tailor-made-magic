@@ -14,12 +14,15 @@ const footerLinks = {
     { name: "Our Tailors", path: "/tailors" },
     { name: "Pricing", path: "/pricing" },
     { name: "Contact", path: "/contact" },
+    { name: "Business Login", path: "/login" },
+
   ],
   support: [
     { name: "How It Works", path: "/how-it-works" },
-    { name: "Measurement Guide", path: "/measurements" },
-    { name: "FAQs", path: "/faqs" },
-    { name: "Terms & Conditions", path: "/terms" },
+    { name: "Measurement Guide", path: "/measurements/guide" },
+    { name: "FAQs", path: "/support" },
+    { name: "Help Center", path: "/support" },
+    { name: "Terms & Conditions", path: "/legal" },
   ],
 };
 
@@ -28,7 +31,7 @@ export function Footer() {
     <footer className="bg-gradient-to-br from-orange-600 via-amber-600 to-yellow-600 text-white">
       <div className="container mx-auto px-4">
         {/* Main Footer - Compact on mobile */}
-        <div className="py-8 md:py-12 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 md:gap-8">
+        <div className="py-8 md:py-12 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 md:gap-8">
           {/* Brand - Full width on mobile */}
           <div className="col-span-2 lg:col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-3">
@@ -60,6 +63,20 @@ export function Footer() {
             <h4 className="font-semibold mb-2 md:mb-3 text-sm text-white">Services</h4>
             <ul className="space-y-1 md:space-y-1.5">
               {footerLinks.services.slice(0, 4).map((link) => (
+                <li key={link.path}>
+                  <Link to={link.path} className="text-xs md:text-sm text-white/80 hover:text-white transition-colors">
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Company */}
+          <div>
+            <h4 className="font-semibold mb-2 md:mb-3 text-sm text-white">Company</h4>
+            <ul className="space-y-1 md:space-y-1.5">
+              {footerLinks.company.map((link) => (
                 <li key={link.path}>
                   <Link to={link.path} className="text-xs md:text-sm text-white/80 hover:text-white transition-colors">
                     {link.name}

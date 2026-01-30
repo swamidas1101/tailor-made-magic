@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/layout/Layout";
 import { CategoryCard } from "@/components/categories/CategoryCard";
 import { DesignCard } from "@/components/designs/DesignCard";
-import { categories, designs, testimonials } from "@/data/mockData";
+import { categories, designs, testimonials, menCategories } from "@/data/mockData";
 import heroImage from "@/assets/hero-tailoring.jpg";
 
 const containerVariants = {
@@ -18,8 +18,8 @@ const containerVariants = {
 
 const itemVariants = {
   hidden: { opacity: 0, y: 30 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     y: 0,
     transition: { duration: 0.6 }
   }
@@ -28,6 +28,8 @@ const itemVariants = {
 const Index = () => {
   const featuredDesigns = designs.filter((d) => d.isPopular).slice(0, 8);
   const featuredCategories = categories.slice(0, 4);
+  // Get men's categories, defaulting to first 4 if available
+  const featuredMenCategories = menCategories.slice(0, 4);
 
   return (
     <Layout>
@@ -35,9 +37,9 @@ const Index = () => {
       <section className="relative min-h-[90vh] flex items-center overflow-hidden">
         {/* Background with Parallax Effect */}
         <div className="absolute inset-0 w-full">
-          <motion.img 
-            src={heroImage} 
-            alt="Premium Tailoring" 
+          <motion.img
+            src={heroImage}
+            alt="Premium Tailoring"
             className="w-full h-full object-cover"
             initial={{ scale: 1.1 }}
             animate={{ scale: 1 }}
@@ -46,34 +48,34 @@ const Index = () => {
           <div className="absolute inset-0 bg-gradient-to-r from-noir/95 via-noir/70 to-noir/40" />
           <div className="absolute inset-0 bg-gradient-to-t from-noir/80 via-transparent to-transparent" />
         </div>
-        
+
         {/* Floating Decorative Elements */}
-        <motion.div 
+        <motion.div
           className="absolute top-20 right-20 w-32 h-32 rounded-full bg-gradient-to-br from-rose/30 to-gold/20 blur-3xl"
-          animate={{ 
+          animate={{
             y: [0, -30, 0],
             scale: [1, 1.1, 1],
           }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         />
-        <motion.div 
+        <motion.div
           className="absolute bottom-32 right-1/3 w-48 h-48 rounded-full bg-gradient-to-br from-gold/20 to-rose/10 blur-3xl"
-          animate={{ 
+          animate={{
             y: [0, 20, 0],
             scale: [1, 1.2, 1],
           }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
         />
-        
+
         <div className="w-full relative z-10 px-4 md:px-8 lg:px-16 py-16">
-          <motion.div 
+          <motion.div
             className="max-w-3xl"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
           >
             {/* Premium Badge */}
-            <motion.div 
+            <motion.div
               variants={itemVariants}
               className="inline-flex items-center gap-2 bg-gradient-to-r from-rose/20 to-gold/20 backdrop-blur-md border border-rose/30 rounded-full px-5 py-2 mb-6"
             >
@@ -81,30 +83,30 @@ const Index = () => {
               <span className="text-rose-light font-medium text-sm">Premium Online Tailoring</span>
               <Sparkles className="w-4 h-4 text-gold" />
             </motion.div>
-            
+
             {/* Hero Title */}
-            <motion.h1 
+            <motion.h1
               variants={itemVariants}
               className="text-5xl md:text-7xl font-display font-bold text-white mb-6 leading-[1.1]"
             >
               Crafting Elegance,<br />
               <span className="text-gradient-luxury">Stitch by Stitch</span>
             </motion.h1>
-            
+
             {/* Hero Description */}
-            <motion.p 
+            <motion.p
               variants={itemVariants}
               className="text-white/80 text-lg md:text-xl mb-8 max-w-xl leading-relaxed"
             >
-              Experience bespoke tailoring from the comfort of your home. Choose from 500+ curated designs 
+              Experience bespoke tailoring from the comfort of your home. Choose from 500+ curated designs
               and receive perfectly fitted garments at your doorstep.
             </motion.p>
-            
+
             {/* CTA Buttons */}
             <motion.div variants={itemVariants} className="flex flex-wrap gap-4 mb-12">
               <Button variant="hero" size="xl" asChild className="group">
                 <Link to="/categories">
-                  Explore Designs 
+                  Explore Designs
                   <ArrowRight className="w-5 h-5 ml-1 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
@@ -115,9 +117,9 @@ const Index = () => {
                 </Link>
               </Button>
             </motion.div>
-            
+
             {/* Stats Row */}
-            <motion.div 
+            <motion.div
               variants={itemVariants}
               className="flex flex-wrap gap-8 pt-8 border-t border-white/10"
             >
@@ -127,8 +129,8 @@ const Index = () => {
                 { value: "4.9", label: "Rating", icon: Star },
                 { value: "3-7", label: "Days Delivery", icon: Clock },
               ].map((stat, i) => (
-                <motion.div 
-                  key={i} 
+                <motion.div
+                  key={i}
                   className="flex items-center gap-3"
                   whileHover={{ scale: 1.05 }}
                 >
@@ -144,15 +146,15 @@ const Index = () => {
             </motion.div>
           </motion.div>
         </div>
-        
+
         {/* Scroll Indicator */}
-        <motion.div 
+        <motion.div
           className="absolute bottom-8 left-1/2 -translate-x-1/2"
           animate={{ y: [0, 10, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
         >
           <div className="w-6 h-10 rounded-full border-2 border-white/30 flex items-start justify-center p-2">
-            <motion.div 
+            <motion.div
               className="w-1.5 h-3 rounded-full bg-rose"
               animate={{ y: [0, 12, 0] }}
               transition={{ duration: 2, repeat: Infinity }}
@@ -163,7 +165,7 @@ const Index = () => {
 
       {/* Features Marquee */}
       <section className="py-4 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 overflow-hidden">
-        <motion.div 
+        <motion.div
           className="flex gap-12 whitespace-nowrap"
           animate={{ x: ["0%", "-50%"] }}
           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
@@ -191,7 +193,7 @@ const Index = () => {
       {/* Quick Access Services */}
       <section className="py-20 md:py-28 gradient-mesh">
         <div className="container px-4">
-          <motion.div 
+          <motion.div
             className="text-center mb-14"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -206,7 +208,7 @@ const Index = () => {
               Tailoring Services
             </h2>
           </motion.div>
-          
+
           <div className="grid md:grid-cols-4 gap-6">
             {[
               {
@@ -243,7 +245,7 @@ const Index = () => {
               >
                 <Link to={card.to} className="group block">
                   <div className="relative h-80 rounded-3xl overflow-hidden shadow-card hover:shadow-luxury transition-all duration-500">
-                    <motion.img 
+                    <motion.img
                       src={card.image}
                       alt={card.title}
                       className="w-full h-full object-cover"
@@ -251,7 +253,7 @@ const Index = () => {
                       transition={{ duration: 0.6 }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-noir/90 via-noir/40 to-transparent" />
-                    <motion.div 
+                    <motion.div
                       className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                     />
                     <div className="absolute bottom-0 left-0 right-0 p-6">
@@ -279,13 +281,13 @@ const Index = () => {
               <Link to="/measurements" className="group block">
                 <div className="relative h-80 rounded-3xl overflow-hidden bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500 shadow-xl hover:shadow-2xl transition-all duration-500">
                   <div className="absolute inset-0 pattern-luxury opacity-20" />
-                  <motion.div 
+                  <motion.div
                     className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-white/20 blur-3xl"
                     animate={{ scale: [1, 1.2, 1] }}
                     transition={{ duration: 4, repeat: Infinity }}
                   />
                   <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
-                    <motion.div 
+                    <motion.div
                       className="w-20 h-20 rounded-2xl bg-white/30 backdrop-blur-sm flex items-center justify-center mb-6 shadow-lg"
                       whileHover={{ scale: 1.1, rotate: 5 }}
                     >
@@ -294,7 +296,7 @@ const Index = () => {
                     <h3 className="text-2xl font-display font-bold text-white mb-2">Save Measurements</h3>
                     <p className="text-white/90 text-sm mb-6">Enter once, use for all orders</p>
                     <Button variant="heroOutline" size="lg" className="group">
-                      Get Started 
+                      Get Started
                       <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                     </Button>
                   </div>
@@ -305,10 +307,9 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Categories */}
       <section className="py-20 md:py-28 bg-muted/30 pattern-dots">
         <div className="container px-4">
-          <motion.div 
+          <motion.div
             className="flex justify-between items-end mb-12"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -323,12 +324,12 @@ const Index = () => {
             </div>
             <Button variant="ghost" asChild className="hidden sm:flex group">
               <Link to="/categories">
-                View All 
+                View All
                 <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Button>
           </motion.div>
-          <motion.div 
+          <motion.div
             className="grid grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6"
             variants={containerVariants}
             initial="hidden"
@@ -344,10 +345,49 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Men's Categories - New Section */}
+      <section className="py-20 md:py-28 bg-background">
+        <div className="container px-4">
+          <motion.div
+            className="flex justify-between items-end mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <div>
+              <div className="inline-flex items-center gap-2 bg-foreground/5 rounded-full px-4 py-1.5 mb-4">
+                <Shirt className="w-4 h-4 text-foreground" />
+                <span className="text-foreground font-medium text-sm">For Him</span>
+              </div>
+              <h2 className="text-4xl md:text-5xl font-display font-bold">Men's <span className="text-gradient-gold">Collection</span></h2>
+            </div>
+            <Button variant="ghost" asChild className="hidden sm:flex group">
+              <Link to="/mens">
+                View All
+                <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </Button>
+          </motion.div>
+          <motion.div
+            className="grid grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6"
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+          >
+            {featuredMenCategories.map((cat, i) => (
+              <motion.div key={cat.id} variants={itemVariants}>
+                <CategoryCard {...cat} />
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
       {/* Popular Designs */}
       <section className="py-20 md:py-28">
         <div className="container px-4">
-          <motion.div 
+          <motion.div
             className="text-center mb-14"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -372,7 +412,7 @@ const Index = () => {
               </motion.div>
             ))}
           </div>
-          <motion.div 
+          <motion.div
             className="text-center mt-12"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -391,7 +431,7 @@ const Index = () => {
       {/* How It Works */}
       <section className="py-20 md:py-28 bg-gradient-to-b from-muted/50 to-background">
         <div className="container px-4">
-          <motion.div 
+          <motion.div
             className="text-center mb-16"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -406,22 +446,22 @@ const Index = () => {
           <div className="grid md:grid-cols-4 gap-8 relative">
             {/* Connection Line */}
             <div className="hidden md:block absolute top-16 left-[12%] right-[12%] h-0.5 bg-gradient-to-r from-rose via-gold to-burgundy opacity-30" />
-            
+
             {[
               { step: "01", title: "Choose Design", desc: "Browse 500+ designs or upload your own", icon: Heart, color: "from-rose to-rose-dark" },
               { step: "02", title: "Add Measurements", desc: "Use our guide or AI tool (coming soon)", icon: Ruler, color: "from-gold to-gold-dark" },
               { step: "03", title: "Place Order", desc: "Select material option and checkout", icon: TrendingUp, color: "from-burgundy to-burgundy-light" },
               { step: "04", title: "Get Delivered", desc: "Receive your perfect fit at home", icon: CheckCircle2, color: "from-rose to-gold" },
             ].map((item, i) => (
-              <motion.div 
-                key={i} 
+              <motion.div
+                key={i}
                 className="relative text-center"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
               >
-                <motion.div 
+                <motion.div
                   className={`w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center shadow-luxury`}
                   whileHover={{ scale: 1.1, rotate: 5 }}
                 >
@@ -459,8 +499,8 @@ const Index = () => {
                   { title: "Easy Returns", desc: "7-day hassle-free return policy" },
                   { title: "Transparent Pricing", desc: "No hidden costs, what you see is what you pay" },
                 ].map((item, i) => (
-                  <motion.div 
-                    key={i} 
+                  <motion.div
+                    key={i}
                     className="flex gap-4 items-start p-5 bg-card rounded-2xl border border-border/50 hover:shadow-card hover:border-rose/30 transition-all duration-300 group"
                     initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
@@ -479,8 +519,8 @@ const Index = () => {
                 ))}
               </div>
             </motion.div>
-            
-            <motion.div 
+
+            <motion.div
               className="relative"
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -488,18 +528,18 @@ const Index = () => {
               transition={{ duration: 0.6 }}
             >
               <div className="relative">
-                <motion.img 
-                  src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=700&fit=crop" 
-                  alt="Tailor at work" 
+                <motion.img
+                  src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=700&fit=crop"
+                  alt="Tailor at work"
                   className="rounded-3xl shadow-luxury w-full"
                   whileHover={{ scale: 1.02 }}
                   transition={{ duration: 0.4 }}
                 />
                 <div className="absolute inset-0 rounded-3xl border border-rose/20" />
               </div>
-              
+
               {/* Floating Stats Card */}
-              <motion.div 
+              <motion.div
                 className="absolute -bottom-8 -left-8 bg-card p-5 rounded-2xl shadow-luxury border border-border/50"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -517,17 +557,18 @@ const Index = () => {
                   </div>
                 </div>
               </motion.div>
-              
+
               {/* Floating Rating Card */}
-              <motion.div 
+              <motion.div
                 className="absolute -top-4 -right-4 bg-card p-4 rounded-2xl shadow-luxury border border-border/50"
                 initial={{ opacity: 0, y: -20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.4 }}
-                animate={{ y: [0, -10, 0] }}
-                // @ts-ignore
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                animate={{
+                  y: [0, -10, 0],
+                  transition: { duration: 4, repeat: Infinity, ease: "easeInOut" }
+                }}
               >
                 <div className="flex items-center gap-2">
                   <div className="flex">
@@ -547,7 +588,7 @@ const Index = () => {
       {/* Testimonials */}
       <section className="py-20 md:py-28 bg-gradient-to-b from-muted/30 to-background">
         <div className="container px-4">
-          <motion.div 
+          <motion.div
             className="text-center mb-14"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -561,8 +602,8 @@ const Index = () => {
           </motion.div>
           <div className="grid md:grid-cols-3 gap-6">
             {testimonials.map((t, i) => (
-              <motion.div 
-                key={t.id} 
+              <motion.div
+                key={t.id}
                 className="bg-card p-7 rounded-3xl shadow-soft border border-border/50 hover:shadow-luxury hover:border-rose/30 transition-all duration-500 group"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -591,27 +632,27 @@ const Index = () => {
 
       {/* CTA */}
       <section className="py-24 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-burgundy via-burgundy-light to-rose" />
+        <div className="absolute inset-0 bg-gradient-to-r from-zinc-900 via-zinc-950 to-black" />
         <div className="absolute inset-0 pattern-luxury opacity-20" />
-        <motion.div 
+        <motion.div
           className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-gold/20 blur-3xl"
           animate={{ scale: [1, 1.3, 1], rotate: [0, 180, 360] }}
           transition={{ duration: 20, repeat: Infinity }}
         />
-        <motion.div 
+        <motion.div
           className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-rose/20 blur-3xl"
           animate={{ scale: [1.2, 1, 1.2] }}
           transition={{ duration: 15, repeat: Infinity }}
         />
-        
+
         <div className="container px-4 relative z-10">
-          <motion.div 
+          <motion.div
             className="text-center max-w-2xl mx-auto"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <motion.div 
+            <motion.div
               className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-5 py-2 mb-6"
               whileHover={{ scale: 1.05 }}
             >
@@ -627,7 +668,7 @@ const Index = () => {
             <div className="flex flex-wrap justify-center gap-4">
               <Button variant="gold" size="xl" asChild className="group">
                 <Link to="/categories">
-                  Start Designing 
+                  Start Designing
                   <ArrowRight className="w-5 h-5 ml-1 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>

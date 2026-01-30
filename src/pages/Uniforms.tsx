@@ -1,149 +1,128 @@
-import { Link } from "react-router-dom";
-import { GraduationCap, Briefcase, Users, ArrowRight, Check, Building2, Stethoscope, UtensilsCrossed, Shield, Plane } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/layout/Layout";
-
-const uniformTypes = [
-  {
-    id: "school",
-    icon: GraduationCap,
-    title: "School Uniforms",
-    description: "Quality school uniforms for students of all ages.",
-    features: ["Shirts & blouses", "Pants & skirts", "Ties & belts"],
-    startingPrice: 500,
-  },
-  {
-    id: "college",
-    icon: Users,
-    title: "College Uniforms",
-    description: "Smart college uniforms with modern cuts.",
-    features: ["Blazers & jackets", "Formal shirts", "Custom embroidery"],
-    startingPrice: 800,
-  },
-  {
-    id: "corporate",
-    icon: Briefcase,
-    title: "Corporate Wear",
-    description: "Professional workwear for offices.",
-    features: ["Business suits", "Staff uniforms", "Logo branding"],
-    startingPrice: 1200,
-  },
-  {
-    id: "hospitality",
-    icon: UtensilsCrossed,
-    title: "Hospitality",
-    description: "Uniforms for hotels & restaurants.",
-    features: ["Chef coats", "Server attire", "Front desk wear"],
-    startingPrice: 900,
-  },
-  {
-    id: "healthcare",
-    icon: Stethoscope,
-    title: "Healthcare",
-    description: "Medical scrubs & lab coats.",
-    features: ["Scrubs", "Lab coats", "Nurse uniforms"],
-    startingPrice: 700,
-  },
-  {
-    id: "security",
-    icon: Shield,
-    title: "Security",
-    description: "Professional security guard uniforms.",
-    features: ["Guard uniforms", "Badges", "Accessories"],
-    startingPrice: 1000,
-  },
-];
+import { Button } from "@/components/ui/button";
+import { ArrowRight, CheckCircle2, Factory, GraduationCap, Stethoscope, Briefcase, Mail, Phone, Users } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function Uniforms() {
   return (
     <Layout>
-      {/* Hero - Compact */}
-      <section className="py-10 md:py-16 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500">
-        <div className="container px-4 text-center">
-          <h1 className="text-2xl md:text-4xl font-display font-bold text-white mb-2">
-            Uniform Tailoring
-          </h1>
-          <p className="text-white/90 max-w-lg mx-auto text-sm md:text-base mb-6">
-            Bulk orders with customization and competitive pricing.
-          </p>
-          <Button variant="hero" size="lg" className="bg-white text-orange-600 hover:bg-white/90">
-            Get Bulk Quote <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
-        </div>
-      </section>
-
-      {/* Uniform Types - 2 columns on mobile */}
-      <section className="py-10 md:py-16">
-        <div className="container px-4">
-          <div className="text-center mb-8">
-            <p className="text-accent text-sm font-medium mb-1">Our Services</p>
-            <h2 className="text-xl md:text-3xl font-display font-bold">Uniform Categories</h2>
+      <div className="min-h-screen bg-background">
+        {/* Hero Section */}
+        <section className="relative h-[60vh] flex items-center justify-center overflow-hidden">
+          <div className="absolute inset-0">
+            <img
+              src="https://images.unsplash.com/photo-1596462502278-27bfdd403348?q=80&w=2070&auto=format&fit=crop"
+              alt="Uniforms Hero"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-950/90 via-blue-900/80 to-blue-900/60" />
           </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
-            {uniformTypes.map((type) => (
-              <div key={type.id} className="bg-card rounded-xl p-4 md:p-6 shadow-soft border border-border hover:shadow-md transition-shadow">
-                <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-gradient-to-r from-orange-500 to-amber-500 flex items-center justify-center mb-3 md:mb-4">
-                  <type.icon className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                </div>
-                <h3 className="text-sm md:text-lg font-display font-bold mb-1 md:mb-2 line-clamp-1">{type.title}</h3>
-                <p className="text-muted-foreground text-xs md:text-sm mb-3 line-clamp-2 hidden md:block">{type.description}</p>
-                
-                <ul className="space-y-1 mb-3 hidden md:block">
-                  {type.features.map((feature, i) => (
-                    <li key={i} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <Check className="w-3 h-3 text-accent" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
 
-                <div className="pt-3 border-t border-border">
-                  <p className="text-[10px] md:text-xs text-muted-foreground">From</p>
-                  <p className="text-base md:text-xl font-bold text-primary">₹{type.startingPrice}</p>
-                  <Button variant="default" size="sm" className="w-full mt-2 text-xs h-8">
-                    Get Quote
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Bulk Order CTA - Compact */}
-      <section className="py-10 md:py-16 bg-muted/50">
-        <div className="container px-4">
-          <div className="bg-card rounded-xl p-6 md:p-10 shadow-md flex flex-col md:flex-row items-center gap-6">
-            <div className="flex-1 text-center md:text-left">
-              <h2 className="text-xl md:text-2xl font-display font-bold mb-2">
-                Need Bulk Uniforms?
-              </h2>
-              <p className="text-muted-foreground text-sm mb-4">
-                Special pricing for orders of 50+ pieces with custom sizing and branding.
+          <div className="container relative z-10 px-4 text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <h1 className="text-4xl md:text-6xl font-display font-bold text-white mb-6">
+                Premium Corporate & <br /><span className="text-blue-300">Institutional Uniforms</span>
+              </h1>
+              <p className="text-lg md:text-xl text-blue-100 max-w-2xl mx-auto mb-8 font-light leading-relaxed">
+                Elevate your brand identity with tailored perfection. We specialize in high-quality uniforms for schools, hospitals, hospitality, and corporate sectors.
               </p>
-              <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-                <Button variant="gold" size="default">
-                  Contact for Bulk Orders
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <Button size="lg" className="bg-white text-blue-900 hover:bg-blue-50">
+                  Request a Quote
                 </Button>
-                <Button variant="outline" size="default" asChild>
-                  <Link to="/measurements">Size Guide</Link>
+                <Button size="lg" variant="outline" className="border-blue-300 text-blue-100 hover:bg-blue-900/50 hover:text-white">
+                  View Catalog
                 </Button>
               </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Categories Section */}
+        <section className="py-20 bg-muted/10">
+          <div className="container px-4">
+            <div className="text-center mb-16">
+              <span className="text-blue-600 font-semibold tracking-wider text-sm uppercase">Industries We Serve</span>
+              <h2 className="text-3xl md:text-4xl font-display font-bold text-gray-900 mt-2">Tailored for Every Profession</h2>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 md:p-4 bg-muted rounded-lg text-center">
-                <p className="text-xl md:text-2xl font-bold text-primary">50+</p>
-                <p className="text-[10px] md:text-xs text-muted-foreground">Schools Served</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {[
+                { icon: GraduationCap, title: "Schools", desc: "Durable, comfortable, and smart uniforms for students of all ages.", bg: "bg-orange-100", text: "text-orange-600" },
+                { icon: Stethoscope, title: "Healthcare", desc: "Antimicrobial fabrics designed for comfort during long shifts.", bg: "bg-teal-100", text: "text-teal-600" },
+                { icon: Briefcase, title: "Corporate", desc: "Sharp, professional attire that reflects your company's prestige.", bg: "bg-blue-100", text: "text-blue-600" },
+                { icon: Factory, title: "Industrial", desc: "Rugged, safety-compliant workwear built for tough environments.", bg: "bg-gray-100", text: "text-gray-600" }
+              ].map((item, index) => (
+                <div key={index} className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 group border border-border/50">
+                  <div className={`w-14 h-14 ${item.bg} ${item.text} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+                    <item.icon className="w-7 h-7" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">{item.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Why Choose Us */}
+        <section className="py-20 bg-white">
+          <div className="container px-4">
+            <div className="flex flex-col md:flex-row items-center gap-16">
+              <div className="w-full md:w-1/2">
+                <img
+                  src="https://images.unsplash.com/photo-1626379953822-baec19c3accd?q=80&w=2000&auto=format&fit=crop"
+                  alt="Quality Craftsmanship"
+                  className="rounded-2xl shadow-2xl w-full h-full object-cover"
+                />
               </div>
-              <div className="p-3 md:p-4 bg-muted rounded-lg text-center">
-                <p className="text-xl md:text-2xl font-bold text-primary">10K+</p>
-                <p className="text-[10px] md:text-xs text-muted-foreground">Uniforms Delivered</p>
+              <div className="w-full md:w-1/2">
+                <h2 className="text-3xl md:text-4xl font-display font-bold text-gray-900 mb-6">Why Partner With Us?</h2>
+                <div className="space-y-6">
+                  {[
+                    "Precision Sizing & Custom Fits",
+                    "Premium, Durable Fabrics",
+                    "Timely Bulk Delivery",
+                    "Logo Embroidery & Custom Branding"
+                  ].map((feature, i) => (
+                    <div key={i} className="flex items-start gap-4">
+                      <div className="mt-1 w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                        <CheckCircle2 className="w-4 h-4 text-blue-600" />
+                      </div>
+                      <p className="text-lg text-gray-700">{feature}</p>
+                    </div>
+                  ))}
+                </div>
+                <Button className="mt-8 bg-blue-900 hover:bg-blue-800 text-white px-8" size="lg">
+                  Learn More About Process
+                </Button>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+
+        {/* Bulk Order CTA */}
+        <section className="py-20 bg-gradient-to-br from-blue-900 to-black text-white text-center">
+          <div className="container px-4 max-w-4xl mx-auto">
+            <Users className="w-16 h-16 text-blue-300 mx-auto mb-6 opacity-80" />
+            <h2 className="text-3xl md:text-5xl font-display font-bold mb-6">Start Your Bulk Order Today</h2>
+            <p className="text-xl text-blue-100/70 mb-10">Get a competitive quote within 24 hours. We handle orders from 20 to 2000+ units with ease.</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-xl mx-auto">
+              <Button className="w-full bg-white text-blue-900 hover:bg-blue-50 h-14 text-lg">
+                <Mail className="w-5 h-5 mr-2" /> Contact Sales
+              </Button>
+              <Button variant="outline" className="w-full border-blue-400 text-blue-100 hover:bg-blue-900 hover:text-white h-14 text-lg">
+                <Phone className="w-5 h-5 mr-2" /> (555) 123-4567
+              </Button>
+            </div>
+          </div>
+        </section>
+      </div>
     </Layout>
   );
 }

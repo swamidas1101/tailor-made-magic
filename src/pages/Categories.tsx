@@ -8,7 +8,7 @@ import { DesignCard } from "@/components/designs/DesignCard";
 import { DesignFilters, ActiveFilters, defaultFilters } from "@/components/filters/DesignFilters";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { categories, designs } from "@/data/mockData";
+import { categories, menCategories, designs } from "@/data/mockData";
 
 type SortOption = "popular" | "price-low" | "price-high" | "rating" | "newest";
 
@@ -17,11 +17,17 @@ export default function Categories() {
   const [filters, setFilters] = useState<ActiveFilters>(defaultFilters);
   const [sortBy, setSortBy] = useState<SortOption>("popular");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-  
+
   // Filter and sort designs
   const filteredDesigns = useMemo(() => {
     let result = id
-      ? designs.filter((d) => d.category.toLowerCase() === categories.find((c) => c.id === id)?.name.split(" ")[0].toLowerCase())
+      ? designs.filter((d) => {
+        const category = categories.find((c) => c.id === id) || menCategories.find((c) => c.id === id);
+        if (category?.filterKey) {
+          return d.category === category.filterKey;
+        }
+        return d.category.toLowerCase() === category?.name.split(" ")[0].toLowerCase();
+      })
       : designs;
 
     // Apply filters
@@ -97,7 +103,7 @@ export default function Categories() {
               <Link to="/categories" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4">
                 <ArrowLeft className="w-4 h-4" /> All Categories
               </Link>
-              
+
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
                   <h1 className="text-2xl md:text-3xl font-display font-bold mb-1">{category?.name}</h1>
@@ -195,20 +201,119 @@ export default function Categories() {
   // All categories view
   return (
     <Layout>
-      <div className="container px-4 py-8">
-        <div className="text-center mb-12">
-          <p className="text-accent font-medium mb-2">Explore Our Collection</p>
-          <h1 className="text-3xl md:text-4xl font-display font-bold mb-4">All Categories</h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            From traditional blouses to modern kurtis, find the perfect design for every occasion. 
-            Expert tailoring with premium quality materials.
-          </p>
-        </div>
+      <div className="min-h-screen bg-background">
+        {/* Hero Section */}
+        <section className="relative py-20 md:py-32 overflow-hidden bg-gradient-to-br from-rose-900 via-rose-950 to-black text-white">
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-rose-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
-          {categories.map((cat) => (
-            <CategoryCard key={cat.id} {...cat} />
-          ))}
+          <div className="container px-4 relative z-10 text-center">
+            <span className="inline-block py-1 px-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-gold text-xs font-semibold tracking-wider mb-4 uppercase">
+              Premium Collection
+            </span>
+            <h1 className="text-4xl md:text-6xl font-display font-bold mb-6">
+              Explore Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-200 to-amber-200">Catalog</span>
+            </h1>
+            <p className="text-white/70 max-w-2xl mx-auto text-lg leading-relaxed">
+              From traditional craftsmanship to contemporary elegance. Discover designs tailored to perfection for every occasion.
+            </p>
+          </div>
+        </section>
+
+        <div className="container px-4 py-16 -mt-10 relative z-20">
+          {/* Women's Section */}
+          <div className="mb-20">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="h-px flex-1 bg-border"></div>
+              <h2 className="text-3xl font-display font-bold text-foreground">Women's Collection</h2>
+              <div className="h-px flex-1 bg-border"></div>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-8">
+              {categories.map((cat) => (
+                <CategoryCard key={cat.id} {...cat} />
+              ))}
+            </div>
+          </div>
+
+          {/* Men's Section */}
+          <div className="mb-20">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="h-px flex-1 bg-border"></div>
+              <h2 className="text-3xl font-display font-bold text-foreground">Men's Collection</h2>
+              <div className="h-px flex-1 bg-border"></div>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-8">
+              {menCategories.map((cat) => (
+                <CategoryCard key={cat.id} {...cat} />
+              ))}
+            </div>
+          </div>
+
+          {/* More Collections */}
+          <div className="mb-10">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="h-px flex-1 bg-border"></div>
+              <h2 className="text-3xl font-display font-bold text-foreground">Specialized Services</h2>
+              <div className="h-px flex-1 bg-border"></div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Uniforms Card - Horizontal Banner Style */}
+              <Link to="/uniforms" className="group relative h-48 md:h-56 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-500 block ring-1 ring-border/50">
+                <div className="absolute inset-0 bg-blue-900">
+                  <img
+                    src="https://images.unsplash.com/photo-1596462502278-27bfdd403348?q=80&w=2070&auto=format&fit=crop"
+                    alt="Uniforms"
+                    className="w-full h-full object-cover opacity-50 group-hover:opacity-60 group-hover:scale-105 transition-all duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-950 via-blue-900/60 to-transparent"></div>
+                </div>
+                <div className="absolute inset-y-0 left-0 p-6 md:p-8 flex flex-col justify-center max-w-lg">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="bg-white/10 backdrop-blur-md p-2 rounded-lg border border-white/10">
+                      <LayoutGrid className="w-5 h-5 text-blue-200" />
+                    </div>
+                    <span className="text-blue-200 text-xs font-semibold tracking-wider uppercase">Institutional</span>
+                  </div>
+                  <h3 className="text-2xl md:text-3xl font-display font-bold text-white mb-2">Uniforms & Bulk</h3>
+                  <p className="text-blue-100/80 text-sm line-clamp-2 mb-4">Tailored solutions for schools, corporate, and healthcare. Volume pricing available.</p>
+
+                  <div className="flex items-center gap-2 text-white font-medium text-sm group-hover:gap-3 transition-all">
+                    <span>Request Quote</span>
+                    <ArrowLeft className="w-4 h-4 rotate-180" />
+                  </div>
+                </div>
+              </Link>
+
+              {/* Materials Card - Horizontal Banner Style */}
+              <Link to="/materials" className="group relative h-48 md:h-56 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-500 block ring-1 ring-border/50">
+                <div className="absolute inset-0 bg-orange-900">
+                  <img
+                    src="https://images.unsplash.com/photo-1574634534894-89d750a6f8a2?q=80&w=2000&auto=format&fit=crop"
+                    alt="Materials"
+                    className="w-full h-full object-cover opacity-50 group-hover:opacity-60 group-hover:scale-105 transition-all duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-orange-950 via-orange-900/60 to-transparent"></div>
+                </div>
+                <div className="absolute inset-y-0 left-0 p-6 md:p-8 flex flex-col justify-center max-w-lg">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="bg-white/10 backdrop-blur-md p-2 rounded-lg border border-white/10">
+                      <List className="w-5 h-5 text-orange-200" />
+                    </div>
+                    <span className="text-orange-200 text-xs font-semibold tracking-wider uppercase">Premium Fabrics</span>
+                  </div>
+                  <h3 className="text-2xl md:text-3xl font-display font-bold text-white mb-2">Material Catalog</h3>
+                  <p className="text-violet-100/80 text-sm line-clamp-2 mb-4">Explore our curated collection of high-quality fabrics, threads, and embellishments.</p>
+
+                  <div className="flex items-center gap-2 text-white font-medium text-sm group-hover:gap-3 transition-all">
+                    <span>Browse Collection</span>
+                    <ArrowLeft className="w-4 h-4 rotate-180" />
+                  </div>
+                </div>
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </Layout>

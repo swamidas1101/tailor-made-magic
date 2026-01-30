@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { MeasurementSelector } from "@/components/measurements/MeasurementSelector";
 import { SizeChartModal } from "@/components/size-chart/SizeChartModal";
+import { SimilarProducts } from "@/components/shared/SimilarProducts";
 
 export default function DesignDetail() {
   const { id } = useParams();
@@ -108,7 +109,7 @@ export default function DesignDetail() {
           <div className="flex flex-col">
             <p className="text-muted-foreground font-medium uppercase tracking-wide text-sm mb-2">{design.category}</p>
             <h1 className="text-3xl md:text-4xl font-display font-bold mb-4">{design.name}</h1>
-            
+
             <div className="flex items-center gap-4 mb-6">
               <div className="flex items-center gap-1">
                 <Star className="w-5 h-5 fill-gold text-gold" />
@@ -144,9 +145,8 @@ export default function DesignDetail() {
               <div className="flex gap-3">
                 <button
                   onClick={() => setWithMaterial(false)}
-                  className={`flex-1 p-4 rounded-lg border-2 transition-colors ${
-                    !withMaterial ? "border-foreground bg-foreground/5" : "border-border hover:border-foreground/30"
-                  }`}
+                  className={`flex-1 p-4 rounded-lg border-2 transition-colors ${!withMaterial ? "border-foreground bg-foreground/5" : "border-border hover:border-foreground/30"
+                    }`}
                 >
                   <p className="font-medium">Without Material</p>
                   <p className="text-sm text-muted-foreground">You provide the fabric</p>
@@ -154,9 +154,8 @@ export default function DesignDetail() {
                 </button>
                 <button
                   onClick={() => setWithMaterial(true)}
-                  className={`flex-1 p-4 rounded-lg border-2 transition-colors ${
-                    withMaterial ? "border-foreground bg-foreground/5" : "border-border hover:border-foreground/30"
-                  }`}
+                  className={`flex-1 p-4 rounded-lg border-2 transition-colors ${withMaterial ? "border-foreground bg-foreground/5" : "border-border hover:border-foreground/30"
+                    }`}
                 >
                   <p className="font-medium">With Material</p>
                   <p className="text-sm text-muted-foreground">Premium fabric included</p>
@@ -170,17 +169,15 @@ export default function DesignDetail() {
               <h3 className="font-semibold mb-3">Your Measurements</h3>
               <button
                 onClick={() => setShowMeasurementSelector(true)}
-                className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
-                  selectedMeasurements 
-                    ? "border-foreground bg-foreground/5" 
-                    : "border-border hover:border-foreground/30"
-                }`}
+                className={`w-full p-4 rounded-xl border-2 text-left transition-all ${selectedMeasurements
+                  ? "border-foreground bg-foreground/5"
+                  : "border-border hover:border-foreground/30"
+                  }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                      selectedMeasurements ? "bg-foreground text-background" : "bg-muted text-foreground"
-                    }`}>
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${selectedMeasurements ? "bg-foreground text-background" : "bg-muted text-foreground"
+                      }`}>
                       <Ruler className="w-5 h-5" />
                     </div>
                     <div>
@@ -195,8 +192,8 @@ export default function DesignDetail() {
                         <>
                           <p className="font-medium text-foreground">Add Measurements</p>
                           <p className="text-sm text-muted-foreground">
-                            {hasSavedMeasurements 
-                              ? "Use saved or enter new measurements" 
+                            {hasSavedMeasurements
+                              ? "Use saved or enter new measurements"
                               : "Required for custom fitting"
                             }
                           </p>
@@ -207,10 +204,10 @@ export default function DesignDetail() {
                   <ChevronRight className="w-5 h-5 text-muted-foreground" />
                 </div>
               </button>
-              
+
               {/* Size Chart Link */}
               <div className="mt-3">
-                <SizeChartModal 
+                <SizeChartModal
                   defaultCategory={design.category}
                   trigger={
                     <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground gap-2">
@@ -223,7 +220,7 @@ export default function DesignDetail() {
             </div>
 
             {/* Price & Book */}
-            <div className="mt-auto pt-6 border-t border-border">
+            <div className="mt-8 pt-6 border-t border-border">
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <p className="text-sm text-muted-foreground">Total Price</p>
@@ -243,6 +240,11 @@ export default function DesignDetail() {
             </div>
           </div>
         </div>
+        <SimilarProducts
+          items={designs.filter(d => d.category === design.category && d.id !== design.id).slice(0, 10)}
+          type="design"
+          title="You May Also Like"
+        />
       </div>
 
       {/* Measurement Selector Modal */}

@@ -58,11 +58,13 @@ export default function Wishlist() {
           {items.map((item) => (
             <div key={item.id} className="bg-card rounded-xl shadow-soft overflow-hidden group">
               <div className="relative aspect-[3/4]">
-                <img 
-                  src={item.image} 
-                  alt={item.name} 
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
+                <Link to={item.id.startsWith('m') ? `/material/${item.id}` : `/design/${item.id}`}>
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                </Link>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -72,9 +74,9 @@ export default function Wishlist() {
                   <Trash2 className="w-4 h-4" />
                 </Button>
                 <div className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button 
-                    variant="gold" 
-                    size="sm" 
+                  <Button
+                    variant="gold"
+                    size="sm"
                     className="w-full"
                     onClick={() => handleMoveToCart(item)}
                   >
@@ -83,7 +85,7 @@ export default function Wishlist() {
                 </div>
               </div>
               <div className="p-3">
-                <Link to={`/design/${item.id}`} className="hover:text-primary transition-colors">
+                <Link to={item.id.startsWith('m') ? `/material/${item.id}` : `/design/${item.id}`} className="hover:text-primary transition-colors">
                   <h3 className="font-semibold text-sm truncate">{item.name}</h3>
                 </Link>
                 <p className="text-xs text-muted-foreground">{item.category}</p>

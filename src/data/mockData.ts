@@ -1,3 +1,12 @@
+export interface Category {
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+  designCount: number;
+  filterKey?: string;
+}
+
 export interface DesignSubcategory {
   neckType?: string;
   sleeveType?: string;
@@ -9,6 +18,10 @@ export interface DesignSubcategory {
   dupattaStyle?: string;
   skirtType?: string;
   blousePattern?: string;
+  // Men's specific
+  fitType?: string;
+  fabricType?: string;
+  styleType?: string;
 }
 
 export interface Design extends DesignSubcategory {
@@ -27,7 +40,7 @@ export interface Design extends DesignSubcategory {
   features?: string[];
 }
 
-export const categories = [
+export const categories: Category[] = [
   {
     id: "blouse",
     name: "Blouse Designs",
@@ -76,6 +89,41 @@ export const categories = [
     description: "Classic and modern salwar suit designs for everyday elegance.",
     image: "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&h=800&fit=crop",
     designCount: 110,
+  },
+];
+
+export const menCategories: Category[] = [
+  {
+    id: "men-shirts",
+    name: "Formal Shirts",
+    description: "Crisp, well-fitted formal and casual shirts tailored to perfection.",
+    image: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=600&h=800&fit=crop",
+    designCount: 45,
+    filterKey: "MenShirt",
+  },
+  {
+    id: "men-trousers",
+    name: "Trousers & Pants",
+    description: "Custom-fit trousers, chinos, and formal pants for every occasion.",
+    image: "https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=600&h=800&fit=crop",
+    designCount: 30,
+    filterKey: "MenTrouser",
+  },
+  {
+    id: "men-suits",
+    name: "Suits & Blazers",
+    description: "Premium bespoke suits and blazers for weddings and corporate events.",
+    image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&h=800&fit=crop",
+    designCount: 25,
+    filterKey: "MenSuit",
+  },
+  {
+    id: "men-ethnic",
+    name: "Sherwani & Kurta",
+    description: "Traditional sherwanis and kurtas for festivals and weddings.",
+    image: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=600&h=800&fit=crop",
+    designCount: 40,
+    filterKey: "MenEthnic",
   },
 ];
 
@@ -995,6 +1043,143 @@ export const designs: Design[] = [
     isPopular: false,
     description: "Refreshing mint green half saree with delicate Chikankari work.",
     features: ["Chikankari work", "Light colors", "Party ready", "Comfortable fit"],
+  },
+  // MEN'S DESIGNS
+  {
+    id: "ms1",
+    name: "Classic White Formal Shirt",
+    category: "MenShirt",
+    fitType: "Slim Fit",
+    fabricType: "Cotton",
+    styleType: "Formal",
+    image: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=400&h=500&fit=crop",
+    price: 1500,
+    priceWithMaterial: 2500,
+    rating: 4.8,
+    reviewCount: 124,
+    timeInDays: 4,
+    isPopular: true,
+    description: "Premium Egyptian cotton white shirt with stiff collar and french cuffs.",
+    features: ["Egyptian Cotton", "French Cuffs", "Wrinkle Free"],
+  },
+  {
+    id: "ms2",
+    name: "Navy Blue Linen Shirt",
+    category: "MenShirt",
+    fitType: "Regular Fit",
+    fabricType: "Linen",
+    styleType: "Casual",
+    image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400&h=500&fit=crop",
+    price: 1800,
+    priceWithMaterial: 2800,
+    rating: 4.7,
+    reviewCount: 98,
+    timeInDays: 4,
+    isPopular: false,
+    description: "Breathable navy linen shirt perfect for summer casuals.",
+    features: ["Pure Linen", "Breathable", "Casual Fit"],
+  },
+  {
+    id: "mt1",
+    name: "Slim Fit Chinos",
+    category: "MenTrouser",
+    fitType: "Slim Fit",
+    fabricType: "Cotton Blend",
+    styleType: "Casual",
+    image: "https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=400&h=500&fit=crop",
+    price: 1600,
+    priceWithMaterial: 2600,
+    rating: 4.6,
+    reviewCount: 156,
+    timeInDays: 5,
+    isPopular: true,
+    description: "Comfortable khaki chinos with stretch for perfect fit.",
+    features: ["Stretch Fabric", "Custom Length", "Slim Cut"],
+  },
+  {
+    id: "mt2",
+    name: "Formal Black Trousers",
+    category: "MenTrouser",
+    fitType: "Regular Fit",
+    fabricType: "Wool Blend",
+    styleType: "Formal",
+    image: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=400&h=500&fit=crop",
+    price: 1900,
+    priceWithMaterial: 3200,
+    rating: 4.9,
+    reviewCount: 201,
+    timeInDays: 5,
+    isPopular: false,
+    description: "Essential black formal trousers for office wear.",
+    features: ["Wrinkle Resistant", "Perfect Crease", "Comfort Fit"],
+  },
+  {
+    id: "msu1",
+    name: "Navy Blue 3-Piece Suit",
+    category: "MenSuit",
+    fitType: "Tailored Fit",
+    fabricType: "Italian Wool",
+    styleType: "Formal",
+    image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=400&h=500&fit=crop",
+    price: 15000,
+    priceWithMaterial: 25000,
+    rating: 5.0,
+    reviewCount: 87,
+    timeInDays: 14,
+    isPopular: true,
+    description: "Classic navy blue three-piece suit for weddings and boardrooms.",
+    features: ["Italian Wool", "3-Piece Set", "Hand Stitched"],
+  },
+  {
+    id: "msu2",
+    name: "Charcoal Grey Blazer",
+    category: "MenSuit",
+    fitType: "Slim Fit",
+    fabricType: "Tweed",
+    styleType: "Smart Casual",
+    image: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400&h=500&fit=crop",
+    price: 6500,
+    priceWithMaterial: 11000,
+    rating: 4.8,
+    reviewCount: 65,
+    timeInDays: 10,
+    isPopular: false,
+    description: "Versatile charcoal grey blazer for smart casual look.",
+    features: ["Tweed Texture", "Slim Lapel", "Versatile"],
+  },
+  {
+    id: "me1",
+    name: "Cream Silk Sherwani",
+    category: "MenEthnic",
+    fitType: "Regular Fit",
+    fabricType: "Raw Silk",
+    styleType: "Traditional",
+    image: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=400&h=500&fit=crop",
+    price: 12000,
+    priceWithMaterial: 20000,
+    rating: 4.9,
+    reviewCount: 112,
+    timeInDays: 15,
+    isPopular: true,
+    description: "Elegant cream sherwani with subtle gold embroidery.",
+    features: ["Hand Embroidery", "Raw Silk", "Wedding Quality"],
+  },
+  {
+    id: "me2",
+    name: "Festive Maroon Kurta",
+    category: "MenEthnic",
+    fitType: "Comfort Fit",
+    fabricType: "Cotton Silk",
+    styleType: "Festive",
+    image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400&h=500&fit=crop",
+    price: 2500,
+    priceWithMaterial: 4000,
+    rating: 4.7,
+    reviewCount: 143,
+    timeInDays: 7,
+    isPopular: true,
+    description: "Rich maroon kurta with thread work for festivals.",
+    features: ["Thread Work", "Festive Color", "Comfort Fit"],
   },
 ];
 

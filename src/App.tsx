@@ -13,6 +13,7 @@ import Measurements from "./pages/Measurements";
 import Uniforms from "./pages/Uniforms";
 import MensTailoring from "./pages/MensTailoring";
 import Materials from "./pages/Materials";
+import MaterialDetail from "./pages/MaterialDetail";
 import Cart from "./pages/Cart";
 import Wishlist from "./pages/Wishlist";
 import Login from "./pages/Login";
@@ -29,6 +30,14 @@ import TailorDesigns from "./pages/tailor/TailorDesigns";
 import TailorOrders from "./pages/tailor/TailorOrders";
 import TailorEarnings from "./pages/tailor/TailorEarnings";
 import TailorProfile from "./pages/tailor/TailorProfile";
+import About from "./pages/support/About";
+import Contact from "./pages/support/Contact";
+import HelpCenter from "./pages/support/HelpCenter";
+import Legal from "./pages/support/Legal";
+import OurTailors from "./pages/content/OurTailors";
+import Pricing from "./pages/content/Pricing";
+import HowItWorks from "./pages/content/HowItWorks";
+import MeasurementGuide from "./pages/content/MeasurementGuide";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -51,10 +60,21 @@ const App = () => (
                 <Route path="/uniforms" element={<Uniforms />} />
                 <Route path="/mens" element={<MensTailoring />} />
                 <Route path="/materials" element={<Materials />} />
+                <Route path="/material/:id" element={<MaterialDetail />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/wishlist" element={<Wishlist />} />
                 <Route path="/user-login" element={<UserLogin />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/support" element={<HelpCenter />} />
+                <Route path="/legal" element={<Legal />} />
+                <Route path="/privacy" element={<Legal />} />
+                <Route path="/terms" element={<Legal />} />
+                <Route path="/tailors" element={<OurTailors />} />
+                <Route path="/pricing" element={<Pricing />} />
+                <Route path="/how-it-works" element={<HowItWorks />} />
+                <Route path="/measurements/guide" element={<MeasurementGuide />} />
                 <Route path="/admin" element={<AdminDashboard />}>
                   <Route index element={<AdminOverview />} />
                   <Route path="tailors" element={<TailorManagement />} />

@@ -13,7 +13,7 @@ export interface CartItem {
 
 interface CartContextType {
   items: CartItem[];
-  addToCart: (item: Omit<CartItem, "id" | "quantity">) => void;
+  addToCart: (item: Omit<CartItem, "id"> | Omit<CartItem, "id" | "quantity">) => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
@@ -40,17 +40,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setTimeout(() => setJustAdded(false), 1000);
   }, []);
 
-  const addToCart = (item: Omit<CartItem, "id" | "quantity">) => {
+  const addToCart = (item: Omit<CartItem, "id"> | Omit<CartItem, "id" | "quantity">) => {
+    const quantity = "quantity" in item ? item.quantity : 1;
     const id = `${item.designId}-${item.size}-${item.withMaterial}`;
     setItems((prev) => {
       const existing = prev.find((i) => i.id === id);
       let newItems: CartItem[];
       if (existing) {
         newItems = prev.map((i) =>
-          i.id === id ? { ...i, quantity: i.quantity + 1 } : i
+          i.id === id ? { ...i, quantity: i.quantity + quantity } : i
         );
       } else {
-        newItems = [...prev, { ...item, id, quantity: 1 }];
+        newItems = [...prev, { ...item, id, quantity }];
       }
       saveToStorage(newItems);
       return newItems;

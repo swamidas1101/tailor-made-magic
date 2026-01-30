@@ -47,46 +47,58 @@ export default function Cart() {
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
             {items.map((item) => (
-              <div key={item.id} className="bg-card rounded-xl p-4 shadow-soft flex gap-4">
-                <img 
-                  src={item.image} 
-                  alt={item.name} 
-                  className="w-24 h-24 md:w-32 md:h-32 object-cover rounded-lg"
+              <Link key={item.id} to={item.designId.startsWith('m') ? `/material/${item.designId}` : `/design/${item.designId}`} className="bg-card rounded-xl p-4 shadow-soft flex gap-4 group hover:shadow-lg transition-all">
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-24 h-24 md:w-32 md:h-32 object-cover rounded-lg group-hover:opacity-90 transition-opacity"
                 />
                 <div className="flex-1 flex flex-col">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="font-semibold text-sm md:text-base">{item.name}</h3>
+                      <h3 className="font-semibold text-sm md:text-base group-hover:text-primary transition-colors">{item.name}</h3>
                       <p className="text-xs text-muted-foreground">
                         Size: {item.size} • {item.withMaterial ? 'With Material' : 'Stitching Only'}
                       </p>
                     </div>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       className="text-muted-foreground hover:text-destructive -mt-1 -mr-2"
-                      onClick={() => removeFromCart(item.id)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        removeFromCart(item.id);
+                      }}
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
-                  
+
                   <div className="mt-auto flex items-center justify-between">
                     <div className="flex items-center gap-2 bg-muted rounded-lg p-1">
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         className="h-7 w-7"
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          updateQuantity(item.id, item.quantity - 1);
+                        }}
                       >
                         <Minus className="w-3 h-3" />
                       </Button>
                       <span className="w-8 text-center font-medium text-sm">{item.quantity}</span>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         className="h-7 w-7"
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          updateQuantity(item.id, item.quantity + 1);
+                        }}
                       >
                         <Plus className="w-3 h-3" />
                       </Button>
@@ -94,7 +106,7 @@ export default function Cart() {
                     <p className="font-bold text-primary">₹{(item.price * item.quantity).toLocaleString()}</p>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
 
@@ -102,7 +114,7 @@ export default function Cart() {
           <div className="lg:col-span-1">
             <div className="bg-card rounded-xl p-6 shadow-soft sticky top-24">
               <h2 className="font-display font-bold text-lg mb-4">Order Summary</h2>
-              
+
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Subtotal ({totalItems} items)</span>
@@ -117,9 +129,9 @@ export default function Cart() {
                   <span>₹{Math.round(totalPrice * 0.18).toLocaleString()}</span>
                 </div>
               </div>
-              
+
               <Separator className="my-4" />
-              
+
               <div className="flex justify-between font-bold text-lg mb-6">
                 <span>Total</span>
                 <span className="text-primary">₹{Math.round(totalPrice * 1.18).toLocaleString()}</span>
@@ -128,9 +140,9 @@ export default function Cart() {
               {/* Promo Code */}
               <div className="mb-6">
                 <div className="flex gap-2">
-                  <input 
-                    type="text" 
-                    placeholder="Promo Code" 
+                  <input
+                    type="text"
+                    placeholder="Promo Code"
                     className="flex-1 px-3 py-2 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                   <Button variant="outline" size="sm">Apply</Button>
@@ -141,7 +153,7 @@ export default function Cart() {
               <Button variant="gold" size="lg" className="w-full mb-3">
                 Proceed to Checkout <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
-              
+
               <Button variant="ghost" size="sm" className="w-full" asChild>
                 <Link to="/categories"><ArrowLeft className="w-4 h-4 mr-2" /> Continue Shopping</Link>
               </Button>
