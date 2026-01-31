@@ -94,7 +94,12 @@ export function Header() {
 
                     <Accordion type="single" collapsible className="w-full">
                       <AccordionItem value="categories" className="border-b border-border/40">
-                        <AccordionTrigger className="px-6 py-4 text-base font-medium hover:no-underline hover:bg-muted/30 data-[state=open]:bg-muted/30">
+                        <AccordionTrigger
+                          className={`px-6 py-4 text-base font-bold hover:no-underline hover:bg-muted/30 data-[state=open]:bg-muted/30 ${location.pathname === '/categories' || location.pathname.includes('/category/')
+                              ? "text-neutral-950 bg-orange-50/50"
+                              : "text-foreground"
+                            }`}
+                        >
                           Categories
                         </AccordionTrigger>
                         <AccordionContent className="pb-0 bg-muted/20">

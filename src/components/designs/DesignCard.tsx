@@ -153,7 +153,7 @@ export function DesignCard({
       transition={{ duration: 0.3 }}
     >
       {/* Image Container - Compact aspect ratio */}
-      <div 
+      <div
         className="relative aspect-[4/5] overflow-hidden bg-muted"
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
@@ -173,7 +173,7 @@ export function DesignCard({
             />
           </AnimatePresence>
         </Link>
-        
+
         {/* Popular Badge - Vibrant */}
         {isPopular && (
           <Badge className="absolute top-2 left-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[10px] px-2 py-0.5 font-semibold border-0">
@@ -184,11 +184,10 @@ export function DesignCard({
         {/* Wishlist Button */}
         <button
           onClick={handleWishlist}
-          className={`absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-all ${
-            wishlisted 
-              ? "bg-rose-500 text-white" 
-              : "bg-white/90 text-foreground hover:bg-white"
-          }`}
+          className={`absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-all ${wishlisted
+            ? "bg-rose-500 text-white"
+            : "bg-white/90 text-foreground hover:bg-white"
+            }`}
         >
           <Heart className={`w-4 h-4 ${wishlisted ? "fill-current" : ""}`} />
         </button>
@@ -198,18 +197,16 @@ export function DesignCard({
           <>
             <button
               onClick={prevImage}
-              className={`absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/90 text-foreground hidden md:flex items-center justify-center transition-opacity ${
-                currentImageIndex === 0 ? "opacity-40 cursor-not-allowed" : "hover:bg-white"
-              }`}
+              className={`absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/90 text-foreground hidden md:flex items-center justify-center transition-opacity ${currentImageIndex === 0 ? "opacity-40 cursor-not-allowed" : "hover:bg-white"
+                }`}
               disabled={currentImageIndex === 0}
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
             <button
               onClick={nextImage}
-              className={`absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/90 text-foreground hidden md:flex items-center justify-center transition-opacity ${
-                currentImageIndex === allImages.length - 1 ? "opacity-40 cursor-not-allowed" : "hover:bg-white"
-              }`}
+              className={`absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/90 text-foreground hidden md:flex items-center justify-center transition-opacity ${currentImageIndex === allImages.length - 1 ? "opacity-40 cursor-not-allowed" : "hover:bg-white"
+                }`}
               disabled={currentImageIndex === allImages.length - 1}
             >
               <ChevronRight className="w-4 h-4" />
@@ -224,11 +221,10 @@ export function DesignCard({
               <button
                 key={index}
                 onClick={(e) => goToImage(index, e)}
-                className={`w-1.5 h-1.5 rounded-full transition-all ${
-                  index === currentImageIndex 
-                    ? "bg-white w-3" 
-                    : "bg-white/50 hover:bg-white/70"
-                }`}
+                className={`w-1.5 h-1.5 rounded-full transition-all ${index === currentImageIndex
+                  ? "bg-white w-3"
+                  : "bg-white/50 hover:bg-white/70"
+                  }`}
               />
             ))}
           </div>
@@ -242,16 +238,16 @@ export function DesignCard({
       </div>
 
       {/* Content - Compact */}
-      <div className="p-3">
+      <div className="p-2 sm:p-3">
         <Link to={`/design/${id}`}>
           <div className="flex items-center gap-1.5 mb-1">
-            <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">
+            <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide truncate">
               {category}
             </span>
             {workType && (
               <>
                 <span className="text-muted-foreground/40">•</span>
-                <span className="text-[10px] text-muted-foreground">{workType}</span>
+                <span className="text-[10px] text-muted-foreground truncate">{workType}</span>
               </>
             )}
           </div>
@@ -259,47 +255,51 @@ export function DesignCard({
             {name}
           </h3>
         </Link>
-        
+
         {/* Rating - Compact */}
         <div className="flex items-center gap-1 mb-2">
           <Star className="w-3 h-3 fill-gold text-gold" />
           <span className="text-xs font-medium text-foreground">{rating.toFixed(1)}</span>
           <span className="text-[10px] text-muted-foreground">({reviewCount})</span>
         </div>
-        
+
         {/* Price & Action */}
-        <div className="flex items-center justify-between pt-2 border-t border-border/50">
-          <div className="flex items-baseline gap-0.5">
+        <div className="flex items-center justify-between pt-2 border-t border-border/50 gap-1">
+          <div className="flex items-baseline gap-0.5 min-w-0">
             <IndianRupee className="w-3 h-3 text-foreground" />
-            <span className="text-base font-bold text-foreground">{price.toLocaleString()}</span>
+            <span className="text-sm sm:text-base font-bold text-foreground truncate">{price.toLocaleString()}</span>
           </div>
 
-          <div className="flex gap-1.5">
-            <Button 
-              variant="default" 
-              size="sm" 
-              className="h-8 px-3 text-xs"
+          <div className="flex gap-1.5 flex-shrink-0">
+            <Button
+              variant="default"
+              size="sm"
+              className="h-7 sm:h-8 px-2 sm:px-3 text-[10px] sm:text-xs"
               asChild
             >
               <Link to={`/design/${id}`}>Book</Link>
             </Button>
-            <Button 
+            <Button
               variant={justAddedToCart || cartItemCount > 0 ? "default" : "outline"}
-              size="sm" 
-              className={`h-8 w-8 p-0 ${
-                justAddedToCart 
-                  ? "bg-green-600 hover:bg-green-700 border-green-600" 
-                  : ""
-              }`}
+              size="sm"
+              className={`h-7 w-7 sm:h-8 sm:w-8 p-0 ${justAddedToCart
+                ? "bg-green-600 hover:bg-green-700 border-green-600"
+                : ""
+                }`}
               onClick={handleAddToCart}
             >
-              {justAddedToCart ? (
-                <Check className="w-3.5 h-3.5" />
-              ) : cartItemCount > 0 ? (
-                <span className="text-xs font-bold">{cartItemCount}</span>
-              ) : (
-                <ShoppingCart className="w-3.5 h-3.5" />
-              )}
+              <div className="relative">
+                {justAddedToCart ? (
+                  <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                ) : (
+                  <ShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                )}
+                {cartItemCount > 0 && !justAddedToCart && (
+                  <span className="absolute -top-2 -right-2 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-white text-[9px] font-bold text-orange-600 shadow-sm border border-orange-100">
+                    {cartItemCount}
+                  </span>
+                )}
+              </div>
             </Button>
           </div>
         </div>

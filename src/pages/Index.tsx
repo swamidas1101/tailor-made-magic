@@ -209,7 +209,7 @@ const Index = () => {
             </h2>
           </motion.div>
 
-          <div className="grid md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6">
             {[
               {
                 to: "/categories",
@@ -244,7 +244,7 @@ const Index = () => {
                 transition={{ duration: 0.5, delay: i * 0.1 }}
               >
                 <Link to={card.to} className="group block">
-                  <div className="relative h-80 rounded-3xl overflow-hidden shadow-card hover:shadow-luxury transition-all duration-500">
+                  <div className="relative h-64 md:h-80 rounded-3xl overflow-hidden shadow-card hover:shadow-luxury transition-all duration-500">
                     <motion.img
                       src={card.image}
                       alt={card.title}
@@ -256,8 +256,8 @@ const Index = () => {
                     <motion.div
                       className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                     />
-                    <div className="absolute bottom-0 left-0 right-0 p-6">
-                      <div className="flex items-center gap-2 mb-3">
+                    <div className="absolute bottom-0 left-0 right-0 p-6 md:p-6">
+                      <div className="flex items-center gap-2 mb-2 md:mb-3">
                         <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
                           <card.icon className="w-4 h-4 text-white" />
                         </div>
@@ -279,7 +279,7 @@ const Index = () => {
               transition={{ duration: 0.5, delay: 0.3 }}
             >
               <Link to="/measurements" className="group block">
-                <div className="relative h-80 rounded-3xl overflow-hidden bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500 shadow-xl hover:shadow-2xl transition-all duration-500">
+                <div className="relative h-64 md:h-80 rounded-3xl overflow-hidden bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500 shadow-xl hover:shadow-2xl transition-all duration-500">
                   <div className="absolute inset-0 pattern-luxury opacity-20" />
                   <motion.div
                     className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-white/20 blur-3xl"
@@ -288,12 +288,12 @@ const Index = () => {
                   />
                   <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
                     <motion.div
-                      className="w-20 h-20 rounded-2xl bg-white/30 backdrop-blur-sm flex items-center justify-center mb-6 shadow-lg"
+                      className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-white/30 backdrop-blur-sm flex items-center justify-center mb-4 md:mb-6 shadow-lg"
                       whileHover={{ scale: 1.1, rotate: 5 }}
                     >
-                      <Ruler className="w-10 h-10 text-white" />
+                      <Ruler className="w-8 h-8 md:w-10 md:h-10 text-white" />
                     </motion.div>
-                    <h3 className="text-2xl font-display font-bold text-white mb-2">Save Measurements</h3>
+                    <h3 className="text-xl md:text-2xl font-display font-bold text-white mb-2">Save Measurements</h3>
                     <p className="text-white/90 text-sm mb-6">Enter once, use for all orders</p>
                     <Button variant="heroOutline" size="lg" className="group">
                       Get Started
@@ -443,15 +443,15 @@ const Index = () => {
             </div>
             <h2 className="text-4xl md:text-5xl font-display font-bold">How It <span className="text-gradient-rose">Works</span></h2>
           </motion.div>
-          <div className="grid md:grid-cols-4 gap-8 relative">
-            {/* Connection Line */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-8 relative">
+            {/* Connection Line - Desktop Only */}
             <div className="hidden md:block absolute top-16 left-[12%] right-[12%] h-0.5 bg-gradient-to-r from-rose via-gold to-burgundy opacity-30" />
 
             {[
-              { step: "01", title: "Choose Design", desc: "Browse 500+ designs or upload your own", icon: Heart, color: "from-rose to-rose-dark" },
-              { step: "02", title: "Add Measurements", desc: "Use our guide or AI tool (coming soon)", icon: Ruler, color: "from-gold to-gold-dark" },
-              { step: "03", title: "Place Order", desc: "Select material option and checkout", icon: TrendingUp, color: "from-burgundy to-burgundy-light" },
-              { step: "04", title: "Get Delivered", desc: "Receive your perfect fit at home", icon: CheckCircle2, color: "from-rose to-gold" },
+              { step: "01", title: "Choose", desc: "Browse designs", icon: Heart, color: "from-rose to-rose-dark" },
+              { step: "02", title: "Measure", desc: "Add details", icon: Ruler, color: "from-gold to-gold-dark" },
+              { step: "03", title: "Order", desc: "Checkout", icon: TrendingUp, color: "from-burgundy to-burgundy-light" },
+              { step: "04", title: "Receive", desc: "Home delivery", icon: CheckCircle2, color: "from-rose to-gold" },
             ].map((item, i) => (
               <motion.div
                 key={i}
@@ -461,15 +461,17 @@ const Index = () => {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
               >
-                <motion.div
-                  className={`w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center shadow-luxury`}
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                >
-                  <item.icon className="w-9 h-9 text-white" />
-                </motion.div>
-                <span className="text-xs text-rose font-bold tracking-widest">{item.step}</span>
-                <h3 className="font-display font-bold text-xl mt-2 mb-3">{item.title}</h3>
-                <p className="text-sm text-muted-foreground max-w-[200px] mx-auto">{item.desc}</p>
+                <div className="bg-card/50 backdrop-blur-sm md:bg-transparent p-3 rounded-2xl md:p-0 border border-border/30 md:border-0 h-full flex flex-col items-center justify-center">
+                  <motion.div
+                    className={`w-12 h-12 md:w-20 md:h-20 mx-auto mb-3 md:mb-6 rounded-xl md:rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center shadow-luxury`}
+                    whileHover={{ scale: 1.1, rotate: 5 }}
+                  >
+                    <item.icon className="w-6 h-6 md:w-9 md:h-9 text-white" />
+                  </motion.div>
+                  <span className="text-[10px] md:text-xs text-rose font-bold tracking-widest block mb-1">{item.step}</span>
+                  <h3 className="font-display font-bold text-sm md:text-xl mb-1 md:mb-2">{item.title}</h3>
+                  <p className="text-[10px] md:text-sm text-muted-foreground md:max-w-[200px] mx-auto leading-tight">{item.desc}</p>
+                </div>
               </motion.div>
             ))}
           </div>
