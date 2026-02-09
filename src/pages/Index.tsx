@@ -1,11 +1,15 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
 import { ArrowRight, Star, Clock, Shield, Sparkles, Ruler, Shirt, Users, GraduationCap, Heart, TrendingUp, CheckCircle2, Flower2, Crown, Gem, Award, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/layout/Layout";
 import { CategoryCard } from "@/components/categories/CategoryCard";
 import { DesignCard } from "@/components/designs/DesignCard";
-import { categories, designs, testimonials, menCategories } from "@/data/mockData";
+import { testimonials, designs as mockDesigns, categories as mockCategories, menCategories as mockMenCategories } from "@/data/mockData";
+import { designService, categoryService } from "@/services/designService";
+import { useState, useEffect } from "react";
+import { Design, Category } from "@/data/mockData";
 import heroImage from "@/assets/hero-tailoring.jpg";
 
 const containerVariants = {
@@ -26,10 +30,86 @@ const itemVariants = {
 };
 
 const Index = () => {
-  const featuredDesigns = designs.filter((d) => d.isPopular).slice(0, 8);
-  const featuredCategories = categories.slice(0, 4);
-  // Get men's categories, defaulting to first 4 if available
-  const featuredMenCategories = menCategories.slice(0, 4);
+  const [designs, setDesigns] = useState<Design[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [menCategories, setMenCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user, activeRole, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!authLoading && user && activeRole) {
+      if (activeRole === 'tailor') {
+        navigate('/tailor');
+      } else if (activeRole === 'admin') {
+        navigate('/admin');
+      }
+    }
+  }, [user, activeRole, authLoading, navigate]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [fetchedDesigns, fetchedCategories] = await Promise.all([
+          designService.getFeaturedDesigns(8),
+          categoryService.getAllCategories()
+        ]);
+
+        // Fallback to mock data if Firestore is empty
+        if (fetchedDesigns.length === 0) {
+          console.warn("Firestore is empty, using mock data. Please seed the database at /seed");
+          setDesigns(mockDesigns.filter(d => d.isPopular).slice(0, 8));
+        } else {
+          setDesigns(fetchedDesigns);
+        }
+
+        if (fetchedCategories.length === 0) {
+          console.warn("Firestore categories empty, using mock data");
+          setCategories(mockCategories.slice(0, 4));
+          setMenCategories(mockMenCategories.slice(0, 4));
+        } else {
+          // Filter categories by type
+          const womenCats = fetchedCategories.filter(c => c.type === "women").slice(0, 4);
+          const menCats = fetchedCategories.filter(c => c.type === "men").slice(0, 4);
+
+          setCategories(womenCats);
+          setMenCategories(menCats);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        // Fallback to mock data on error
+        setDesigns(mockDesigns.filter(d => d.isPopular).slice(0, 8));
+        setCategories(mockCategories.slice(0, 4));
+        setMenCategories(mockMenCategories.slice(0, 4));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Prevent flash of content if we are going to redirect or still loading auth
+  if (authLoading || (user && activeRole && (activeRole === 'tailor' || activeRole === 'admin'))) {
+    return (
+      <div className="flex bg-background h-screen w-full items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <div className="h-16 w-16 rounded-full border-4 border-rose/20 border-t-rose animate-spin"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="h-8 w-8 rounded-full bg-gold/20 animate-pulse"></div>
+            </div>
+          </div>
+          <p className="text-muted-foreground animate-pulse font-medium">Loading Tailo...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const featuredDesigns = designs;
+  const featuredCategories = categories;
+  const featuredMenCategories = menCategories;
 
   return (
     <Layout>
@@ -202,7 +282,7 @@ const Index = () => {
           >
             <div className="inline-flex items-center gap-2 bg-foreground/5 rounded-full px-4 py-1.5 mb-4">
               <Sparkles className="w-4 h-4 text-foreground" />
-              <span className="text-foreground font-medium text-sm">What We Offer</span>
+              <span className="text-foreground font-medium text-sm whitespace-nowrap">What We Offer</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-display font-bold text-foreground">
               Tailoring Services
@@ -213,7 +293,7 @@ const Index = () => {
             {[
               {
                 to: "/categories",
-                image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=600&h=400&fit=crop",
+                image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1200&h=600&fit=crop",
                 icon: Flower2,
                 badge: "Women's Collection",
                 title: "Women's Tailoring",
@@ -221,7 +301,7 @@ const Index = () => {
               },
               {
                 to: "/mens",
-                image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=400&fit=crop",
+                image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&h=600&fit=crop",
                 icon: Shirt,
                 badge: "Men's Collection",
                 title: "Men's Tailoring",
@@ -229,7 +309,7 @@ const Index = () => {
               },
               {
                 to: "/uniforms",
-                image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&h=400&fit=crop",
+                image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1200&h=600&fit=crop",
                 icon: GraduationCap,
                 badge: "Bulk Orders",
                 title: "Uniforms",
@@ -242,29 +322,35 @@ const Index = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="w-full"
               >
-                <Link to={card.to} className="group block">
-                  <div className="relative h-64 md:h-80 rounded-3xl overflow-hidden shadow-card hover:shadow-luxury transition-all duration-500">
+                <Link to={card.to} className="group block h-full">
+                  <div className="relative h-64 md:h-80 w-full rounded-3xl overflow-hidden shadow-card hover:shadow-luxury transition-all duration-500">
                     <motion.img
                       src={card.image}
                       alt={card.title}
                       className="w-full h-full object-cover"
-                      whileHover={{ scale: 1.1 }}
+                      whileHover={{ scale: 1.05 }}
                       transition={{ duration: 0.6 }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-noir/90 via-noir/40 to-transparent" />
                     <motion.div
                       className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                     />
-                    <div className="absolute bottom-0 left-0 right-0 p-6 md:p-6">
-                      <div className="flex items-center gap-2 mb-2 md:mb-3">
-                        <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                          <card.icon className="w-4 h-4 text-white" />
+                    <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+                      <div>
+                        <div className="flex items-center gap-2 mb-2 md:mb-3">
+                          <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                            <card.icon className="w-4 h-4 text-white" />
+                          </div>
+                          <span className="text-white/80 text-sm font-medium">{card.badge}</span>
                         </div>
-                        <span className="text-white/80 text-sm font-medium">{card.badge}</span>
+                        <h3 className="text-3xl font-display font-bold text-white mb-1">{card.title}</h3>
+                        <p className="text-white/70 text-base">{card.desc}</p>
                       </div>
-                      <h3 className="text-2xl font-display font-bold text-white mb-1">{card.title}</h3>
-                      <p className="text-white/70 text-sm">{card.desc}</p>
+                      <div className="hidden md:block">
+                        <Button variant="white" size="sm" className="rounded-full px-6">Explore</Button>
+                      </div>
                     </div>
                   </div>
                 </Link>
@@ -277,9 +363,10 @@ const Index = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.3 }}
+              className="w-full"
             >
               <Link to="/measurements" className="group block">
-                <div className="relative h-64 md:h-80 rounded-3xl overflow-hidden bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500 shadow-xl hover:shadow-2xl transition-all duration-500">
+                <div className="relative h-64 md:h-80 w-full rounded-3xl overflow-hidden bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500 shadow-xl hover:shadow-2xl transition-all duration-500">
                   <div className="absolute inset-0 pattern-luxury opacity-20" />
                   <motion.div
                     className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-white/20 blur-3xl"

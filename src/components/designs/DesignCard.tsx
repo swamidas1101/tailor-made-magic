@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Star, Clock, IndianRupee, Heart, ShoppingCart, Check, Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, Clock, IndianRupee, Heart, ShoppingCart, ShoppingBag, Check, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
@@ -20,8 +20,8 @@ export interface DesignCardProps {
   reviewCount: number;
   timeInDays: number;
   isPopular?: boolean;
-  neckType?: string;
-  workType?: string;
+  neckType?: string | string[];
+  workType?: string | string[];
 }
 
 export function DesignCard({
@@ -247,7 +247,9 @@ export function DesignCard({
             {workType && (
               <>
                 <span className="text-muted-foreground/40">•</span>
-                <span className="text-[10px] text-muted-foreground truncate">{workType}</span>
+                <span className="text-[10px] text-muted-foreground truncate">
+                  {Array.isArray(workType) ? workType.join(", ") : workType}
+                </span>
               </>
             )}
           </div>
@@ -284,18 +286,22 @@ export function DesignCard({
               size="sm"
               className={`h-7 w-7 sm:h-8 sm:w-8 p-0 ${justAddedToCart
                 ? "bg-green-600 hover:bg-green-700 border-green-600"
-                : ""
+                : cartItemCount > 0
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                  : ""
                 }`}
               onClick={handleAddToCart}
             >
-              <div className="relative">
+              <div className="relative flex items-center justify-center w-full h-full">
                 {justAddedToCart ? (
-                  <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  <Check className="w-3.5 h-3.5" />
+                ) : cartItemCount > 0 ? (
+                  <ShoppingBag className="w-3.5 h-3.5" />
                 ) : (
-                  <ShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  <ShoppingCart className="w-3.5 h-3.5" />
                 )}
                 {cartItemCount > 0 && !justAddedToCart && (
-                  <span className="absolute -top-2 -right-2 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-white text-[9px] font-bold text-orange-600 shadow-sm border border-orange-100">
+                  <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-white text-[9px] font-bold text-orange-600 shadow-sm border border-orange-100 ring-1 ring-orange-50">
                     {cartItemCount}
                   </span>
                 )}

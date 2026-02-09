@@ -22,6 +22,7 @@ const buttonVariants = cva(
         rose: "bg-gradient-to-r from-orange-500 to-rose-500 text-white hover:from-orange-600 hover:to-rose-600 shadow-md font-semibold",
         luxury: "bg-gradient-to-r from-orange-600 via-amber-500 to-yellow-500 text-white hover:from-orange-700 hover:via-amber-600 hover:to-yellow-600 shadow-lg font-semibold",
         soft: "bg-orange-100 text-orange-700 hover:bg-orange-200 font-medium",
+        white: "bg-white text-foreground hover:bg-white/90 shadow-sm font-medium",
       },
       size: {
         default: "h-10 px-5 py-2",
@@ -40,7 +41,7 @@ const buttonVariants = cva(
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  VariantProps<typeof buttonVariants> {
   asChild?: boolean;
 }
 

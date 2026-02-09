@@ -1,14 +1,18 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Filter, SortAsc, X, LayoutGrid, List } from "lucide-react";
+import { ArrowLeft, Filter, SlidersHorizontal, X, LayoutGrid, List, SortAsc } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/layout/Layout";
-import { CategoryCard } from "@/components/categories/CategoryCard";
 import { DesignCard } from "@/components/designs/DesignCard";
+import { CategoryCard } from "@/components/categories/CategoryCard";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Design, Category } from "@/data/mockData";
+import { designService, categoryService } from "@/services/designService";
+import { designs as mockDesigns, categories as mockCategories, menCategories as mockMenCategories } from "@/data/mockData";
 import { DesignFilters, ActiveFilters, defaultFilters } from "@/components/filters/DesignFilters";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { categories, menCategories, designs } from "@/data/mockData";
 
 type SortOption = "popular" | "price-low" | "price-high" | "rating" | "newest";
 
@@ -17,6 +21,56 @@ export default function Categories() {
   const [filters, setFilters] = useState<ActiveFilters>(defaultFilters);
   const [sortBy, setSortBy] = useState<SortOption>("popular");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
+  // State for Firestore data
+  const [designs, setDesigns] = useState<Design[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [menCategories, setMenCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch data from Firestore
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [fetchedDesigns, fetchedCategories] = await Promise.all([
+          designService.getAllDesigns(),
+          categoryService.getAllCategories()
+        ]);
+
+        // Fallback to mock data if Firestore is empty
+        if (fetchedDesigns.length === 0) {
+          console.warn("Firestore is empty, using mock data. Please seed the database at /seed");
+          setDesigns(mockDesigns);
+        } else {
+          setDesigns(fetchedDesigns);
+        }
+
+        if (fetchedCategories.length === 0) {
+          console.warn("Firestore categories empty, using mock data");
+          setCategories(mockCategories);
+          setMenCategories(mockMenCategories);
+        } else {
+          // Filter categories by type
+          const womenCats = fetchedCategories.filter(c => c.type === "women");
+          const menCats = fetchedCategories.filter(c => c.type === "men");
+
+          setCategories(womenCats);
+          setMenCategories(menCats);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        // Fallback to mock data on error
+        setDesigns(mockDesigns);
+        setCategories(mockCategories);
+        setMenCategories(mockMenCategories);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   // Filter and sort designs
   const filteredDesigns = useMemo(() => {
@@ -30,24 +84,27 @@ export default function Categories() {
       })
       : designs;
 
+    // Show only approved designs in public categories
+    result = result.filter(d => d.status === 'approved');
+
     // Apply filters
     if (filters.neckTypes.length > 0) {
-      result = result.filter((d) => d.neckType && filters.neckTypes.includes(d.neckType));
+      result = result.filter((d) => d.neckType && (Array.isArray(d.neckType) ? d.neckType.some(t => filters.neckTypes.includes(t)) : filters.neckTypes.includes(d.neckType)));
     }
     if (filters.sleeveTypes.length > 0) {
-      result = result.filter((d) => d.sleeveType && filters.sleeveTypes.includes(d.sleeveType));
+      result = result.filter((d) => d.sleeveType && (Array.isArray(d.sleeveType) ? d.sleeveType.some(t => filters.sleeveTypes.includes(t)) : filters.sleeveTypes.includes(d.sleeveType)));
     }
     if (filters.backDesigns.length > 0) {
-      result = result.filter((d) => d.backDesign && filters.backDesigns.includes(d.backDesign));
+      result = result.filter((d) => d.backDesign && (Array.isArray(d.backDesign) ? d.backDesign.some(t => filters.backDesigns.includes(t)) : filters.backDesigns.includes(d.backDesign)));
     }
     if (filters.cutStyles.length > 0) {
-      result = result.filter((d) => d.cutStyle && filters.cutStyles.includes(d.cutStyle));
+      result = result.filter((d) => d.cutStyle && (Array.isArray(d.cutStyle) ? d.cutStyle.some(t => filters.cutStyles.includes(t)) : filters.cutStyles.includes(d.cutStyle)));
     }
     if (filters.workTypes.length > 0) {
-      result = result.filter((d) => d.workType && filters.workTypes.includes(d.workType));
+      result = result.filter((d) => d.workType && (Array.isArray(d.workType) ? d.workType.some(t => filters.workTypes.includes(t)) : filters.workTypes.includes(d.workType)));
     }
     if (filters.occasions.length > 0) {
-      result = result.filter((d) => d.occasion && filters.occasions.includes(d.occasion));
+      result = result.filter((d) => d.occasion && (Array.isArray(d.occasion) ? d.occasion.some(t => filters.occasions.includes(t)) : filters.occasions.includes(d.occasion)));
     }
     if (filters.priceRange[0] > 0 || filters.priceRange[1] < 10000) {
       result = result.filter((d) => d.price >= filters.priceRange[0] && d.price <= filters.priceRange[1]);

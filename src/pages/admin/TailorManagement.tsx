@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, Filter, MoreVertical, CheckCircle2, XCircle, Eye, Ban, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,48 +18,105 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { collection, query, where, getDocs, doc, updateDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Tailor {
-  id: number;
+  id: string;
   name: string;
   email: string;
   phone: string;
-  status: "pending" | "approved" | "blocked";
+  status: "pending" | "approved" | "blocked" | "submitted"; // 'submitted' is the KYT status 'submitted' which we treat as pending approval
   designs: number;
   orders: number;
   rating: number;
   joinDate: string;
   specialty: string;
+  kytData?: any;
 }
 
-const initialTailors: Tailor[] = [
-  { id: 1, name: "Rajesh Sharma", email: "rajesh@email.com", phone: "+91 98765 43210", status: "pending", designs: 12, orders: 45, rating: 4.8, joinDate: "Jan 6, 2026", specialty: "Wedding Wear" },
-  { id: 2, name: "Priya Patel", email: "priya@email.com", phone: "+91 98765 43211", status: "approved", designs: 28, orders: 156, rating: 4.9, joinDate: "Dec 15, 2025", specialty: "Blouses & Sarees" },
-  { id: 3, name: "Mohammed Khan", email: "khan@email.com", phone: "+91 98765 43212", status: "pending", designs: 8, orders: 0, rating: 0, joinDate: "Jan 5, 2026", specialty: "Men's Formal" },
-  { id: 4, name: "Anita Desai", email: "anita@email.com", phone: "+91 98765 43213", status: "blocked", designs: 15, orders: 89, rating: 3.2, joinDate: "Oct 20, 2025", specialty: "Kids Wear" },
-  { id: 5, name: "Suresh Kumar", email: "suresh@email.com", phone: "+91 98765 43214", status: "approved", designs: 42, orders: 234, rating: 4.7, joinDate: "Aug 10, 2025", specialty: "Traditional Wear" },
-  { id: 6, name: "Lakshmi Iyer", email: "lakshmi@email.com", phone: "+91 98765 43215", status: "approved", designs: 35, orders: 178, rating: 4.6, joinDate: "Sep 5, 2025", specialty: "Embroidery Work" },
-];
-
 export default function TailorManagement() {
-  const [tailors, setTailors] = useState<Tailor[]>(initialTailors);
+  const [tailors, setTailors] = useState<Tailor[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [selectedTailor, setSelectedTailor] = useState<Tailor | null>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchTailors();
+  }, []);
+
+  const fetchTailors = async () => {
+    try {
+      const q = query(collection(db, "users"), where("roles", "array-contains", "tailor"));
+      const querySnapshot = await getDocs(q);
+      const tailorData: Tailor[] = [];
+
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        let status: any = 'pending';
+
+        if (data.kytStatus === 'approved') status = 'approved';
+        else if (data.kytStatus === 'submitted') status = 'submitted'; // Special status for admin to see
+        else if (data.kytStatus === 'rejected') status = 'blocked'; // Map rejected to blocked for now
+        else status = 'pending'; // Default or in_progress
+
+        tailorData.push({
+          id: doc.id,
+          name: data.name || "Unknown",
+          email: data.email,
+          phone: data.tailorProfile?.phone || data.phoneNumber || "N/A",
+          status: status,
+          designs: data.designsCount || 0,
+          orders: data.ordersCount || 0,
+          rating: data.rating || 0,
+          joinDate: data.createdAt ? new Date(data.createdAt).toLocaleDateString() : "N/A",
+          specialty: data.tailorProfile?.specialization?.join(", ") || "N/A",
+          kytData: data.kytData
+        });
+      });
+      setTailors(tailorData);
+    } catch (error) {
+      console.error("Error fetching tailors:", error);
+      toast.error("Failed to load tailors");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredTailors = tailors.filter((tailor) => {
     const matchesSearch = tailor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         tailor.email.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = filterStatus === "all" || tailor.status === filterStatus;
+      tailor.email.toLowerCase().includes(searchQuery.toLowerCase());
+
+    // Filter mapping
+    let matchesFilter = true;
+    if (filterStatus === 'pending_approval') {
+      matchesFilter = tailor.status === 'submitted';
+    } else if (filterStatus !== 'all') {
+      matchesFilter = tailor.status === filterStatus;
+    }
+
     return matchesSearch && matchesFilter;
   });
 
-  const handleStatusChange = (tailorId: number, newStatus: "approved" | "blocked") => {
-    setTailors(tailors.map(t => 
-      t.id === tailorId ? { ...t, status: newStatus } : t
-    ));
-    toast.success(`Tailor ${newStatus === "approved" ? "approved" : "blocked"} successfully`);
+  const handleStatusChange = async (tailorId: string, newStatus: "approved" | "blocked") => {
+    try {
+      const kytStatus = newStatus === 'approved' ? 'approved' : 'rejected';
+      await updateDoc(doc(db, "users", tailorId), {
+        kytStatus: kytStatus
+      });
+
+      setTailors(tailors.map(t =>
+        t.id === tailorId ? { ...t, status: newStatus } : t
+      ));
+      toast.success(`Tailor ${newStatus === "approved" ? "approved" : "blocked"} successfully`);
+      setViewDialogOpen(false);
+    } catch (error) {
+      console.error("Error updating status:", error);
+      toast.error("Failed to update status");
+    }
   };
 
   const handleViewTailor = (tailor: Tailor) => {
@@ -69,7 +126,7 @@ export default function TailorManagement() {
 
   const stats = [
     { label: "Total Tailors", value: tailors.length, color: "text-primary" },
-    { label: "Pending Approval", value: tailors.filter(t => t.status === "pending").length, color: "text-yellow-600" },
+    { label: "Pending Approval", value: tailors.filter(t => t.status === "submitted").length, color: "text-yellow-600" },
     { label: "Active Tailors", value: tailors.filter(t => t.status === "approved").length, color: "text-green-600" },
     { label: "Blocked", value: tailors.filter(t => t.status === "blocked").length, color: "text-red-600" },
   ];
@@ -106,19 +163,14 @@ export default function TailorManagement() {
                 className="pl-10"
               />
             </div>
-            <div className="flex gap-2">
-              {["all", "pending", "approved", "blocked"].map((status) => (
-                <Button
-                  key={status}
-                  variant={filterStatus === status ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setFilterStatus(status)}
-                  className="capitalize"
-                >
-                  {status}
-                </Button>
-              ))}
-            </div>
+            <Tabs value={filterStatus} onValueChange={setFilterStatus} className="w-full sm:w-auto">
+              <TabsList>
+                <TabsTrigger value="all">All</TabsTrigger>
+                <TabsTrigger value="pending_approval">Pending Approval</TabsTrigger>
+                <TabsTrigger value="approved">Active</TabsTrigger>
+                <TabsTrigger value="blocked">Blocked</TabsTrigger>
+              </TabsList>
+            </Tabs>
           </div>
         </CardContent>
       </Card>
@@ -130,75 +182,86 @@ export default function TailorManagement() {
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">Tailor</th>
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground hidden md:table-cell">Specialty</th>
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground hidden lg:table-cell">Designs</th>
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground hidden lg:table-cell">Orders</th>
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">Status</th>
-                  <th className="text-right py-3 px-4 font-medium text-muted-foreground">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredTailors.map((tailor) => (
-                  <tr key={tailor.id} className="border-b border-border/50 hover:bg-muted/30">
-                    <td className="py-4 px-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">
-                          {tailor.name.charAt(0)}
-                        </div>
-                        <div>
-                          <p className="font-medium">{tailor.name}</p>
-                          <p className="text-xs text-muted-foreground">{tailor.email}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-4 px-4 hidden md:table-cell text-sm">{tailor.specialty}</td>
-                    <td className="py-4 px-4 hidden lg:table-cell text-sm">{tailor.designs}</td>
-                    <td className="py-4 px-4 hidden lg:table-cell text-sm">{tailor.orders}</td>
-                    <td className="py-4 px-4">
-                      <Badge variant={
-                        tailor.status === "approved" ? "default" :
-                        tailor.status === "pending" ? "secondary" : "destructive"
-                      }>
-                        {tailor.status}
-                      </Badge>
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className="flex items-center justify-end gap-2">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreVertical className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleViewTailor(tailor)}>
-                              <Eye className="w-4 h-4 mr-2" /> View Details
-                            </DropdownMenuItem>
-                            {tailor.status !== "approved" && (
-                              <DropdownMenuItem onClick={() => handleStatusChange(tailor.id, "approved")}>
-                                <UserCheck className="w-4 h-4 mr-2" /> Approve
-                              </DropdownMenuItem>
-                            )}
-                            {tailor.status !== "blocked" && (
-                              <DropdownMenuItem 
-                                onClick={() => handleStatusChange(tailor.id, "blocked")}
-                                className="text-destructive"
-                              >
-                                <Ban className="w-4 h-4 mr-2" /> Block
-                              </DropdownMenuItem>
-                            )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </td>
+            {loading ? (
+              <div className="p-8 text-center text-muted-foreground">Loading tailors...</div>
+            ) : (
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-3 px-4 font-medium text-muted-foreground">Tailor</th>
+                    <th className="text-left py-3 px-4 font-medium text-muted-foreground hidden md:table-cell">Specialty</th>
+                    <th className="text-left py-3 px-4 font-medium text-muted-foreground hidden lg:table-cell">Designs</th>
+                    <th className="text-left py-3 px-4 font-medium text-muted-foreground hidden lg:table-cell">Orders</th>
+                    <th className="text-left py-3 px-4 font-medium text-muted-foreground">Status</th>
+                    <th className="text-right py-3 px-4 font-medium text-muted-foreground">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {filteredTailors.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="p-8 text-center text-muted-foreground">No tailors found</td>
+                    </tr>
+                  ) : (
+                    filteredTailors.map((tailor) => (
+                      <tr key={tailor.id} className="border-b border-border/50 hover:bg-muted/30">
+                        <td className="py-4 px-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">
+                              {tailor.name.charAt(0)}
+                            </div>
+                            <div>
+                              <p className="font-medium">{tailor.name}</p>
+                              <p className="text-xs text-muted-foreground">{tailor.email}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-4 px-4 hidden md:table-cell text-sm">{tailor.specialty}</td>
+                        <td className="py-4 px-4 hidden lg:table-cell text-sm">{tailor.designs}</td>
+                        <td className="py-4 px-4 hidden lg:table-cell text-sm">{tailor.orders}</td>
+                        <td className="py-4 px-4">
+                          <Badge variant={
+                            tailor.status === "approved" ? "default" :
+                              tailor.status === "submitted" ? "secondary" :
+                                tailor.status === "pending" ? "outline" : "destructive"
+                          }>
+                            {tailor.status === 'submitted' ? 'Pending Approval' : tailor.status}
+                          </Badge>
+                        </td>
+                        <td className="py-4 px-4">
+                          <div className="flex items-center justify-end gap-2">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon">
+                                  <MoreVertical className="w-4 h-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleViewTailor(tailor)}>
+                                  <Eye className="w-4 h-4 mr-2" /> View Details
+                                </DropdownMenuItem>
+                                {tailor.status !== "approved" && (
+                                  <DropdownMenuItem onClick={() => handleStatusChange(tailor.id, "approved")}>
+                                    <UserCheck className="w-4 h-4 mr-2" /> Approve
+                                  </DropdownMenuItem>
+                                )}
+                                {tailor.status !== "blocked" && (
+                                  <DropdownMenuItem
+                                    onClick={() => handleStatusChange(tailor.id, "blocked")}
+                                    className="text-destructive"
+                                  >
+                                    <Ban className="w-4 h-4 mr-2" /> Block
+                                  </DropdownMenuItem>
+                                )}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -221,7 +284,7 @@ export default function TailorManagement() {
                   <p className="text-sm text-muted-foreground">{selectedTailor.specialty}</p>
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-3 bg-muted/50 rounded-lg">
                   <p className="text-xs text-muted-foreground">Email</p>
@@ -249,25 +312,44 @@ export default function TailorManagement() {
                 </div>
               </div>
 
+              {/* KYT Details Section */}
+              {selectedTailor.kytData && (
+                <div className="border-t pt-4 mt-2">
+                  <h4 className="font-semibold mb-2">KYT Verification Data</h4>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div>
+                      <span className="text-muted-foreground text-xs block">Aadhar</span>
+                      {selectedTailor.kytData.documents?.aadharNumber || "N/A"}
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground text-xs block">PAN</span>
+                      {selectedTailor.kytData.documents?.panNumber || "N/A"}
+                    </div>
+                    <div className="col-span-2">
+                      <span className="text-muted-foreground text-xs block">Shop Address</span>
+                      {selectedTailor.kytData.address?.shopAddress || "N/A"}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="flex gap-2 pt-4">
                 {selectedTailor.status !== "approved" && (
-                  <Button 
-                    className="flex-1" 
+                  <Button
+                    className="flex-1"
                     onClick={() => {
-                      handleStatusChange(selectedTailor.id, "approved");
-                      setViewDialogOpen(false);
+                      if (selectedTailor) handleStatusChange(selectedTailor.id, "approved");
                     }}
                   >
                     <CheckCircle2 className="w-4 h-4 mr-2" /> Approve
                   </Button>
                 )}
                 {selectedTailor.status !== "blocked" && (
-                  <Button 
-                    variant="destructive" 
+                  <Button
+                    variant="destructive"
                     className="flex-1"
                     onClick={() => {
-                      handleStatusChange(selectedTailor.id, "blocked");
-                      setViewDialogOpen(false);
+                      if (selectedTailor) handleStatusChange(selectedTailor.id, "blocked");
                     }}
                   >
                     <XCircle className="w-4 h-4 mr-2" /> Block

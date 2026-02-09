@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, Scissors, Phone, Heart, ShoppingBag, ChevronRight, X, Sparkles, ChevronDown, ArrowRight } from "lucide-react";
+import { Menu, Scissors, Phone, Heart, ShoppingBag, ChevronRight, X, Sparkles, ChevronDown, ArrowRight, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { UserMenu } from "@/components/auth/UserMenu";
@@ -16,6 +16,7 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Accordion,
   AccordionContent,
@@ -38,6 +39,7 @@ export function Header() {
   const location = useLocation();
   const { totalItems: cartCount, justAdded } = useCart();
   const { totalItems: wishlistCount } = useWishlist();
+  const { user, activeRole } = useAuth();
 
   return (
     <motion.header
@@ -95,9 +97,9 @@ export function Header() {
                     <Accordion type="single" collapsible className="w-full">
                       <AccordionItem value="categories" className="border-b border-border/40">
                         <AccordionTrigger
-                          className={`px-6 py-4 text-base font-bold hover:no-underline hover:bg-muted/30 data-[state=open]:bg-muted/30 ${location.pathname === '/categories' || location.pathname.includes('/category/')
-                              ? "text-neutral-950 bg-orange-50/50"
-                              : "text-foreground"
+                          className={`px-6 py-4 text-sm font-medium hover:no-underline hover:bg-muted/30 data-[state=open]:bg-muted/30 ${location.pathname === '/categories' || location.pathname.includes('/category/')
+                            ? "text-black font-extrabold bg-orange-50/50"
+                            : "text-foreground"
                             }`}
                         >
                           Categories
@@ -350,65 +352,83 @@ export function Header() {
               </Button>
             </motion.div>
 
-            <Link to="/wishlist">
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button variant="ghost" size="icon" className="relative hover:bg-orange-50" aria-label="Wishlist">
-                  <Heart className="w-5 h-5" />
-                  <AnimatePresence>
-                    {wishlistCount > 0 && (
-                      <motion.span
-                        className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-orange-500 to-amber-500 text-[10px] font-bold text-white rounded-full flex items-center justify-center shadow-md"
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        exit={{ scale: 0 }}
-                      >
-                        {wishlistCount}
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </Button>
-              </motion.div>
-            </Link>
+            {(activeRole === 'customer' || !user) && (
+              <>
+                <Link to="/wishlist">
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button variant="ghost" size="icon" className="relative hover:bg-orange-50" aria-label="Wishlist">
+                      <Heart className="w-5 h-5" />
+                      <AnimatePresence>
+                        {wishlistCount > 0 && (
+                          <motion.span
+                            className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-orange-500 to-amber-500 text-[10px] font-bold text-white rounded-full flex items-center justify-center shadow-md"
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            exit={{ scale: 0 }}
+                          >
+                            {wishlistCount}
+                          </motion.span>
+                        )}
+                      </AnimatePresence>
+                    </Button>
+                  </motion.div>
+                </Link>
 
-            <Link to="/cart">
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className={`relative hover:bg-orange-50 transition-all duration-500 ${justAdded ? "scale-110" : ""}`}
-                  aria-label="Cart"
-                >
-                  <ShoppingBag className={`w-5 h-5 transition-all duration-500 ${justAdded ? "text-green-500" : ""}`} />
-                  <AnimatePresence>
-                    <motion.span
-                      className={`absolute -top-1 -right-1 min-w-5 h-5 px-1 text-[10px] font-bold rounded-full flex items-center justify-center shadow-md ${justAdded
-                        ? "bg-green-500 text-white"
-                        : cartCount > 0
-                          ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white"
-                          : "bg-muted text-muted-foreground"
-                        }`}
-                      key={cartCount}
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ type: "spring", stiffness: 500 }}
+                <Link to="/cart">
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={`relative hover:bg-orange-50 transition-all duration-500 ${justAdded ? "scale-110" : ""}`}
+                      aria-label="Cart"
                     >
-                      {cartCount}
-                    </motion.span>
-                  </AnimatePresence>
-                  {justAdded && (
-                    <motion.span
-                      className="absolute inset-0 rounded-full bg-green-500/20"
-                      initial={{ scale: 1 }}
-                      animate={{ scale: 2, opacity: 0 }}
-                      transition={{ duration: 0.5 }}
-                    />
-                  )}
-                </Button>
-              </motion.div>
-            </Link>
+                      <ShoppingBag className={`w-5 h-5 transition-all duration-500 ${justAdded ? "text-green-500" : ""}`} />
+                      <AnimatePresence>
+                        <motion.span
+                          className={`absolute -top-1 -right-1 min-w-5 h-5 px-1 text-[10px] font-bold rounded-full flex items-center justify-center shadow-md ${justAdded
+                            ? "bg-green-500 text-white"
+                            : cartCount > 0
+                              ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white"
+                              : "bg-muted text-muted-foreground"
+                            }`}
+                          key={cartCount}
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ type: "spring", stiffness: 500 }}
+                        >
+                          {cartCount}
+                        </motion.span>
+                      </AnimatePresence>
+                      {justAdded && (
+                        <motion.span
+                          className="absolute inset-0 rounded-full bg-green-500/20"
+                          initial={{ scale: 1 }}
+                          animate={{ scale: 2, opacity: 0 }}
+                          transition={{ duration: 0.5 }}
+                        />
+                      )}
+                    </Button>
+                  </motion.div>
+                </Link>
+              </>
+            )}
+
+            {/* Notification Bell */}
+            <Button variant="ghost" size="icon" className="hidden md:flex hover:bg-orange-50" aria-label="Notifications">
+              <Bell className="w-5 h-5" />
+            </Button>
 
             {/* User Menu with Dropdown */}
             <UserMenu />
+
+            {!user && (
+              <Button variant="outline" size="sm" className="hidden lg:flex group border-primary/30 hover:bg-primary/5" asChild>
+                <Link to="/auth">
+                  Sign In
+                  <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-0.5 transition-transform" />
+                </Link>
+              </Button>
+            )}
 
             <Button variant="default" size="sm" className="hidden md:flex group" asChild>
               <Link to="/categories">

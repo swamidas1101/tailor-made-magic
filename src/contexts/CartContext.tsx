@@ -1,4 +1,7 @@
-import { createContext, useContext, useState, useCallback, ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from "react";
+import { useAuth } from "./AuthContext";
+import { db } from "@/lib/firebase";
+import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
 
 export interface CartItem {
   id: string;
@@ -25,15 +28,45 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
   const [items, setItems] = useState<CartItem[]>(() => {
+    // Initial load from local storage (for guest or before auth loads)
     const stored = localStorage.getItem("tailo_cart");
     return stored ? JSON.parse(stored) : [];
   });
   const [justAdded, setJustAdded] = useState(false);
 
-  const saveToStorage = (newItems: CartItem[]) => {
-    localStorage.setItem("tailo_cart", JSON.stringify(newItems));
-  };
+  // Sync from Firestore when user logs in
+  useEffect(() => {
+    if (!user) return;
+
+    const userCartRef = doc(db, "users", user.uid);
+    const unsubscribe = onSnapshot(userCartRef, (docSnap) => {
+      if (docSnap.exists() && docSnap.data().cart) {
+        // Determine if we should replace local items. 
+        // For simplicity here, we prioritize Firestore if it exists.
+        // A more complex strategy might merge.
+        setItems(docSnap.data().cart as CartItem[]);
+      } else if (items.length > 0) {
+        // If remote is empty but we have local items (just signed up or first login), sync local -> remote
+        setDoc(userCartRef, { cart: items }, { merge: true });
+      }
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
+  // Sync to Storage (Local or Firestore) when items change
+  useEffect(() => {
+    if (user) {
+      const userCartRef = doc(db, "users", user.uid);
+      // We wrap this in a timeout or check to avoid rapid writes? 
+      // Firestore writes are cheap enough for this scale.
+      setDoc(userCartRef, { cart: items }, { merge: true }).catch(console.error);
+    } else {
+      localStorage.setItem("tailo_cart", JSON.stringify(items));
+    }
+  }, [items, user]);
 
   const triggerAddAnimation = useCallback(() => {
     setJustAdded(true);
@@ -53,18 +86,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
       } else {
         newItems = [...prev, { ...item, id, quantity }];
       }
-      saveToStorage(newItems);
       return newItems;
     });
     triggerAddAnimation();
   };
 
   const removeFromCart = (id: string) => {
-    setItems((prev) => {
-      const newItems = prev.filter((i) => i.id !== id);
-      saveToStorage(newItems);
-      return newItems;
-    });
+    setItems((prev) => prev.filter((i) => i.id !== id));
   };
 
   const updateQuantity = (id: string, quantity: number) => {
@@ -72,16 +100,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
       removeFromCart(id);
       return;
     }
-    setItems((prev) => {
-      const newItems = prev.map((i) => (i.id === id ? { ...i, quantity } : i));
-      saveToStorage(newItems);
-      return newItems;
-    });
+    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, quantity } : i)));
   };
 
   const clearCart = () => {
     setItems([]);
-    localStorage.removeItem("tailo_cart");
+    localStorage.removeItem("tailo_cart"); // Should we also clear firestore? Yes via useEffect
   };
 
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);

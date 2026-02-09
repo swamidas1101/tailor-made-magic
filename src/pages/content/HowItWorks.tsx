@@ -57,7 +57,28 @@ export default function HowItWorks() {
                         {/* Vertical Line for Desktop */}
                         <div className="absolute left-[39px] md:left-1/2 top-0 bottom-0 w-0.5 bg-border -translate-x-1/2 hidden md:block" />
 
-                        <div className="space-y-12 relative">
+                        {/* Mobile Grid Layout */}
+                        <div className="grid grid-cols-2 gap-3 md:hidden">
+                            {steps.map((step) => (
+                                <div key={step.id} className="bg-card p-4 rounded-xl border border-border/50 shadow-sm flex flex-col items-center text-center">
+                                    <div className="w-12 h-12 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-3">
+                                        <step.icon className="w-6 h-6" />
+                                    </div>
+                                    <h3 className="font-bold text-sm mb-2 leading-tight">{step.title}</h3>
+                                    <p className="text-[10px] text-muted-foreground line-clamp-3 mb-3">
+                                        {step.description}
+                                    </p>
+                                    {step.action && (
+                                        <Button variant="outline" size="sm" className="w-full text-[10px] h-7 mt-auto" asChild>
+                                            <Link to={step.link!}>{step.action}</Link>
+                                        </Button>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Desktop Timeline Layout */}
+                        <div className="hidden md:block space-y-12 relative">
                             {steps.map((step, index) => (
                                 <div key={index} className={`flex flex-col md:flex-row gap-8 items-start relative ${index % 2 === 1 ? 'md:flex-row-reverse' : ''}`}>
 

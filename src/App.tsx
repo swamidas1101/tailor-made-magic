@@ -4,8 +4,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { CartProvider } from "@/contexts/CartContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
+import { ScrollToTop } from "@/components/utils/ScrollToTop";
 import Index from "./pages/Index";
 import Categories from "./pages/Categories";
 import DesignDetail from "./pages/DesignDetail";
@@ -17,7 +19,7 @@ import MaterialDetail from "./pages/MaterialDetail";
 import Cart from "./pages/Cart";
 import Wishlist from "./pages/Wishlist";
 import Login from "./pages/Login";
-import UserLogin from "./pages/UserLogin";
+import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminOverview from "./pages/admin/AdminOverview";
 import TailorManagement from "./pages/admin/TailorManagement";
@@ -39,6 +41,7 @@ import Pricing from "./pages/content/Pricing";
 import HowItWorks from "./pages/content/HowItWorks";
 import MeasurementGuide from "./pages/content/MeasurementGuide";
 import NotFound from "./pages/NotFound";
+import Seeder from "./pages/Seeder";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +54,7 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              <ScrollToTop />
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/categories" element={<Categories />} />
@@ -63,8 +67,15 @@ const App = () => (
                 <Route path="/material/:id" element={<MaterialDetail />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/wishlist" element={<Wishlist />} />
-                <Route path="/user-login" element={<UserLogin />} />
-                <Route path="/login" element={<Login />} />
+                {/* Unified Auth Route */}
+                <Route path="/auth" element={<Auth />} />
+                {/* Legacy Routes - Redirect to unified auth */}
+                <Route path="/user-login" element={<Auth />} />
+                <Route path="/login" element={<Auth />} />
+                <Route path="/business-signup" element={<Auth />} />
+                <Route path="/auth/customer" element={<Auth />} />
+                <Route path="/auth/business/login" element={<Auth />} />
+                <Route path="/auth/business/signup" element={<Auth />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/support" element={<HelpCenter />} />
@@ -75,14 +86,23 @@ const App = () => (
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/how-it-works" element={<HowItWorks />} />
                 <Route path="/measurements/guide" element={<MeasurementGuide />} />
-                <Route path="/admin" element={<AdminDashboard />}>
+                <Route path="/seed" element={<Seeder />} />
+                <Route path="/admin" element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }>
                   <Route index element={<AdminOverview />} />
                   <Route path="tailors" element={<TailorManagement />} />
                   <Route path="designs" element={<DesignModeration />} />
                   <Route path="orders" element={<AdminOrders />} />
                   <Route path="analytics" element={<AdminAnalytics />} />
                 </Route>
-                <Route path="/tailor" element={<TailorDashboard />}>
+                <Route path="/tailor" element={
+                  <ProtectedRoute allowedRoles={['tailor']}>
+                    <TailorDashboard />
+                  </ProtectedRoute>
+                }>
                   <Route index element={<TailorOverview />} />
                   <Route path="designs" element={<TailorDesigns />} />
                   <Route path="orders" element={<TailorOrders />} />

@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Search, CheckCircle2, XCircle, Eye, Clock } from "lucide-react";
+import { Search, CheckCircle2, XCircle, Eye, Clock, AlertCircle, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -10,54 +10,53 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { designs as initialMockDesigns, Design } from "@/data/mockData";
+import { cn } from "@/lib/utils";
 
-interface Design {
-  id: number;
-  name: string;
-  category: string;
-  tailor: string;
-  price: number;
-  priceWithMaterial: number;
-  status: "pending" | "approved" | "rejected";
-  image: string;
-  submittedAt: string;
-  description: string;
-}
+// Using designs from mockData
+const initialDesigns = initialMockDesigns.map(d => ({
+  ...d,
+  tailor: "Meera Kumari", // Mock tailor name for all
+})) as (Design & { tailor: string })[];
 
-const initialDesigns: Design[] = [
-  { id: 1, name: "Elegant Silk Blouse", category: "Blouse", tailor: "Priya Patel", price: 1200, priceWithMaterial: 2400, status: "pending", image: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400", submittedAt: "2 hours ago", description: "Beautiful silk blouse with intricate embroidery work." },
-  { id: 2, name: "Wedding Sherwani", category: "Men's Wear", tailor: "Rajesh Sharma", price: 8000, priceWithMaterial: 15000, status: "pending", image: "https://images.unsplash.com/photo-1593030761757-71fae45fa0e7?w=400", submittedAt: "5 hours ago", description: "Premium wedding sherwani with gold zari work." },
-  { id: 3, name: "Kids Party Dress", category: "Kids Wear", tailor: "Suresh Kumar", price: 800, priceWithMaterial: 1500, status: "approved", image: "https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?w=400", submittedAt: "1 day ago", description: "Colorful party dress for kids aged 4-8 years." },
-  { id: 4, name: "Corporate Blazer", category: "Formal Wear", tailor: "Mohammed Khan", price: 3500, priceWithMaterial: 6000, status: "pending", image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=400", submittedAt: "3 hours ago", description: "Professional blazer for corporate settings." },
-  { id: 5, name: "Traditional Lehenga", category: "Ethnic Wear", tailor: "Lakshmi Iyer", price: 5000, priceWithMaterial: 12000, status: "rejected", image: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=400", submittedAt: "2 days ago", description: "Traditional lehenga with mirror work." },
-];
+type ModerationDesign = Design & { tailor: string };
 
 export default function DesignModeration() {
-  const [designs, setDesigns] = useState<Design[]>(initialDesigns);
+  const [designs, setDesigns] = useState<ModerationDesign[]>(initialDesigns);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
-  const [selectedDesign, setSelectedDesign] = useState<Design | null>(null);
+  const [selectedDesign, setSelectedDesign] = useState<ModerationDesign | null>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [correctionDialogOpen, setCorrectionDialogOpen] = useState(false);
+  const [feedback, setFeedback] = useState("");
 
   const filteredDesigns = designs.filter((design) => {
     const matchesSearch = design.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         design.tailor.toLowerCase().includes(searchQuery.toLowerCase());
+      design.tailor.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesFilter = filterStatus === "all" || design.status === filterStatus;
     return matchesSearch && matchesFilter;
   });
 
-  const handleStatusChange = (designId: number, newStatus: "approved" | "rejected") => {
-    setDesigns(designs.map(d => 
-      d.id === designId ? { ...d, status: newStatus } : d
+  const handleStatusChange = (designId: string | number, newStatus: Design['status'], feedbackMsg?: string) => {
+    setDesigns(designs.map(d =>
+      d.id === designId ? { ...d, status: newStatus, adminFeedback: feedbackMsg } : d
     ));
-    toast.success(`Design ${newStatus} successfully`);
+    toast.success(`Design ${newStatus.replace('_', ' ')} successfully`);
+    if (newStatus === 'correction_requested') {
+      setCorrectionDialogOpen(false);
+      setFeedback("");
+    }
   };
 
   const stats = [
-    { label: "Pending Review", value: designs.filter(d => d.status === "pending").length, icon: Clock, color: "text-yellow-600" },
+    { label: "Pending", value: designs.filter(d => d.status === "pending").length, icon: Clock, color: "text-amber-600" },
     { label: "Approved", value: designs.filter(d => d.status === "approved").length, icon: CheckCircle2, color: "text-green-600" },
+    { label: "Correction", value: designs.filter(d => d.status === "correction_requested").length, icon: AlertCircle, color: "text-blue-600" },
     { label: "Rejected", value: designs.filter(d => d.status === "rejected").length, icon: XCircle, color: "text-red-600" },
   ];
 
@@ -96,8 +95,8 @@ export default function DesignModeration() {
                 className="pl-10"
               />
             </div>
-            <div className="flex gap-2">
-              {["all", "pending", "approved", "rejected"].map((status) => (
+            <div className="flex flex-wrap gap-2">
+              {["all", "pending", "approved", "rejected", "correction_requested"].map((status) => (
                 <Button
                   key={status}
                   variant={filterStatus === status ? "default" : "outline"}
@@ -105,7 +104,7 @@ export default function DesignModeration() {
                   onClick={() => setFilterStatus(status)}
                   className="capitalize"
                 >
-                  {status}
+                  {status === 'correction_requested' ? "Correction" : status}
                 </Button>
               ))}
             </div>
@@ -119,14 +118,16 @@ export default function DesignModeration() {
           <Card key={design.id} className="overflow-hidden hover-lift">
             <div className="relative aspect-[4/3]">
               <img src={design.image} alt={design.name} className="w-full h-full object-cover" />
-              <Badge 
-                className="absolute top-3 right-3"
-                variant={
-                  design.status === "approved" ? "default" :
-                  design.status === "pending" ? "secondary" : "destructive"
-                }
+              <Badge
+                className={cn(
+                  "absolute top-3 right-3 shadow-sm",
+                  design.status === 'approved' ? "bg-green-500 hover:bg-green-600" :
+                    design.status === 'pending' ? "bg-amber-500 hover:bg-amber-600" :
+                      design.status === 'correction_requested' ? "bg-blue-500 hover:bg-blue-600" :
+                        "bg-red-500 hover:bg-red-600"
+                )}
               >
-                {design.status}
+                {design.status === 'correction_requested' ? "CORRECTION" : design.status.toUpperCase()}
               </Badge>
             </div>
             <CardContent className="p-4">
@@ -139,11 +140,11 @@ export default function DesignModeration() {
                 </div>
                 <p className="text-xs text-muted-foreground">{design.submittedAt}</p>
               </div>
-              
+
               <div className="flex gap-2 mt-4">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="flex-1"
                   onClick={() => {
                     setSelectedDesign(design);
@@ -154,16 +155,28 @@ export default function DesignModeration() {
                 </Button>
                 {design.status === "pending" && (
                   <>
-                    <Button 
-                      size="sm" 
-                      className="flex-1"
+                    <Button
+                      size="sm"
+                      className="bg-green-600 hover:bg-green-700 h-8 px-2"
                       onClick={() => handleStatusChange(design.id, "approved")}
                     >
-                      <CheckCircle2 className="w-4 h-4 mr-1" /> Approve
+                      <CheckCircle2 className="w-4 h-4" />
                     </Button>
-                    <Button 
-                      variant="destructive" 
+                    <Button
+                      variant="outline"
                       size="sm"
+                      className="text-blue-600 border-blue-200 hover:bg-blue-50 h-8 px-2"
+                      onClick={() => {
+                        setSelectedDesign(design);
+                        setCorrectionDialogOpen(true);
+                      }}
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="h-8 px-2"
                       onClick={() => handleStatusChange(design.id, "rejected")}
                     >
                       <XCircle className="w-4 h-4" />
@@ -188,7 +201,7 @@ export default function DesignModeration() {
               <div className="aspect-video rounded-lg overflow-hidden">
                 <img src={selectedDesign.image} alt={selectedDesign.name} className="w-full h-full object-cover" />
               </div>
-              
+
               <div>
                 <h3 className="text-xl font-semibold">{selectedDesign.name}</h3>
                 <p className="text-muted-foreground">{selectedDesign.category}</p>
@@ -217,8 +230,8 @@ export default function DesignModeration() {
 
               {selectedDesign.status === "pending" && (
                 <div className="flex gap-2 pt-4">
-                  <Button 
-                    className="flex-1" 
+                  <Button
+                    className="flex-1"
                     onClick={() => {
                       handleStatusChange(selectedDesign.id, "approved");
                       setViewDialogOpen(false);
@@ -226,8 +239,8 @@ export default function DesignModeration() {
                   >
                     <CheckCircle2 className="w-4 h-4 mr-2" /> Approve Design
                   </Button>
-                  <Button 
-                    variant="destructive" 
+                  <Button
+                    variant="destructive"
                     className="flex-1"
                     onClick={() => {
                       handleStatusChange(selectedDesign.id, "rejected");
@@ -240,6 +253,41 @@ export default function DesignModeration() {
               )}
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Correction Request Dialog */}
+      <Dialog open={correctionDialogOpen} onOpenChange={setCorrectionDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Request Correction</DialogTitle>
+            <DialogDescription>
+              Provide clear feedback to the tailor on what needs to be fixed.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="feedback">Correction Feedback</Label>
+              <Textarea
+                id="feedback"
+                placeholder="e.g., Please update the image resolution or clarify the fabric type..."
+                value={feedback}
+                onChange={(e) => setFeedback(e.target.value)}
+                className="min-h-[120px]"
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCorrectionDialogOpen(false)}>Cancel</Button>
+            <Button
+              disabled={!feedback.trim()}
+              onClick={() => selectedDesign && handleStatusChange(selectedDesign.id, 'correction_requested', feedback)}
+            >
+              Send Request
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

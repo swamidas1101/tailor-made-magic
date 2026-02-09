@@ -5,23 +5,29 @@ export interface Category {
   image: string;
   designCount: number;
   filterKey?: string;
+  type?: "women" | "men"; // For filtering categories
 }
 
 export interface DesignSubcategory {
-  neckType?: string;
-  sleeveType?: string;
-  backDesign?: string;
-  cutStyle?: string;
-  workType?: string;
-  occasion?: string;
+  neckType?: string | string[];
+  sleeveType?: string | string[];
+  backDesign?: string | string[];
+  cutStyle?: string | string[];
+  workType?: string | string[];
+  occasion?: string | string[];
   // Half Saree specific
-  dupattaStyle?: string;
-  skirtType?: string;
-  blousePattern?: string;
+  dupattaStyle?: string | string[];
+  skirtType?: string | string[];
+  blousePattern?: string | string[];
   // Men's specific
-  fitType?: string;
-  fabricType?: string;
-  styleType?: string;
+  fitType?: string | string[];
+  fabricType?: string | string[];
+  styleType?: string | string[];
+  fabrics?: string[];
+  collarType?: string | string[];
+  cuffType?: string | string[];
+  pocketStyles?: string | string[];
+  skirtTypes?: string | string[];
 }
 
 export interface Design extends DesignSubcategory {
@@ -38,6 +44,11 @@ export interface Design extends DesignSubcategory {
   isPopular?: boolean;
   description?: string;
   features?: string[];
+  status: 'pending' | 'approved' | 'rejected' | 'correction_requested';
+  submittedAt: string;
+  adminFeedback?: string;
+  tailorId?: string;
+  shopName?: string;
 }
 
 export const categories: Category[] = [
@@ -61,84 +72,56 @@ export const categories: Category[] = [
     description: "Expert saree fall, pico, and blouse alterations to ensure the perfect drape.",
     image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=600&h=800&fit=crop",
     designCount: 80,
-  },
-  {
-    id: "frock",
-    name: "Frock & Dresses",
-    description: "Beautiful frocks and dresses for all ages, from kids to adults.",
-    image: "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&h=800&fit=crop",
-    designCount: 95,
-  },
-  {
-    id: "lehenga",
-    name: "Lehenga Choli",
-    description: "Stunning lehenga designs for weddings and special occasions.",
-    image: "https://images.unsplash.com/photo-1594463750939-ebb28c3f7f75?w=600&h=800&fit=crop",
-    designCount: 75,
-  },
-  {
-    id: "halfsaree",
-    name: "Half Saree",
-    description: "Traditional and trendy half saree designs for festive occasions and special celebrations.",
-    image: "https://images.unsplash.com/photo-1594463750939-ebb28c3f7f75?w=600&h=800&fit=crop",
-    designCount: 135,
-  },
-  {
-    id: "suits",
-    name: "Salwar Suits",
-    description: "Classic and modern salwar suit designs for everyday elegance.",
-    image: "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&h=800&fit=crop",
-    designCount: 110,
-  },
+  }
+];
+
+export const womenCategories: Category[] = [
+  { id: "blouse", name: "Blouse", description: "Designer blouses with perfect fit and intricate work.", image: "", designCount: 0 },
+  { id: "lehenga", name: "Lehenga", description: "Bespoke lehenga sets for weddings and festivals.", image: "", designCount: 0 },
+  { id: "kurti", name: "Kurti & Kurta", description: "Custom tailored kurtis for daily and ethnic wear.", image: "", designCount: 0 },
+  { id: "gown", name: "Gown & Evening Wear", description: "Elegant gowns and long dresses.", image: "", designCount: 0 },
+  { id: "salwar", name: "Salwar Kameez", description: "Traditional suits including Patiala and Chudidar.", image: "", designCount: 0 },
+  { id: "pant-suits", name: "Pant Suits", description: "Formal and stylish pant suits for women.", image: "", designCount: 0 },
+  { id: "jumpsuits", name: "Jumpsuits", description: "Modern custom-tailored jumpsuits.", image: "", designCount: 0 },
+  { id: "ethnic-wear", name: "Ethnic Wear", description: "Assorted traditional Indian wear.", image: "", designCount: 0 },
+  { id: "western-wear", name: "Western Wear", description: "Shirts, skirts, and western outfits.", image: "", designCount: 0 },
 ];
 
 export const menCategories: Category[] = [
-  {
-    id: "men-shirts",
-    name: "Formal Shirts",
-    description: "Crisp, well-fitted formal and casual shirts tailored to perfection.",
-    image: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=600&h=800&fit=crop",
-    designCount: 45,
-    filterKey: "MenShirt",
-  },
-  {
-    id: "men-trousers",
-    name: "Trousers & Pants",
-    description: "Custom-fit trousers, chinos, and formal pants for every occasion.",
-    image: "https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=600&h=800&fit=crop",
-    designCount: 30,
-    filterKey: "MenTrouser",
-  },
-  {
-    id: "men-suits",
-    name: "Suits & Blazers",
-    description: "Premium bespoke suits and blazers for weddings and corporate events.",
-    image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&h=800&fit=crop",
-    designCount: 25,
-    filterKey: "MenSuit",
-  },
-  {
-    id: "men-ethnic",
-    name: "Sherwani & Kurta",
-    description: "Traditional sherwanis and kurtas for festivals and weddings.",
-    image: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=600&h=800&fit=crop",
-    designCount: 40,
-    filterKey: "MenEthnic",
-  },
+  { id: "formal-shirt", name: "Formal Shirts", description: "Perfectly fitted formal and casual shirts.", image: "", designCount: 0 },
+  { id: "trousers", name: "Trousers & Pants", description: "Custom trousers with precise measurements.", image: "", designCount: 0 },
+  { id: "suit", name: "Suits", description: "Handcrafted 2-piece and 3-piece suits.", image: "", designCount: 0 },
+  { id: "tuxedo", name: "Tuxedos", description: "Premium formal tuxedos for special events.", image: "", designCount: 0 },
+  { id: "blazer", name: "Blazers", description: "Smart blazers and sport coats.", image: "", designCount: 0 },
+  { id: "sherwani", name: "Sherwanis", description: "Traditional festive and wedding sherwanis.", image: "", designCount: 0 },
+  { id: "shorts", name: "Shorts", description: "Custom casual shorts.", image: "", designCount: 0 },
+  { id: "uniform", name: "Uniforms (School/Corporate)", description: "Bulk uniform tailoring for organizations.", image: "", designCount: 0 },
 ];
 
-// Filter options for UI
+// Expanded Filter options for UI
 export const filterOptions = {
-  neckTypes: ["Boat Neck", "V-Neck", "Halter", "Off-Shoulder", "High Neck", "Sweetheart", "Square Neck", "Round Neck", "Collar Neck"],
-  sleeveTypes: ["Puff Sleeve", "Cold Shoulder", "Sleeveless", "Elbow Length", "Full Sleeve", "Bell Sleeve", "Cap Sleeve", "Three-Quarter"],
-  backDesigns: ["Backless", "Keyhole", "Tie-Back", "Sheer Back", "Plain Back", "Deep Back", "Potli Button", "Dori Back"],
-  cutStyles: ["Peplum", "Princess Cut", "Jacket Style", "Asymmetric", "Regular Fit", "Fitted", "A-Line", "Empire Waist"],
-  workTypes: ["Embroidery", "Maggam Work", "Gotta Patti", "Chikankari", "Block Print", "Zardozi", "Mirror Work", "Sequin", "Thread Work", "Aari Work"],
-  occasions: ["Bridal", "Festive", "Casual", "Party", "Daily Wear", "Wedding Guest", "Office", "Traditional", "Engagement", "Mehendi"],
-  // Half Saree specific options
-  dupattaStyles: ["Pleated Drape", "Free Flow", "Pinned Style", "Cross Drape", "Shoulder Pin", "Dupatta with Border", "Net Dupatta", "Organza Dupatta"],
-  skirtTypes: ["Flared Lehenga", "A-Line Skirt", "Mermaid Cut", "Circular Skirt", "Pleated Skirt", "Umbrella Cut", "Fish Cut", "Paneled Skirt"],
-  blousePatterns: ["Matching Blouse", "Contrast Blouse", "Designer Back", "Crop Top Style", "Full Coverage", "Halter Blouse", "Peplum Blouse", "Cape Blouse"],
+  // Common
+  fabrics: ["Cotton", "Silk", "Georgette", "Chiffon", "Velvet", "Organza", "Linen", "Denim", "Crepe", "Satin", "Brocade", "Net", "Polyester", "Wool", "Tweed", "Jacquard"],
+
+  // Blouse / Top Specifics
+  neckTypes: ["Boat Neck", "V-Neck", "Round Neck", "Halter Neck", "High Neck", "Collar Neck", "Sweetheart", "Square Neck", "Off-Shoulder", "Cowl Neck", "Keyhole", "Asymmetric", "Chinese Collar", "Peter Pan Collar", "Mandarin Collar"],
+  sleeveTypes: ["Sleeveless", "Cap Sleeve", "Short Sleeve", "Elbow Length", "Three-Quarter", "Full Sleeve", "Bell Sleeve", "Puff Sleeve", "Cold Shoulder", "Ruffle Sleeve", "Bishop Sleeve", "Lantern Sleeve", "Flutter Sleeve"],
+  backDesigns: ["Deep Back", "Keyhole", "Potli Button", "Tie-Back", "Sheer Back", "Cutout", "Plain Back", "Tassels", "Zipper", "Dori", "Criss-Cross", "Button Down"],
+
+  // Work / Embellishment
+  workTypes: ["Embroidery", "Maggam Work", "Aari Work", "Zardozi", "Mirror Work", "Sequins", "Bead Work", "Stone Work", "Hand Painting", "Block Print", "Patch Work", "Gotta Patti", "Lace Work", "Applique", "Quilting"],
+
+  // Bottoms / Skirts / Lehengas
+  skirtTypes: ["A-Line", "Flared (Gher)", "Pleated", "Umbrella Cut", "Fish Cut", "Straight Cut", "Layered", "Ruffled", "Circular", "Paneled", "Gathered"],
+
+  // Men's Specifics
+  fitTypes: ["Slim Fit", "Regular Fit", "Relaxed Fit", "Skinny Fit", "Tailored Fit", "Muscle Fit", "Classic Fit"],
+  collarTypes: ["Spread Collar", "Mandarin Collar", "Button-Down", "Cutaway", "Wingtip", "Band Collar", "Point Collar", "Club Collar", "Shawl Collar", "Notch Lapel", "Peak Lapel"],
+  cuffTypes: ["Single Cuff", "Double Cuff (French)", "Rounded", "Angled", "Barrel Cuff", "Mitered Cuff"],
+  pocketStyles: ["Patch Pocket", "Welt Pocket", "Flap Pocket", "No Pocket", "Besom Pocket", "Ticket Pocket", "Cargo Pocket"],
+
+  // Occasions
+  occasions: ["Bridal", "Wedding Guest", "Festive", "Party", "Casual", "Formal/Office", "Daily Wear", "Engagement", "Haldi/Mehendi", "Reception", "Corporate", "School Uniform", "Graduation", "Funeral"],
 };
 
 export const designs: Design[] = [
@@ -166,6 +149,8 @@ export const designs: Design[] = [
     isPopular: true,
     description: "Stunning boat neck bridal blouse with heavy Maggam work and intricate motifs.",
     features: ["Heavy embroidery", "Premium finish", "Customizable patterns"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "b2",
@@ -190,6 +175,8 @@ export const designs: Design[] = [
     isPopular: true,
     description: "Elegant boat neck with keyhole back design, perfect for evening parties.",
     features: ["Designer neckline", "Keyhole back", "Thread work"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "b3",
@@ -210,6 +197,8 @@ export const designs: Design[] = [
     isPopular: false,
     description: "Beautiful Gotta Patti work blouse for festive occasions.",
     features: ["Gotta work", "Dori back", "Festival ready"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   // V-Neck Collection
   {
@@ -231,6 +220,8 @@ export const designs: Design[] = [
     isPopular: true,
     description: "Sophisticated V-neck with Zardozi embroidery for wedding functions.",
     features: ["Premium silk", "Zardozi work", "Tie-back detail"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "b5",
@@ -251,6 +242,8 @@ export const designs: Design[] = [
     isPopular: false,
     description: "Comfortable cotton blouse with beautiful block print for daily wear.",
     features: ["Pure cotton", "Breathable", "Easy care"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "b6",
@@ -271,6 +264,8 @@ export const designs: Design[] = [
     isPopular: true,
     description: "Glamorous V-neck with sequin work and trendy bell sleeves.",
     features: ["Sequin work", "Bell sleeves", "Party ready"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   // Halter Neck Collection
   {
@@ -292,6 +287,8 @@ export const designs: Design[] = [
     isPopular: true,
     description: "Elegant halter neck bridal blouse with stunning backless design.",
     features: ["Bridal special", "Heavy Maggam", "Backless design"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "b8",
@@ -312,6 +309,8 @@ export const designs: Design[] = [
     isPopular: false,
     description: "Trendy halter with mirror work for cocktail parties.",
     features: ["Mirror work", "Trendy design", "Adjustable tie"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   // Off-Shoulder Collection
   {
@@ -333,6 +332,8 @@ export const designs: Design[] = [
     isPopular: true,
     description: "Glamorous off-shoulder with Gotta Patti work for festivals.",
     features: ["Off-shoulder style", "Gotta work", "Princess cut"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "b10",
@@ -353,6 +354,8 @@ export const designs: Design[] = [
     isPopular: false,
     description: "Regal off-shoulder blouse with Zardozi for wedding functions.",
     features: ["Zardozi embroidery", "Potli buttons", "Wedding ready"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   // High Neck Collection
   {
@@ -374,6 +377,8 @@ export const designs: Design[] = [
     isPopular: false,
     description: "Elegant high neck with Chikankari work for office wear.",
     features: ["Chikankari", "Formal look", "Full coverage"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "b12",
@@ -394,6 +399,8 @@ export const designs: Design[] = [
     isPopular: true,
     description: "Classic high neck with intricate Aari work for traditional events.",
     features: ["Hand Aari work", "Traditional motifs", "Premium finish"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   // Sweetheart Neck Collection
   {
@@ -415,6 +422,8 @@ export const designs: Design[] = [
     isPopular: true,
     description: "Romantic sweetheart neckline bridal blouse with heavy Maggam.",
     features: ["Bridal special", "Heavy work", "Cold shoulder"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "b14",
@@ -435,6 +444,8 @@ export const designs: Design[] = [
     isPopular: false,
     description: "Flattering sweetheart with peplum cut for parties.",
     features: ["Peplum style", "Thread work", "Adjustable back"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   // Square Neck Collection
   {
@@ -456,6 +467,8 @@ export const designs: Design[] = [
     isPopular: false,
     description: "Simple square neck cotton blouse for everyday comfort.",
     features: ["Pure cotton", "Block print", "Easy fit"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "b16",
@@ -476,6 +489,8 @@ export const designs: Design[] = [
     isPopular: true,
     description: "Vibrant square neck with mirror work for festivals.",
     features: ["Mirror work", "Puff sleeves", "Dori back"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   // Round Neck Collection
   {
@@ -497,6 +512,8 @@ export const designs: Design[] = [
     isPopular: false,
     description: "Classic round neck with simple embroidery for daily wear.",
     features: ["Simple design", "Comfortable fit", "Easy care"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "b18",
@@ -517,6 +534,8 @@ export const designs: Design[] = [
     isPopular: false,
     description: "Elegant round neck with Chikankari for casual outings.",
     features: ["Chikankari work", "Full sleeves", "Relaxed fit"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   // Additional Blouse Designs
   {
@@ -538,6 +557,8 @@ export const designs: Design[] = [
     isPopular: false,
     description: "Professional collar neck blouse for office wear.",
     features: ["Formal design", "Collar neck", "Office ready"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "b20",
@@ -558,6 +579,8 @@ export const designs: Design[] = [
     isPopular: true,
     description: "Exquisite empire waist bridal blouse with heavy Zardozi.",
     features: ["Empire waist", "Bridal special", "Heavy Zardozi"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   // KURTI DESIGNS
   {
@@ -578,6 +601,8 @@ export const designs: Design[] = [
     isPopular: true,
     description: "Flowing Anarkali style kurti with beautiful flare.",
     features: ["Multiple lengths", "Flare options", "Festive ready"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "k2",
@@ -597,6 +622,8 @@ export const designs: Design[] = [
     isPopular: false,
     description: "Comfortable A-line cotton kurti for daily wear.",
     features: ["Breathable fabric", "Pocket options", "Easy care"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "k3",
@@ -616,6 +643,8 @@ export const designs: Design[] = [
     isPopular: false,
     description: "Professional straight cut kurti for office wear.",
     features: ["Formal look", "Collar neck", "Full sleeves"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "k4",
@@ -635,6 +664,8 @@ export const designs: Design[] = [
     isPopular: true,
     description: "Trendy asymmetric kurti with cold shoulder design.",
     features: ["Asymmetric hem", "Cold shoulder", "Designer piece"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "k5",
@@ -654,6 +685,8 @@ export const designs: Design[] = [
     isPopular: false,
     description: "Flowy kaftan style kurti with mirror work accents.",
     features: ["Kaftan style", "Bell sleeves", "Mirror details"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   // FROCK & DRESS DESIGNS
   {
@@ -674,6 +707,8 @@ export const designs: Design[] = [
     isPopular: true,
     description: "Beautiful designer frock with modern cuts.",
     features: ["Custom fitting", "Multiple styles", "Party ready"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "f2",
@@ -693,6 +728,8 @@ export const designs: Design[] = [
     isPopular: true,
     description: "Adorable party frock for kids with sequin details.",
     features: ["Kids size", "Sequin work", "Party special"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   // LEHENGA DESIGNS
   {
@@ -710,6 +747,8 @@ export const designs: Design[] = [
     isPopular: true,
     description: "Exquisite bridal lehenga with heavy Maggam work.",
     features: ["Bridal set", "Heavy work", "Custom design"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "l2",
@@ -726,6 +765,8 @@ export const designs: Design[] = [
     isPopular: true,
     description: "Beautiful festive lehenga with Gotta Patti work.",
     features: ["Festival wear", "Gotta work", "Matching dupatta"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   // SALWAR SUIT DESIGNS
   {
@@ -745,6 +786,8 @@ export const designs: Design[] = [
     isPopular: false,
     description: "Classic Patiala suit with embroidery work.",
     features: ["Patiala salwar", "Embroidered", "Comfortable"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "s2",
@@ -763,6 +806,8 @@ export const designs: Design[] = [
     isPopular: true,
     description: "Elegant Anarkali suit for wedding functions.",
     features: ["Anarkali style", "Zardozi work", "Wedding ready"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "s3",
@@ -781,6 +826,8 @@ export const designs: Design[] = [
     isPopular: false,
     description: "Professional straight cut suit with Chikankari.",
     features: ["Office wear", "Chikankari", "Formal look"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   // Additional popular designs
   {
@@ -802,6 +849,8 @@ export const designs: Design[] = [
     isPopular: true,
     description: "Trendy jacket style blouse for modern look.",
     features: ["Jacket style", "Full sleeves", "Thread work"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "b22",
@@ -822,6 +871,8 @@ export const designs: Design[] = [
     isPopular: true,
     description: "Glamorous peplum blouse with sequin work.",
     features: ["Peplum cut", "Off-shoulder", "Sequin details"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   // HALF SAREE DESIGNS
   {
@@ -845,6 +896,8 @@ export const designs: Design[] = [
     isPopular: true,
     description: "Exquisite bridal half saree with heavy Maggam work and intricate zari detailing.",
     features: ["Heavy Maggam work", "Zari border", "Designer blouse", "Premium silk"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "hs2",
@@ -867,6 +920,8 @@ export const designs: Design[] = [
     isPopular: true,
     description: "Stunning pink half saree perfect for engagement ceremonies with elegant Zardozi work.",
     features: ["Zardozi embroidery", "Soft pink shade", "A-line comfort", "Engagement special"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "hs3",
@@ -889,6 +944,8 @@ export const designs: Design[] = [
     isPopular: false,
     description: "Classic green half saree with Gotta Patti work for festive celebrations.",
     features: ["Gotta Patti work", "Contrast blouse", "Festive colors", "Traditional design"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "hs4",
@@ -911,6 +968,8 @@ export const designs: Design[] = [
     isPopular: true,
     description: "Vibrant yellow half saree with mirror work, perfect for Mehendi ceremonies.",
     features: ["Mirror work", "Trendy crop top", "Umbrella cut skirt", "Mehendi special"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "hs5",
@@ -933,6 +992,8 @@ export const designs: Design[] = [
     isPopular: false,
     description: "Elegant royal blue half saree with cape blouse for wedding guests.",
     features: ["Cape blouse", "Mermaid cut", "Thread work", "Royal blue shade"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "hs6",
@@ -955,6 +1016,8 @@ export const designs: Design[] = [
     isPopular: true,
     description: "Glamorous peacock teal half saree with sequin work for parties.",
     features: ["Sequin detailing", "Fish cut skirt", "Halter style", "Party wear"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "hs7",
@@ -977,6 +1040,8 @@ export const designs: Design[] = [
     isPopular: false,
     description: "Classic maroon half saree with Aari work for traditional events.",
     features: ["Hand Aari work", "Organza dupatta", "Full coverage", "Traditional look"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "hs8",
@@ -999,6 +1064,8 @@ export const designs: Design[] = [
     isPopular: false,
     description: "Bright orange half saree with peplum blouse for festive occasions.",
     features: ["Peplum style", "Embroidery work", "Paneled skirt", "Festive colors"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "hs9",
@@ -1021,6 +1088,8 @@ export const designs: Design[] = [
     isPopular: true,
     description: "Luxurious wine-colored bridal half saree with heavy Maggam work.",
     features: ["Premium Maggam", "Wine shade", "Bridal special", "Heavy embroidery"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "hs10",
@@ -1043,6 +1112,8 @@ export const designs: Design[] = [
     isPopular: false,
     description: "Refreshing mint green half saree with delicate Chikankari work.",
     features: ["Chikankari work", "Light colors", "Party ready", "Comfortable fit"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   // MEN'S DESIGNS
   {
@@ -1061,6 +1132,8 @@ export const designs: Design[] = [
     isPopular: true,
     description: "Premium Egyptian cotton white shirt with stiff collar and french cuffs.",
     features: ["Egyptian Cotton", "French Cuffs", "Wrinkle Free"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "ms2",
@@ -1078,6 +1151,8 @@ export const designs: Design[] = [
     isPopular: false,
     description: "Breathable navy linen shirt perfect for summer casuals.",
     features: ["Pure Linen", "Breathable", "Casual Fit"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "mt1",
@@ -1095,6 +1170,8 @@ export const designs: Design[] = [
     isPopular: true,
     description: "Comfortable khaki chinos with stretch for perfect fit.",
     features: ["Stretch Fabric", "Custom Length", "Slim Cut"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "mt2",
@@ -1112,6 +1189,8 @@ export const designs: Design[] = [
     isPopular: false,
     description: "Essential black formal trousers for office wear.",
     features: ["Wrinkle Resistant", "Perfect Crease", "Comfort Fit"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "msu1",
@@ -1129,6 +1208,8 @@ export const designs: Design[] = [
     isPopular: true,
     description: "Classic navy blue three-piece suit for weddings and boardrooms.",
     features: ["Italian Wool", "3-Piece Set", "Hand Stitched"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "msu2",
@@ -1146,6 +1227,8 @@ export const designs: Design[] = [
     isPopular: false,
     description: "Versatile charcoal grey blazer for smart casual look.",
     features: ["Tweed Texture", "Slim Lapel", "Versatile"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "me1",
@@ -1163,6 +1246,8 @@ export const designs: Design[] = [
     isPopular: true,
     description: "Elegant cream sherwani with subtle gold embroidery.",
     features: ["Hand Embroidery", "Raw Silk", "Wedding Quality"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
   {
     id: "me2",
@@ -1180,6 +1265,8 @@ export const designs: Design[] = [
     isPopular: true,
     description: "Rich maroon kurta with thread work for festivals.",
     features: ["Thread Work", "Festive Color", "Comfort Fit"],
+    status: "approved",
+    submittedAt: "2024-02-01T10:00:00Z",
   },
 ];
 
@@ -1238,4 +1325,37 @@ export const testimonials = [
     comment: "Great quality and timely delivery. The kurti design was exactly as shown. Very professional service.",
     image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop",
   },
+];
+// Earnings Statistics for Charts and Analysis
+export const monthlyEarnings = [
+  { month: "Jan 2024", revenue: 45200, orders: 12, growth: 12.5 },
+  { month: "Feb 2024", revenue: 52800, orders: 15, growth: 16.8 },
+  { month: "Mar 2024", revenue: 48500, orders: 13, growth: -8.1 },
+  { month: "Apr 2024", revenue: 61200, orders: 18, growth: 26.1 },
+  { month: "May 2024", revenue: 55400, orders: 14, growth: -9.4 },
+  { month: "Jun 2024", revenue: 68900, orders: 20, growth: 24.3 },
+  { month: "Jul 2024", revenue: 72400, orders: 22, growth: 5.1 },
+  { month: "Aug 2024", revenue: 65800, orders: 19, growth: -9.1 },
+  { month: "Sep 2024", revenue: 78500, orders: 25, growth: 19.3 },
+  { month: "Oct 2024", revenue: 84200, orders: 28, growth: 7.2 },
+  { month: "Nov 2024", revenue: 92800, orders: 32, growth: 10.2 },
+  { month: "Dec 2024", revenue: 105600, orders: 38, growth: 13.8 },
+];
+
+export const categoryPerformance = [
+  { name: "Blouse", value: 45, color: "#f59e0b" },
+  { name: "Kurti", value: 25, color: "#3b82f6" },
+  { name: "Suits", value: 15, color: "#10b981" },
+  { name: "Lehenga", value: 10, color: "#ef4444" },
+  { name: "Others", value: 5, color: "#8b5cf6" },
+];
+
+export const dailyEarnings = [
+  { day: "Mon", amount: 2400 },
+  { day: "Tue", amount: 3600 },
+  { day: "Wed", amount: 2800 },
+  { day: "Thu", amount: 4800 },
+  { day: "Fri", amount: 5200 },
+  { day: "Sat", amount: 8400 },
+  { day: "Sun", amount: 6800 },
 ];
