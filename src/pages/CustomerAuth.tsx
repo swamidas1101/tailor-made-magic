@@ -10,7 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Layout } from "@/components/layout/Layout";
 
 export default function CustomerAuth() {
-  const { loginWithEmail, signupWithEmail, loginWithGoogle, user, userRole } = useAuth();
+  const { loginWithEmail, signupWithEmail, loginWithGoogle, user, activeRole: userRole } = useAuth();
   const navigate = useNavigate();
 
   const [loginEmail, setLoginEmail] = useState("");
