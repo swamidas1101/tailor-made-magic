@@ -76,6 +76,7 @@ export interface KYTData {
   };
   bank?: {
     accountNumber: string;
+    confirmAccountNumber?: string;
     ifsc: string;
     holderName: string;
     bankName?: string;

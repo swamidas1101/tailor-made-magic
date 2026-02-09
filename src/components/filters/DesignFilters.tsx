@@ -175,12 +175,12 @@ export function DesignFilters({ filters, onFilterChange, onClearAll, categoryId 
     neckTypes: filterOptions.neckTypes,
     sleeveTypes: filterOptions.sleeveTypes,
     backDesigns: filterOptions.backDesigns,
-    cutStyles: filterOptions.cutStyles,
+    cutStyles: filterOptions.fitTypes || [],
     workTypes: filterOptions.workTypes,
     occasions: filterOptions.occasions,
-    dupattaStyles: filterOptions.dupattaStyles,
+    dupattaStyles: filterOptions.skirtTypes || [],
     skirtTypes: filterOptions.skirtTypes,
-    blousePatterns: filterOptions.blousePatterns,
+    blousePatterns: filterOptions.neckTypes || [],
   };
 
   return (
