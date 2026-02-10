@@ -1,0 +1,8 @@
+<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" fill="#D97706"/>
+  <g transform="translate(256, 256)">
+    <!-- Scissors icon -->
+    <path d="M-60,-80 L-20,-20 M60,-80 L20,-20 M-20,-20 L20,-20 M-40,-60 A20,20 0 1,1 -40,-100 A20,20 0 1,1 -40,-60 M40,-60 A20,20 0 1,1 40,-100 A20,20 0 1,1 40,-60 M0,-20 L0,80" 
+          stroke="white" stroke-width="12" fill="none" stroke-linecap="round"/>
+  </g>
+</svg>

@@ -73,23 +73,51 @@ export function useFirebaseData(): UseFirebaseDataReturn {
     return allCategories.filter((c) => c.type === "men");
   }, [allCategories]);
 
-  // Enrich categories with dynamic design counts
+  // Enrich categories with dynamic design counts and first design image
   const enrichedWomenCategories = useMemo(() => {
-    return womenCategories.map((cat) => ({
-      ...cat,
-      designCount: designs.filter(
-        (d) => d.category === cat.id || d.category === cat.name || d.category === cat.filterKey
-      ).length,
-    }));
+    return womenCategories
+      .map((cat) => {
+        // Find all designs for this category
+        const categoryDesigns = designs.filter(
+          (d) => d.category === cat.id || d.category === cat.name || d.category === cat.filterKey
+        );
+
+        // Get the first design's image (prefer images[0] if available, fallback to image)
+        const firstDesign = categoryDesigns[0];
+        const firstDesignImage = firstDesign
+          ? (firstDesign.images && firstDesign.images.length > 0 ? firstDesign.images[0] : firstDesign.image)
+          : cat.image;
+
+        return {
+          ...cat,
+          designCount: categoryDesigns.length,
+          firstDesignImage,
+        };
+      })
+      .filter((cat) => cat.designCount > 0); // Only show categories with at least one design
   }, [womenCategories, designs]);
 
   const enrichedMenCategories = useMemo(() => {
-    return menCategories.map((cat) => ({
-      ...cat,
-      designCount: designs.filter(
-        (d) => d.category === cat.id || d.category === cat.name || d.category === cat.filterKey
-      ).length,
-    }));
+    return menCategories
+      .map((cat) => {
+        // Find all designs for this category
+        const categoryDesigns = designs.filter(
+          (d) => d.category === cat.id || d.category === cat.name || d.category === cat.filterKey
+        );
+
+        // Get the first design's image (prefer images[0] if available, fallback to image)
+        const firstDesign = categoryDesigns[0];
+        const firstDesignImage = firstDesign
+          ? (firstDesign.images && firstDesign.images.length > 0 ? firstDesign.images[0] : firstDesign.image)
+          : cat.image;
+
+        return {
+          ...cat,
+          designCount: categoryDesigns.length,
+          firstDesignImage,
+        };
+      })
+      .filter((cat) => cat.designCount > 0); // Only show categories with at least one design
   }, [menCategories, designs]);
 
   return {

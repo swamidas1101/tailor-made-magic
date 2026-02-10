@@ -16,6 +16,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { cn } from "@/lib/utils";
 
 const adminNavItems = [
@@ -171,9 +173,40 @@ export default function AdminDashboard() {
 
           <h1 className="font-display font-bold text-[#1E1610] text-lg">System Oversight</h1>
 
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center text-sm font-black text-white shadow-lg">
-            {user?.displayName?.charAt(0) || "A"}
-          </div>
+          {/* User Menu Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="rounded-xl hover:bg-muted">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center text-sm font-black text-white shadow-lg">
+                  {user?.displayName?.charAt(0) || "A"}
+                </div>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-64 p-2">
+              <div className="px-3 py-3 border-b border-border/50">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center text-base font-black text-white shadow-md">
+                    {user?.displayName?.charAt(0) || "A"}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-foreground truncate">{user?.displayName || "Administrator"}</p>
+                    <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 mt-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-[9px] font-bold text-amber-600 uppercase tracking-widest">Admin Access</span>
+                </div>
+              </div>
+              <DropdownMenuItem
+                onClick={handleLogout}
+                className="mt-1 text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer font-semibold"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -183,6 +216,9 @@ export default function AdminDashboard() {
           <Outlet />
         </div>
       </main>
+
+      {/* PWA Install Prompt */}
+      <InstallPrompt role="admin" />
     </div>
   );
 }

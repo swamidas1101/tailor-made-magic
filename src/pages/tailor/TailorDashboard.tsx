@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { UserMenu } from "@/components/auth/UserMenu";
+import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 
 const tailorNavItems = [
   { name: "Overview", path: "/tailor", icon: LayoutDashboard },
@@ -161,6 +162,9 @@ export default function TailorDashboard() {
           <Plus className="w-7 h-7 text-white" />
         </Button>
       )}
+
+      {/* PWA Install Prompt */}
+      <InstallPrompt role="tailor" />
     </div>
   );
 }

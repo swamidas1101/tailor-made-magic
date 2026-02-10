@@ -127,35 +127,41 @@ export default function DesignModeration() {
         ))}
       </div>
 
-      {/* Search & Filter - Floating */}
-      <div className="sticky top-4 z-10 bg-white/80 backdrop-blur-md border border-border/50 shadow-sm p-2 rounded-xl flex flex-col lg:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Search designs or tailors..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 h-9 border-none bg-transparent focus-visible:ring-0 text-sm"
-          />
+      {/* Search & Filter - Responsive */}
+      <div className="lg:sticky lg:top-4 z-10 bg-white border border-border/50 shadow-sm rounded-xl overflow-hidden">
+        <div className="p-3 flex flex-col gap-3">
+          {/* Search Bar */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search designs or tailors..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 h-10 border-border/50 bg-background focus-visible:ring-1 focus-visible:ring-amber-500"
+            />
+          </div>
+
+          {/* Filter Tabs - Scrollable on Mobile */}
+          <div className="overflow-x-auto scrollbar-hide -mx-3 px-3">
+            <Tabs value={filterStatus} onValueChange={setFilterStatus} className="w-full">
+              <TabsList className="bg-muted/30 p-1 h-auto inline-flex w-auto min-w-full">
+                {["all", "pending", "approved", "correction_requested", "rejected"].map((status) => (
+                  <TabsTrigger
+                    key={status}
+                    value={status}
+                    className="data-[state=active]:bg-amber-600 data-[state=active]:text-white data-[state=active]:shadow-sm rounded-lg text-[10px] uppercase font-bold px-3 py-2 whitespace-nowrap transition-all"
+                  >
+                    {status.replace('_', ' ')}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+          </div>
         </div>
-        <div className="h-full w-px bg-border/50 hidden lg:block" />
-        <Tabs value={filterStatus} onValueChange={setFilterStatus} className="w-full lg:w-auto">
-          <TabsList className="bg-transparent p-0 h-9">
-            {["all", "pending", "approved", "correction_requested", "rejected"].map((status) => (
-              <TabsTrigger
-                key={status}
-                value={status}
-                className="data-[state=active]:bg-amber-50 data-[state=active]:text-amber-700 data-[state=active]:shadow-none rounded-lg text-[10px] uppercase font-bold px-3 mx-1"
-              >
-                {status.replace('_', ' ')}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
       </div>
 
-      {/* Grid of Designs - Tighter */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+      {/* Grid of Designs - 2 Cards on Mobile */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
         {loading ? (
           Array(8).fill(0).map((_, i) => (
             <Card key={i} className="aspect-[3/4] animate-pulse bg-muted/20 rounded-xl border-none" />
