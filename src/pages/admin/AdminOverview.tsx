@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { Users, ShoppingBag, Scissors, IndianRupee, TrendingUp, ArrowRight, Activity, ShieldCheck, Clock, Calendar } from "lucide-react";
+import { Users, ShoppingBag, Scissors, IndianRupee, TrendingUp, ArrowRight, Activity, ShieldCheck, Clock, Calendar, Sparkles } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { adminService } from "@/services/adminService";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -15,6 +15,7 @@ export default function AdminOverview() {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [recentTailors, setRecentTailors] = useState<any[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -44,81 +45,86 @@ export default function AdminOverview() {
 
   if (loading) {
     return (
-      <div className="p-8 space-y-8 animate-pulse font-body">
-        <div className="h-20 bg-muted/20 rounded-xl" />
-        <div className="grid grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map(i => <div key={i} className="h-32 bg-muted/20 rounded-xl" />)}
+      <div className="p-4 lg:p-8 space-y-8 animate-pulse">
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-4 w-64" />
         </div>
-        <div className="grid grid-cols-3 gap-8">
-          <div className="col-span-2 h-96 bg-muted/20 rounded-xl" />
-          <div className="h-96 bg-muted/20 rounded-xl" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-32 rounded-xl" />)}
+        </div>
+        <div className="grid lg:grid-cols-3 gap-8">
+          <Skeleton className="lg:col-span-2 h-64 rounded-xl" />
+          <Skeleton className="h-64 rounded-xl" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-4 lg:p-10 space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700 bg-white min-h-screen">
-      {/* Welcome Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-border/40 pb-8">
+    <div className="p-4 lg:p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
         <div>
-          <div className="flex items-center gap-2 text-muted-foreground mb-2">
-            <Calendar className="w-4 h-4 text-amber-600" />
-            <span className="text-xs font-bold uppercase tracking-widest">{format(new Date(), "EEEE, MMMM do, yyyy")}</span>
+          <div className="flex items-center gap-2 text-amber-600 mb-1">
+            <Calendar className="w-4 h-4" />
+            <span className="text-[10px] font-bold uppercase tracking-widest">{format(new Date(), "EEEE, MMMM do, yyyy")}</span>
           </div>
-          <h1 className="text-3xl lg:text-4xl font-display font-bold text-foreground tracking-tight">
+          <h1 className="text-2xl lg:text-3xl font-display font-bold text-foreground">
             Welcome back, <span className="text-amber-600">Administrator</span>
           </h1>
-          <p className="text-muted-foreground text-sm mt-2 max-w-xl leading-relaxed">
+          <p className="text-muted-foreground text-sm mt-1">
             Your daily overview of platform performance, artisan activity, and order fulfillment.
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" className="h-10 border-border/60 hover:border-amber-200 hover:bg-amber-50/50 text-xs font-bold uppercase tracking-wider transition-all">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-10 border-border/50 bg-card shadow-soft font-bold rounded-xl hidden sm:flex"
+            onClick={() => navigate("/admin/analytics")}
+          >
             Download Report
           </Button>
-          <Button className="h-10 bg-amber-600 hover:bg-amber-700 text-xs font-bold uppercase tracking-wider shadow-lg shadow-amber-900/10">
+          <Button
+            size="sm"
+            className="h-10 bg-amber-600 hover:bg-amber-700 shadow-lg shadow-amber-900/20 font-bold rounded-xl"
+            onClick={() => navigate("/admin/tailors")}
+          >
             Verify New Artisans
           </Button>
         </div>
       </div>
 
-      {/* Boutique Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Stat Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {statConfig.map((stat) => (
-          <Card key={stat.label} className="border-border/40 shadow-sm hover:shadow-md hover:border-amber-200/60 transition-all duration-300 group cursor-default">
-            <CardContent className="p-6 flex items-start justify-between">
-              <div className="space-y-4">
-                <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110", stat.bg)}>
+          <Card key={stat.label} className="border-border/50 shadow-soft hover-lift group">
+            <CardContent className="p-5">
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{stat.label}</p>
+                  <p className="text-2xl font-bold text-foreground tracking-tight">{stat.value}</p>
+                  <p className="text-[10px] font-bold text-green-600 flex items-center gap-0.5">
+                    +12%
+                  </p>
+                </div>
+                <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 shadow-sm", stat.bg)}>
                   <stat.icon className={cn("w-5 h-5", stat.color)} />
                 </div>
-                <div>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{stat.label}</p>
-                  <p className="text-2xl font-display font-bold text-foreground mt-1 tabular-nums tracking-tight">{stat.value}</p>
-                </div>
-              </div>
-              <div className="flex flex-col items-end justify-between h-full">
-                <Badge variant="outline" className="border-green-200 text-green-700 text-[9px] font-bold bg-green-50/50 px-2 py-0.5">
-                  +12%
-                </Badge>
               </div>
             </CardContent>
-            <div className="px-6 pb-4">
-              <p className="text-[10px] text-muted-foreground font-medium flex items-center gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
-                <Activity className="w-3 h-3" /> {stat.desc}
-              </p>
-            </div>
           </Card>
         ))}
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
-        {/* Recent Activity - Clean List */}
-        <Card className="lg:col-span-2 border-border/40 shadow-sm h-full">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-border/40 px-6 pt-6">
-            <div className="space-y-1">
-              <CardTitle className="text-lg font-display font-bold">Recent Artisans</CardTitle>
-              <CardDescription className="text-xs font-medium uppercase tracking-wider">Newest platform partners</CardDescription>
+        {/* Recent Artisans */}
+        <Card className="lg:col-span-2 border-border/50 shadow-soft overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between border-b bg-muted/5">
+            <div>
+              <CardTitle className="text-base font-bold">Recent Artisans</CardTitle>
+              <CardDescription>Newest platform partners</CardDescription>
             </div>
             <Link to="/admin/tailors">
               <Button variant="ghost" size="sm" className="text-amber-600 hover:text-amber-700 hover:bg-amber-50 text-xs font-bold uppercase tracking-wider">
@@ -127,7 +133,7 @@ export default function AdminOverview() {
             </Link>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="divide-y divide-border/40">
+            <div className="divide-y divide-border/50">
               {recentTailors.map((tailor) => (
                 <div key={tailor.id} className="flex items-center justify-between p-4 hover:bg-muted/5 transition-colors group">
                   <div className="flex items-center gap-4">
@@ -159,9 +165,10 @@ export default function AdminOverview() {
           </CardContent>
         </Card>
 
-        {/* System Health / Quick Actions */}
+        {/* System Status & Alerts */}
         <div className="space-y-6">
-          <Card className="border-border/40 shadow-sm bg-gradient-to-br from-amber-600 to-amber-700 text-white border-none relative overflow-hidden">
+          {/* System Status */}
+          <Card className="border-border/50 shadow-soft bg-gradient-to-br from-amber-600 to-amber-700 text-white border-none relative overflow-hidden">
             <Activity className="absolute -right-6 -bottom-6 w-32 h-32 text-white/10 rotate-12" />
             <CardContent className="p-6 relative z-10 space-y-4">
               <div className="flex items-center gap-3">
@@ -187,27 +194,42 @@ export default function AdminOverview() {
             </CardContent>
           </Card>
 
-          <Card className="border-border/40 shadow-sm bg-muted/20">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Platform Alerts</CardTitle>
+          {/* Platform Alerts */}
+          <Card className="border-border/50 shadow-soft overflow-hidden">
+            <CardHeader className="pb-3 bg-muted/5 border-b border-border/50">
+              <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-amber-600" />
+                Platform Alerts
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex gap-3 items-start p-3 bg-white rounded-lg border border-border/40 shadow-sm">
-                <div className="w-2 h-2 rounded-full bg-amber-500 mt-1.5 shrink-0" />
-                <div>
-                  <p className="text-xs font-bold text-foreground">Pending Verifications</p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5 leading-tight">5 new artisans await your approval.</p>
-                  <Link to="/admin/moderation" className="text-[10px] font-bold text-amber-600 hover:underline mt-1.5 block">Review Queue &rarr;</Link>
+            <CardContent className="p-0">
+              <div className="divide-y divide-border/50">
+                <div className="p-4 space-y-1 hover:bg-muted/5 transition-colors cursor-pointer" onClick={() => navigate("/admin/designs")}>
+                  <p className="text-xs font-bold flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-amber-500" />
+                    Pending Verifications
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">
+                    5 new artisans await your approval.
+                  </p>
+                </div>
+                <div className="p-4 space-y-1 hover:bg-muted/5 transition-colors cursor-pointer" onClick={() => navigate("/admin/analytics")}>
+                  <p className="text-xs font-bold flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-blue-500" />
+                    Order Volume Spike
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">
+                    High order volume detected in Hyderabad region.
+                  </p>
                 </div>
               </div>
-              <div className="flex gap-3 items-start p-3 bg-white rounded-lg border border-border/40 shadow-sm">
-                <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 shrink-0" />
-                <div>
-                  <p className="text-xs font-bold text-foreground">Order Volume Spike</p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5 leading-tight">High order volume detected in Hyderabad region.</p>
-                  <Link to="/admin/analytics" className="text-[10px] font-bold text-blue-600 hover:underline mt-1.5 block">View Insights &rarr;</Link>
-                </div>
-              </div>
+              <Button
+                variant="ghost"
+                className="w-full h-10 text-[10px] font-bold uppercase tracking-wider text-muted-foreground hover:text-amber-600"
+                onClick={() => navigate("/admin/designs")}
+              >
+                View All Notifications
+              </Button>
             </CardContent>
           </Card>
         </div>

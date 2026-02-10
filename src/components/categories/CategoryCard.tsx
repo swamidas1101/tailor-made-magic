@@ -7,9 +7,10 @@ export interface CategoryCardProps {
   description: string;
   image: string;
   designCount: number;
+  firstDesignImage?: string;
 }
 
-export function CategoryCard({ id, name, description, image, designCount }: CategoryCardProps) {
+export function CategoryCard({ id, name, description, image, designCount, firstDesignImage }: CategoryCardProps) {
   return (
     <Link
       to={`/category/${id}`}
@@ -18,7 +19,7 @@ export function CategoryCard({ id, name, description, image, designCount }: Cate
       {/* Background Image */}
       <div className="absolute inset-0">
         <img
-          src={image}
+          src={firstDesignImage || image}
           alt={name}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />

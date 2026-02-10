@@ -35,7 +35,7 @@ const Index = () => {
   const { user, activeRole, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
-  const featuredDesigns = useMemo(() => 
+  const featuredDesigns = useMemo(() =>
     allDesigns.filter(d => d.isPopular && d.status === 'approved').slice(0, 8),
     [allDesigns]
   );
