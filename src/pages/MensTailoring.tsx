@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/layout/Layout";
 import { SizeChartModal } from "@/components/size-chart/SizeChartModal";
 import { CategoryCard } from "@/components/categories/CategoryCard";
-import { menCategories } from "@/data/mockData";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useFirebaseData } from "@/hooks/useFirebaseData";
 
 export default function MensTailoring() {
+  const { menCategories, loading } = useFirebaseData();
   return (
     <Layout>
       {/* Hero - Compact */}
@@ -53,9 +55,17 @@ export default function MensTailoring() {
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-            {menCategories.map((category) => (
-              <CategoryCard key={category.id} {...category} />
-            ))}
+            {loading ? (
+              Array.from({ length: 8 }).map((_, i) => (
+                <Skeleton key={i} className="aspect-[3/4] rounded-xl" />
+              ))
+            ) : menCategories.length > 0 ? (
+              menCategories.map((category) => (
+                <CategoryCard key={category.id} {...category} />
+              ))
+            ) : (
+              <p className="col-span-full text-center text-muted-foreground py-8">No men's categories found. Please seed the database.</p>
+            )}
           </div>
         </div>
       </section>

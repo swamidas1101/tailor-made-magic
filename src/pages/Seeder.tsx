@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { seedingService } from "@/services/seedingService";
+import { invalidateFirebaseCache } from "@/hooks/useFirebaseData";
 import { toast } from "sonner";
 import { Layout } from "@/components/layout/Layout";
 import { useAuth } from "@/contexts/AuthContext";
@@ -19,8 +20,9 @@ export default function Seeder() {
         try {
             const success = await seedingService.seedAll();
             if (success) {
+                invalidateFirebaseCache();
                 toast.success("Database seeded successfully!");
-                setStatus("Success!");
+                setStatus("Success! Refresh the page to see new data.");
             } else {
                 toast.error("Seeding failed. Check console.");
                 setStatus("Failed.");

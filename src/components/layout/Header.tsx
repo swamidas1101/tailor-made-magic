@@ -24,7 +24,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
-import { womenCategories as categories, menCategories } from "@/data/mockData";
+import { useFirebaseData } from "@/hooks/useFirebaseData";
 
 const navLinks = [
   { name: "Home", path: "/" },
@@ -40,6 +40,7 @@ export function Header() {
   const { totalItems: cartCount, justAdded } = useCart();
   const { totalItems: wishlistCount } = useWishlist();
   const { user, activeRole } = useAuth();
+  const { womenCategories: categories, menCategories } = useFirebaseData();
 
   return (
     <motion.header

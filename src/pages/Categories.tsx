@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Filter, SlidersHorizontal, X, LayoutGrid, List, SortAsc } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,11 +8,11 @@ import { CategoryCard } from "@/components/categories/CategoryCard";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Design, Category } from "@/data/mockData";
-import { designService, categoryService } from "@/services/designService";
-import { designs as mockDesigns, womenCategories as mockWomenCategories, menCategories as mockMenCategories } from "@/data/mockData";
 import { DesignFilters, ActiveFilters, defaultFilters } from "@/components/filters/DesignFilters";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useFirebaseData } from "@/hooks/useFirebaseData";
 
 type SortOption = "popular" | "price-low" | "price-high" | "rating" | "newest";
 
@@ -22,55 +22,8 @@ export default function Categories() {
   const [sortBy, setSortBy] = useState<SortOption>("popular");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-  // State for Firestore data
-  const [designs, setDesigns] = useState<Design[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [menCategories, setMenCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  // Fetch data from Firestore
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const [fetchedDesigns, fetchedCategories] = await Promise.all([
-          designService.getAllDesigns(),
-          categoryService.getAllCategories()
-        ]);
-
-        // Fallback to mock data if Firestore is empty
-        if (fetchedDesigns.length === 0) {
-          console.warn("Firestore is empty, using mock data. Please seed the database at /seed");
-          setDesigns(mockDesigns);
-        } else {
-          setDesigns(fetchedDesigns);
-        }
-
-        if (fetchedCategories.length === 0) {
-          console.warn("Firestore categories empty, using mock data");
-          setCategories(mockWomenCategories);
-          setMenCategories(mockMenCategories);
-        } else {
-          // Filter categories by type
-          const womenCats = fetchedCategories.filter(c => c.type === "women");
-          const menCats = fetchedCategories.filter(c => c.type === "men");
-
-          setCategories(womenCats.length > 0 ? womenCats : mockWomenCategories);
-          setMenCategories(menCats.length > 0 ? menCats : mockMenCategories);
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        // Fallback to mock data on error
-        setDesigns(mockDesigns);
-        setCategories(mockWomenCategories);
-        setMenCategories(mockMenCategories);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+  // Fetch data from Firebase
+  const { designs, womenCategories: categories, menCategories, loading } = useFirebaseData();
 
   // Filter and sort designs
   const filteredDesigns = useMemo(() => {
