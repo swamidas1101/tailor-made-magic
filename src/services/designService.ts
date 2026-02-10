@@ -13,7 +13,7 @@ import {
   orderBy,
   limit
 } from "firebase/firestore";
-import { Design, Category, menCategories, designs as mockDesigns } from "@/data/mockData";
+import { Design, Category, designs as mockDesigns } from "@/data/mockData";
 
 export const COLLECTION_DESIGNS = "designs";
 export const COLLECTION_CATEGORIES = "categories";

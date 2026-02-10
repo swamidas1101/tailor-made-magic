@@ -1,6 +1,6 @@
 import { db } from "@/lib/firebase";
 import { collection, doc, writeBatch, setDoc } from "firebase/firestore";
-import { designs, categories, menCategories } from "@/data/mockData";
+import { designs, womenCategories, menCategories } from "@/data/mockData";
 import { COLLECTION_DESIGNS, COLLECTION_CATEGORIES } from "./designService";
 
 export const seedingService = {
@@ -29,7 +29,7 @@ export const seedingService = {
         const batch = writeBatch(db);
 
         // Seed Women's Categories
-        categories.forEach((cat) => {
+        womenCategories.forEach((cat) => {
             const docRef = doc(db, COLLECTION_CATEGORIES, cat.id);
             batch.set(docRef, {
                 ...cat,

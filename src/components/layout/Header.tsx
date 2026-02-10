@@ -24,7 +24,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
-import { categories, menCategories } from "@/data/mockData";
+import { womenCategories as categories, menCategories } from "@/data/mockData";
 
 const navLinks = [
   { name: "Home", path: "/" },

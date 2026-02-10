@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Design, Category } from "@/data/mockData";
 import { designService, categoryService } from "@/services/designService";
-import { designs as mockDesigns, categories as mockCategories, menCategories as mockMenCategories } from "@/data/mockData";
+import { designs as mockDesigns, womenCategories as mockWomenCategories, menCategories as mockMenCategories } from "@/data/mockData";
 import { DesignFilters, ActiveFilters, defaultFilters } from "@/components/filters/DesignFilters";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -48,21 +48,21 @@ export default function Categories() {
 
         if (fetchedCategories.length === 0) {
           console.warn("Firestore categories empty, using mock data");
-          setCategories(mockCategories);
+          setCategories(mockWomenCategories);
           setMenCategories(mockMenCategories);
         } else {
           // Filter categories by type
           const womenCats = fetchedCategories.filter(c => c.type === "women");
           const menCats = fetchedCategories.filter(c => c.type === "men");
 
-          setCategories(womenCats);
-          setMenCategories(menCats);
+          setCategories(womenCats.length > 0 ? womenCats : mockWomenCategories);
+          setMenCategories(menCats.length > 0 ? menCats : mockMenCategories);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
         // Fallback to mock data on error
         setDesigns(mockDesigns);
-        setCategories(mockCategories);
+        setCategories(mockWomenCategories);
         setMenCategories(mockMenCategories);
       } finally {
         setLoading(false);
@@ -132,7 +132,7 @@ export default function Categories() {
     }
 
     return result;
-  }, [id, filters, sortBy]);
+  }, [id, filters, sortBy, designs, categories, menCategories]);
 
   const totalActiveFilters =
     filters.neckTypes.length +

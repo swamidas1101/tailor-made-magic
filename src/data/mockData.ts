@@ -76,26 +76,25 @@ export const categories: Category[] = [
 ];
 
 export const womenCategories: Category[] = [
-  { id: "Blouse", name: "Blouse", description: "Designer blouses with perfect fit and intricate work.", image: "", designCount: 0 },
-  { id: "Lehenga", name: "Lehenga", description: "Bespoke lehenga sets for weddings and festivals.", image: "", designCount: 0 },
-  { id: "Kurti", name: "Kurti & Kurta", description: "Custom tailored kurtis for daily and ethnic wear.", image: "", designCount: 0 },
-  { id: "Gown", name: "Gown & Evening Wear", description: "Elegant gowns and long dresses.", image: "", designCount: 0 },
-  { id: "Salwar", name: "Salwar Kameez", description: "Traditional suits including Patiala and Chudidar.", image: "", designCount: 0 },
-  { id: "Pant-Suits", name: "Pant Suits", description: "Formal and stylish pant suits for women.", image: "", designCount: 0 },
-  { id: "Jumpsuits", name: "Jumpsuits", description: "Modern custom-tailored jumpsuits.", image: "", designCount: 0 },
-  { id: "Ethnic-Wear", name: "Ethnic Wear", description: "Assorted traditional Indian wear.", image: "", designCount: 0 },
-  { id: "Western-Wear", name: "Western Wear", description: "Shirts, skirts, and western outfits.", image: "", designCount: 0 },
+  { id: "Blouse", name: "Blouse Designs", description: "Designer blouses with perfect fit and intricate work.", image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=600&h=800&fit=crop", designCount: 150, type: "women" },
+  { id: "Lehenga", name: "Lehenga", description: "Bespoke lehenga sets for weddings and festivals.", image: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=600&h=800&fit=crop", designCount: 85, type: "women" },
+  { id: "Kurti", name: "Kurti & Kurta", description: "Custom tailored kurtis for daily and ethnic wear.", image: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=600&h=800&fit=crop", designCount: 120, type: "women" },
+  { id: "Gown", name: "Gown & Evening Wear", description: "Elegant gowns and long dresses.", image: "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&h=800&fit=crop", designCount: 60, type: "women" },
+  { id: "Salwar", name: "Salwar Kameez", description: "Traditional suits including Patiala and Chudidar.", image: "https://images.unsplash.com/photo-1594463750939-ebb28c3f7f75?w=600&h=800&fit=crop", designCount: 95, type: "women" },
+  { id: "HalfSaree", name: "Half Saree", description: "Traditional half saree sets with modern designs.", image: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=600&h=800&fit=crop", designCount: 70, type: "women" },
+  { id: "Saree", name: "Saree Alterations", description: "Expert saree fall, pico, and blouse alterations.", image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=600&h=800&fit=crop", designCount: 80, type: "women" },
+  { id: "Western-Wear", name: "Western Wear", description: "Shirts, skirts, and western outfits.", image: "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&h=800&fit=crop", designCount: 55, type: "women" },
 ];
 
 export const menCategories: Category[] = [
-  { id: "Formal-Shirt", name: "Formal Shirts", description: "Perfectly fitted formal and casual shirts.", image: "", designCount: 0 },
-  { id: "Trousers", name: "Trousers & Pants", description: "Custom trousers with precise measurements.", image: "", designCount: 0 },
-  { id: "Suit", name: "Suits", description: "Handcrafted 2-piece and 3-piece suits.", image: "", designCount: 0 },
-  { id: "Tuxedo", name: "Tuxedos", description: "Premium formal tuxedos for special events.", image: "", designCount: 0 },
-  { id: "Blazer", name: "Blazers", description: "Smart blazers and sport coats.", image: "", designCount: 0 },
-  { id: "Sherwani", name: "Sherwanis", description: "Traditional festive and wedding sherwanis.", image: "", designCount: 0 },
-  { id: "Shorts", name: "Shorts", description: "Custom casual shorts.", image: "", designCount: 0 },
-  { id: "Uniform", name: "Uniforms (School/Corporate)", description: "Bulk uniform tailoring for organizations.", image: "", designCount: 0 },
+  { id: "Formal-Shirt", name: "Formal Shirts", description: "Perfectly fitted formal and casual shirts.", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=800&fit=crop", designCount: 90, type: "men" },
+  { id: "Trousers", name: "Trousers & Pants", description: "Custom trousers with precise measurements.", image: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=600&h=800&fit=crop", designCount: 75, type: "men" },
+  { id: "Suit", name: "Suits", description: "Handcrafted 2-piece and 3-piece suits.", image: "https://images.unsplash.com/photo-1593030761757-71fae45fa0e7?w=600&h=800&fit=crop", designCount: 50, type: "men" },
+  { id: "Tuxedo", name: "Tuxedos", description: "Premium formal tuxedos for special events.", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=800&fit=crop", designCount: 30, type: "men" },
+  { id: "Blazer", name: "Blazers", description: "Smart blazers and sport coats.", image: "https://images.unsplash.com/photo-1593030761757-71fae45fa0e7?w=600&h=800&fit=crop", designCount: 45, type: "men" },
+  { id: "Sherwani", name: "Sherwanis", description: "Traditional festive and wedding sherwanis.", image: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=600&h=800&fit=crop", designCount: 40, type: "men" },
+  { id: "Kurta-Men", name: "Men's Kurta", description: "Ethnic kurta pajama sets for festivals.", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=800&fit=crop", designCount: 65, type: "men" },
+  { id: "Shorts", name: "Shorts", description: "Custom casual shorts.", image: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=600&h=800&fit=crop", designCount: 25, type: "men" },
 ];
 
 // Expanded Filter options for UI
