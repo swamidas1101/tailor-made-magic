@@ -6,11 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/layout/Layout";
 import { CategoryCard } from "@/components/categories/CategoryCard";
 import { DesignCard } from "@/components/designs/DesignCard";
-import { testimonials, designs as mockDesigns, womenCategories as mockWomenCategories, menCategories as mockMenCategories } from "@/data/mockData";
-import { designService, categoryService } from "@/services/designService";
-import { useState, useEffect } from "react";
+import { testimonials } from "@/data/mockData";
 import { Design, Category } from "@/data/mockData";
+import { useFirebaseData } from "@/hooks/useFirebaseData";
+import { Skeleton } from "@/components/ui/skeleton";
 import heroImage from "@/assets/hero-tailoring.jpg";
+import { useMemo, useEffect } from "react";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -30,13 +31,18 @@ const itemVariants = {
 };
 
 const Index = () => {
-  const [designs, setDesigns] = useState<Design[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [menCategories, setMenCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { designs: allDesigns, womenCategories, menCategories, loading } = useFirebaseData();
   const { user, activeRole, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
+  const featuredDesigns = useMemo(() => 
+    allDesigns.filter(d => d.isPopular && d.status === 'approved').slice(0, 8),
+    [allDesigns]
+  );
+  const featuredCategories = useMemo(() => womenCategories.slice(0, 4), [womenCategories]);
+  const featuredMenCategories = useMemo(() => menCategories.slice(0, 4), [menCategories]);
+
+  // Redirect tailor/admin users
   useEffect(() => {
     if (!authLoading && user && activeRole) {
       if (activeRole === 'tailor') {
@@ -46,47 +52,6 @@ const Index = () => {
       }
     }
   }, [user, activeRole, authLoading, navigate]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const [fetchedDesigns, fetchedCategories] = await Promise.all([
-          designService.getFeaturedDesigns(8),
-          categoryService.getAllCategories()
-        ]);
-
-        // Fallback to mock data if Firestore is empty
-        if (fetchedDesigns.length === 0) {
-          console.warn("Firestore is empty, using mock data. Please seed the database at /seed");
-          setDesigns(mockDesigns.filter(d => d.isPopular).slice(0, 8));
-        } else {
-          setDesigns(fetchedDesigns);
-        }
-
-        if (fetchedCategories.length === 0) {
-          console.warn("Firestore categories empty, using mock data");
-          setCategories(mockWomenCategories.slice(0, 4));
-          setMenCategories(mockMenCategories.slice(0, 4));
-        } else {
-          const womenCats = fetchedCategories.filter(c => c.type === "women").slice(0, 4);
-          const menCats = fetchedCategories.filter(c => c.type === "men").slice(0, 4);
-
-          setCategories(womenCats.length > 0 ? womenCats : mockWomenCategories.slice(0, 4));
-          setMenCategories(menCats.length > 0 ? menCats : mockMenCategories.slice(0, 4));
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        setDesigns(mockDesigns.filter(d => d.isPopular).slice(0, 8));
-        setCategories(mockWomenCategories.slice(0, 4));
-        setMenCategories(mockMenCategories.slice(0, 4));
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
 
   // Prevent flash of content if we are going to redirect or still loading auth
   if (authLoading || (user && activeRole && (activeRole === 'tailor' || activeRole === 'admin'))) {
@@ -104,10 +69,6 @@ const Index = () => {
       </div>
     );
   }
-
-  const featuredDesigns = designs;
-  const featuredCategories = categories;
-  const featuredMenCategories = menCategories;
 
   return (
     <Layout>

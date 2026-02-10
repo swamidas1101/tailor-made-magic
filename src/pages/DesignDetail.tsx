@@ -3,15 +3,16 @@ import { ArrowLeft, Star, Clock, IndianRupee, Check, Heart, Share2, Ruler, Chevr
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Layout } from "@/components/layout/Layout";
-import { designs } from "@/data/mockData";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { MeasurementSelector } from "@/components/measurements/MeasurementSelector";
 import { SizeChartModal } from "@/components/size-chart/SizeChartModal";
 import { SimilarProducts } from "@/components/shared/SimilarProducts";
+import { useFirebaseData } from "@/hooks/useFirebaseData";
 
 export default function DesignDetail() {
   const { id } = useParams();
+  const { designs } = useFirebaseData();
   const design = designs.find((d) => d.id === id);
   const [withMaterial, setWithMaterial] = useState(false);
   const [showMeasurementSelector, setShowMeasurementSelector] = useState(false);
