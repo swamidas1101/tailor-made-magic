@@ -17,7 +17,8 @@ import {
   Clock,
   IndianRupee,
   Calendar,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Sparkles
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +37,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { designService } from "@/services/designService";
 import { womenCategories, menCategories, filterOptions, Design } from "@/data/mockData";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 // Define broader categories to group the sub-categories
 const mainCategories = [
@@ -52,8 +60,13 @@ export default function TailorDesigns() {
   const [myDesigns, setMyDesigns] = useState<Design[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [genderFilter, setGenderFilter] = useState<"all" | "men" | "women">("all");
+  const [pageSize] = useState(24);
+  const [visibleItemsCount, setVisibleItemsCount] = useState(24);
   const [selectedDesign, setSelectedDesign] = useState<Design | null>(null);
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
+  const [loadMoreLoading, setLoadMoreLoading] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const shopName = kytData?.address?.shopName || "My Shop";
 
@@ -85,10 +98,42 @@ export default function TailorDesigns() {
   const filteredDesigns = useMemo(() => {
     return myDesigns.filter(design => {
       const matchStatus = statusFilter === "all" || design.status === statusFilter;
-      const matchCategory = categoryFilter === "all" || design.category === categoryFilter;
-      return matchStatus && matchCategory;
+      // Case-insensitive category matching
+      const matchCategory = categoryFilter === "all" || design.category.toLowerCase() === categoryFilter.toLowerCase();
+
+      // Logic for Gender Filtering:
+      // We look up if the design's category belongs to menCategories or womenCategories
+      let matchGender = true;
+      if (genderFilter !== "all") {
+        const isInWomen = womenCategories.some(c => c.id.toLowerCase() === design.category.toLowerCase());
+        const isInMen = menCategories.some(c => c.id.toLowerCase() === design.category.toLowerCase());
+        if (genderFilter === "women" && !isInWomen) matchGender = false;
+        if (genderFilter === "men" && !isInMen) matchGender = false;
+      }
+
+      return matchStatus && matchCategory && matchGender;
     });
-  }, [myDesigns, statusFilter, categoryFilter]);
+  }, [myDesigns, statusFilter, categoryFilter, genderFilter]);
+
+  // Paginated designs
+  const paginatedDesigns = useMemo(() => {
+    return filteredDesigns.slice(0, visibleItemsCount);
+  }, [filteredDesigns, visibleItemsCount]);
+
+  // Identify categories that actually have designs
+  const categoriesWithDesigns = useMemo(() => {
+    const set = new Set<string>();
+    myDesigns.forEach(d => set.add(d.category.toLowerCase()));
+    return set;
+  }, [myDesigns]);
+
+  const handleLoadMore = () => {
+    setLoadMoreLoading(true);
+    setTimeout(() => {
+      setVisibleItemsCount(prev => prev + pageSize);
+      setLoadMoreLoading(false);
+    }, 600);
+  };
 
   // Handle delete design
   const handleDelete = async (designId: string) => {
@@ -181,6 +226,41 @@ export default function TailorDesigns() {
     }
   };
 
+  const handleEdit = (design: Design) => {
+    setEditingId(design.id);
+
+    // Determine main category based on subCategory existence in constants
+    const isMen = menCategories.some(c => c.id === design.category);
+    const mainCat = isMen ? "men" : "women";
+
+    setFormData({
+      name: design.name || "",
+      mainCategory: mainCat,
+      subCategory: design.category || "",
+      description: design.description || "",
+      price: design.price?.toString() || "",
+      priceWithMaterial: design.priceWithMaterial?.toString() || "",
+      timeInDays: design.timeInDays?.toString() || "7",
+      image: design.image || "",
+      images: design.images || [],
+      neckType: Array.isArray(design.neckType) ? design.neckType : design.neckType ? [design.neckType] : [],
+      backDesign: Array.isArray(design.backDesign) ? design.backDesign : design.backDesign ? [design.backDesign] : [],
+      sleeveType: Array.isArray(design.sleeveType) ? design.sleeveType : design.sleeveType ? [design.sleeveType] : [],
+      workType: Array.isArray(design.workType) ? design.workType : design.workType ? [design.workType] : [],
+      occasion: Array.isArray(design.occasion) ? design.occasion : design.occasion ? [design.occasion] : [],
+      fabrics: design.fabrics || [],
+      fitType: Array.isArray(design.fitType) ? design.fitType : design.fitType ? [design.fitType] : [],
+      collarType: Array.isArray(design.collarType) ? design.collarType : design.collarType ? [design.collarType] : [],
+      cuffType: Array.isArray(design.cuffType) ? design.cuffType : design.cuffType ? [design.cuffType] : [],
+      pocketStyles: Array.isArray(design.pocketStyles) ? design.pocketStyles : design.pocketStyles ? [design.pocketStyles] : [],
+      skirtTypes: Array.isArray(design.skirtTypes) ? design.skirtTypes : design.skirtTypes ? [design.skirtTypes] : [],
+      status: design.status as any,
+      submittedAt: design.submittedAt,
+    });
+
+    setViewMode("form");
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -193,20 +273,27 @@ export default function TailorDesigns() {
     }
 
     try {
-      const designData: Omit<Design, "id"> = {
+      const designData: Partial<Design> = {
         ...formData,
         tailorId: user?.uid || "",
         shopName: shopName,
-        rating: 0,
-        reviewCount: 0,
+        rating: editingId ? (myDesigns.find(d => d.id === editingId)?.rating || 0) : 0,
+        reviewCount: editingId ? (myDesigns.find(d => d.id === editingId)?.reviewCount || 0) : 0,
         timeInDays: Number(formData.timeInDays),
         category: formData.subCategory || formData.mainCategory,
         price: Number(formData.price),
         priceWithMaterial: Number(formData.priceWithMaterial),
-        submittedAt: new Date().toISOString(),
-      } as unknown as Omit<Design, "id">;
+        submittedAt: editingId ? formData.submittedAt : new Date().toISOString(),
+        status: editingId ? 'pending' : 'pending', // Reset to pending on edit? Or keep current? Usually edits require re-approval.
+      };
 
-      await designService.createDesign(designData);
+      if (editingId) {
+        await designService.updateDesign(editingId, designData);
+        toast.success("Design updated successfully!");
+      } else {
+        await designService.createDesign(designData as Omit<Design, "id">);
+        toast.success("Design submitted successfully!");
+      }
 
       // Refresh list
       if (user?.uid) {
@@ -214,12 +301,12 @@ export default function TailorDesigns() {
         setMyDesigns(fetched);
       }
 
-      toast.success("Design submitted successfully! It is now pending admin approval.");
       setViewMode("list");
       setFormData(initialState);
+      setEditingId(null);
     } catch (error) {
-      console.error("Error creating design:", error);
-      toast.error("Failed to submit design");
+      console.error("Error saving design:", error);
+      toast.error("Failed to save design");
     } finally {
       setLoading(false);
     }
@@ -238,12 +325,12 @@ export default function TailorDesigns() {
     return (
       <div className="p-4 lg:p-8 max-w-6xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div className="flex items-center gap-4 border-b pb-4">
-          <Button variant="ghost" size="icon" onClick={() => setViewMode("list")}>
+          <Button variant="ghost" size="icon" onClick={() => { setViewMode("list"); setEditingId(null); setFormData(initialState); }}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className="text-2xl font-display font-bold">Add New Design</h1>
-            <p className="text-muted-foreground text-sm">Fill in the details to list your creation.</p>
+            <h1 className="text-2xl font-display font-bold">{editingId ? "Edit Design" : "Add New Design"}</h1>
+            <p className="text-muted-foreground text-sm">{editingId ? "Update your design details." : "Fill in the details to list your creation."}</p>
           </div>
         </div>
 
@@ -497,7 +584,7 @@ export default function TailorDesigns() {
                 </Button>
                 <Button onClick={handleSubmit} disabled={loading} className="w-full h-11 bg-amber-600 hover:bg-amber-700 text-lg font-semibold shadow-md shadow-amber-900/10">
                   {loading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <Check className="w-5 h-5 mr-2" />}
-                  Publish Design
+                  {editingId ? "Update Design" : "Publish Design"}
                 </Button>
               </div>
             </section>
@@ -507,15 +594,37 @@ export default function TailorDesigns() {
         {/* PREVIEW DIALOG */}
         <Dialog open={showPreview} onOpenChange={setShowPreview}>
           <DialogContent className="max-w-md p-0 overflow-hidden border-0 bg-background shadow-2xl">
-            <div className="relative aspect-[3/4] bg-neutral-100 dark:bg-neutral-900 flex items-center justify-center overflow-hidden">
-              <img src={formData.image || "/placeholder.svg"} alt="Preview" className="w-full h-full object-contain" />
-              <div className="absolute top-4 right-4">
-                <Badge className="bg-white/90 text-black shadow-sm font-bold">New</Badge>
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent text-white pt-20">
+            <div className="bg-neutral-100 dark:bg-neutral-900 overflow-hidden relative group">
+              <Carousel className="w-full">
+                <CarouselContent>
+                  <CarouselItem>
+                    <div className="aspect-[3/4] relative">
+                      <img src={formData.image || "/placeholder.svg"} alt="Preview" className="w-full h-full object-cover" />
+                      <div className="absolute top-4 right-4">
+                        <Badge className="bg-white/90 text-black shadow-sm font-bold">New</Badge>
+                      </div>
+                    </div>
+                  </CarouselItem>
+                  {formData.images.map((img, idx) => (
+                    <CarouselItem key={idx}>
+                      <div className="aspect-[3/4] relative">
+                        <img src={img} alt="Preview" className="w-full h-full object-cover" />
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                {formData.images.length > 0 && (
+                  <>
+                    <CarouselPrevious className="left-2 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <CarouselNext className="right-2 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </>
+                )}
+              </Carousel>
+
+              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent text-white pt-20 pointer-events-none">
                 <h3 className="text-xl font-bold mb-1 leading-tight">{formData.name || "Design Name"}</h3>
                 <p className="text-sm text-white/80 mb-3 line-clamp-2">{formData.description || "Design description..."}</p>
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center pointer-events-auto">
                   <div>
                     <p className="text-2xl font-bold text-amber-400">₹{formData.price || "0"}</p>
                     {formData.priceWithMaterial && <p className="text-xs text-white/60">Includes material</p>}
@@ -551,7 +660,7 @@ export default function TailorDesigns() {
           <h1 className="text-2xl lg:text-3xl font-display font-bold text-foreground">My Designs</h1>
           <p className="text-muted-foreground text-sm">Manage and showcase your portfolio from {shopName}</p>
         </div>
-        <Button onClick={() => setViewMode("form")} className="bg-amber-600 hover:bg-amber-700 shadow-lg shadow-amber-900/10 h-10 px-6 font-semibold">
+        <Button onClick={() => { setEditingId(null); setFormData(initialState); setViewMode("form"); }} className="bg-amber-600 hover:bg-amber-700 shadow-lg shadow-amber-900/10 h-10 px-6 font-semibold">
           <Plus className="w-4 h-4 mr-2" /> Add New Design
         </Button>
       </div>
@@ -578,6 +687,37 @@ export default function TailorDesigns() {
             </SelectContent>
           </Select>
 
+          {/* Gender Filter Toggle */}
+          <div className="flex bg-muted p-1 rounded-lg border">
+            <button
+              onClick={() => setGenderFilter("all")}
+              className={cn(
+                "px-3 py-1 rounded-md text-[10px] font-bold transition-all",
+                genderFilter === "all" ? "bg-background shadow-sm text-amber-600" : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              ALL
+            </button>
+            <button
+              onClick={() => setGenderFilter("men")}
+              className={cn(
+                "px-3 py-1 rounded-md text-[10px] font-bold transition-all",
+                genderFilter === "men" ? "bg-background shadow-sm text-blue-600" : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              MEN
+            </button>
+            <button
+              onClick={() => setGenderFilter("women")}
+              className={cn(
+                "px-3 py-1 rounded-md text-[10px] font-bold transition-all",
+                genderFilter === "women" ? "bg-background shadow-sm text-rose-600" : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              WOMEN
+            </button>
+          </div>
+
           <Select value={categoryFilter} onValueChange={setCategoryFilter}>
             <SelectTrigger className="w-[160px] h-9 text-xs">
               <SelectValue placeholder="All Categories" />
@@ -585,7 +725,14 @@ export default function TailorDesigns() {
             <SelectContent>
               <SelectItem value="all">All Categories</SelectItem>
               {allSubCategories.map(cat => (
-                <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                <SelectItem
+                  key={cat.id}
+                  value={cat.id}
+                  disabled={!categoriesWithDesigns.has(cat.id.toLowerCase())}
+                  className={!categoriesWithDesigns.has(cat.id.toLowerCase()) ? "opacity-40 grayscale pointer-events-none" : ""}
+                >
+                  {cat.name}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -629,6 +776,23 @@ export default function TailorDesigns() {
                 </div>
 
                 <div className="space-y-2">
+                  <Label className="text-sm font-medium">Gender</Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {["all", "men", "women"].map((g) => (
+                      <Button
+                        key={g}
+                        variant={genderFilter === g ? "default" : "outline"}
+                        size="sm"
+                        className="text-[10px] uppercase font-bold"
+                        onClick={() => setGenderFilter(g as any)}
+                      >
+                        {g}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
                   <Label className="text-sm font-medium">Category</Label>
                   <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                     <SelectTrigger className="w-full">
@@ -637,7 +801,14 @@ export default function TailorDesigns() {
                     <SelectContent>
                       <SelectItem value="all">All Categories</SelectItem>
                       {allSubCategories.map(cat => (
-                        <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                        <SelectItem
+                          key={cat.id}
+                          value={cat.id}
+                          disabled={!categoriesWithDesigns.has(cat.id)}
+                          className={!categoriesWithDesigns.has(cat.id) ? "opacity-40 grayscale" : ""}
+                        >
+                          {cat.name}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -676,314 +847,92 @@ export default function TailorDesigns() {
           <Loader2 className="w-10 h-10 animate-spin text-amber-500" />
           <p className="text-muted-foreground animate-pulse">Loading your designs...</p>
         </div>
-      ) : filteredDesigns.length > 0 ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          {filteredDesigns.map((design) => (
-            <Card key={design.id} className="overflow-hidden hover-lift group border-border/50 shadow-soft flex flex-col">
-              <div className="relative aspect-[3/4] overflow-hidden bg-muted">
-                <img
-                  src={design.image}
-                  alt={design.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-                <div className="absolute top-2 right-2 flex flex-col gap-2">
-                  <Badge
-                    className={cn(
-                      "text-[10px] font-bold shadow-sm border-0",
-                      design.status === 'approved' ? "bg-green-500 text-white" :
-                        design.status === 'pending' ? "bg-amber-500 text-white" :
-                          design.status === 'correction_requested' ? "bg-blue-500 text-white" :
-                            "bg-red-500 text-white"
-                    )}
-                  >
-                    {design.status === 'correction_requested' ? "Needs Correction" : design.status.toUpperCase()}
-                  </Badge>
-                </div>
-
-                {/* Compact Delivery Badge */}
-                <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-md text-white text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  {design.timeInDays}d
-                </div>
-
-                {/* Desktop Hover Overlay */}
-                <div className="absolute inset-0 bg-black/40 opacity-0 md:group-hover:opacity-100 transition-opacity hidden md:flex items-center justify-center gap-2">
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button size="icon" variant="secondary" className="rounded-full shadow-lg h-8 w-8" onClick={() => setSelectedDesign(design)}>
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                    </DialogTrigger>
-                    {selectedDesign && (
-                      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-                        <DialogHeader>
-                          <DialogTitle className="text-2xl font-display">{selectedDesign.name}</DialogTitle>
-                          <DialogDescription>Full details for this design</DialogDescription>
-                        </DialogHeader>
-
-                        <div className="grid md:grid-cols-2 gap-6 mt-4">
-                          <div className="space-y-4">
-                            <div className="aspect-[3/4] rounded-xl overflow-hidden border">
-                              <img src={selectedDesign.image} alt={selectedDesign.name} className="w-full h-full object-cover" />
-                            </div>
-                            <div className="grid grid-cols-4 gap-2">
-                              {selectedDesign.images?.map((img, i) => (
-                                <div key={i} className="aspect-square rounded-lg overflow-hidden border">
-                                  <img src={img} alt="" className="w-full h-full object-cover" />
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-
-                          <div className="space-y-6">
-                            <div className="flex items-center justify-between">
-                              <div className="space-y-1">
-                                <Label className="text-muted-foreground text-xs uppercase tracking-wider">Price</Label>
-                                <p className="text-2xl font-bold text-primary flex items-center">
-                                  <IndianRupee className="w-5 h-5" />
-                                  {selectedDesign.price.toLocaleString()}
-                                </p>
-                              </div>
-                              <div className="text-right space-y-1">
-                                <Label className="text-muted-foreground text-xs uppercase tracking-wider">Status</Label>
-                                <div>
-                                  <Badge className={cn(
-                                    design.status === 'approved' ? "bg-green-500" :
-                                      design.status === 'pending' ? "bg-amber-500" :
-                                        design.status === 'correction_requested' ? "bg-blue-50" : "bg-red-500"
-                                  )}>
-                                    {(selectedDesign.status || 'PENDING').toUpperCase()}
-                                  </Badge>
-                                </div>
-                              </div>
-                            </div>
-
-                            <Separator />
-
-                            <div className="grid grid-cols-2 gap-4">
-                              <div className="space-y-1">
-                                <Label className="text-muted-foreground text-xs uppercase tracking-wider">Category</Label>
-                                <p className="font-semibold">{selectedDesign.category}</p>
-                              </div>
-                              <div className="space-y-1">
-                                <Label className="text-muted-foreground text-xs uppercase tracking-wider">Delivery Time</Label>
-                                <p className="font-semibold flex items-center gap-1">
-                                  <Clock className="w-4 h-4" />
-                                  {selectedDesign.timeInDays} Days
-                                </p>
-                              </div>
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label className="text-muted-foreground text-xs uppercase tracking-wider">Attributes</Label>
-                              <div className="flex flex-wrap gap-1.5">
-                                {selectedDesign.neckType && (Array.isArray(selectedDesign.neckType) ? selectedDesign.neckType : [selectedDesign.neckType]).map(t => <Badge key={t} variant="outline" className="text-[10px]">{t}</Badge>)}
-                                {selectedDesign.workType && (Array.isArray(selectedDesign.workType) ? selectedDesign.workType : [selectedDesign.workType]).map(t => <Badge key={t} variant="outline" className="text-[10px]">{t}</Badge>)}
-                                {selectedDesign.sleeveType && (Array.isArray(selectedDesign.sleeveType) ? selectedDesign.sleeveType : [selectedDesign.sleeveType]).map(t => <Badge key={t} variant="outline" className="text-[10px]">{t}</Badge>)}
-                                {selectedDesign.occasion && (Array.isArray(selectedDesign.occasion) ? selectedDesign.occasion : [selectedDesign.occasion]).map(t => <Badge key={t} variant="outline" className="text-[10px]">{t}</Badge>)}
-                              </div>
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label className="text-muted-foreground text-xs uppercase tracking-wider">Description</Label>
-                              <p className="text-sm leading-relaxed">{selectedDesign.description}</p>
-                            </div>
-
-                            {selectedDesign.adminFeedback && (
-                              <div className="p-4 bg-orange-50 border border-orange-100 rounded-lg">
-                                <Label className="text-orange-800 text-xs font-bold uppercase tracking-wider ">Admin Feedback</Label>
-                                <p className="text-sm text-orange-900 mt-1 italic">"{selectedDesign.adminFeedback}"</p>
-                              </div>
-                            )}
-
-                            <div className="flex gap-3 pt-4 border-t">
-                              <Button variant="outline" className="flex-1"><Edit className="w-4 h-4 mr-2" /> Edit</Button>
-                              <Button
-                                variant="destructive"
-                                className="flex-1"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDelete(design.id!);
-                                }}
-                              >
-                                <Trash2 className="w-4 h-4 mr-2" /> Delete
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </DialogContent>
-                    )}
-                  </Dialog>
-                  <Button
-                    size="icon"
-                    variant="destructive"
-                    className="rounded-full shadow-lg h-8 w-8"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(design.id!);
-                    }}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-              <CardContent className="p-3">
-                <div className="flex justify-between items-start mb-0.5">
-                  <h3 className="font-bold text-sm line-clamp-1">{design.name}</h3>
-                </div>
-                <div className="flex items-baseline gap-1 mb-2">
-                  <span className="text-xs font-bold text-primary">₹{design.price.toLocaleString()}</span>
-                  <span className="text-[10px] text-muted-foreground line-clamp-1">{design.category}</span>
-                </div>
-
-                {design.status === 'correction_requested' && (
-                  <div className="bg-blue-50 border border-blue-100 p-2 rounded text-[9px] text-blue-700 animate-pulse mb-2">
-                    <p className="font-semibold uppercase tracking-wider">Feedback Received</p>
+      ) : paginatedDesigns.length > 0 ? (
+        <div className="space-y-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {paginatedDesigns.map((design) => (
+              <Card key={design.id} className="overflow-hidden hover-lift group border-border/50 shadow-soft flex flex-col">
+                <div className="relative aspect-[3/4] overflow-hidden bg-muted">
+                  <img
+                    src={design.image}
+                    alt={design.name}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute top-2 right-2 flex flex-col gap-2">
+                    <Badge
+                      className={cn(
+                        "text-[10px] font-bold shadow-sm border-0",
+                        design.status === 'approved' ? "bg-green-500 text-white" :
+                          design.status === 'pending' ? "bg-amber-500 text-white" :
+                            design.status === 'correction_requested' ? "bg-blue-500 text-white" :
+                              "bg-red-500 text-white"
+                      )}
+                    >
+                      {design.status === 'correction_requested' ? "Needs Correction" : design.status.toUpperCase()}
+                    </Badge>
                   </div>
-                )}
 
-                {/* Mobile Action Buttons */}
-                <div className="flex gap-2 md:hidden mt-3">
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button size="sm" variant="outline" className="h-9 w-9 p-0" onClick={() => setSelectedDesign(design)}>
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                    </DialogTrigger>
-                    {selectedDesign && (
-                      <DialogContent className="max-w-[95vw] sm:max-w-3xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
-                        <DialogHeader>
-                          <DialogTitle className="text-2xl font-display">{selectedDesign.name}</DialogTitle>
-                          <DialogDescription>Full details for this design</DialogDescription>
-                        </DialogHeader>
-
-                        <div className="grid md:grid-cols-2 gap-6 mt-4">
-                          <div className="space-y-4">
-                            <div className="aspect-[3/4] rounded-xl overflow-hidden border">
-                              <img src={selectedDesign.image} alt={selectedDesign.name} className="w-full h-full object-cover" />
-                            </div>
-                            <div className="grid grid-cols-4 gap-2">
-                              {selectedDesign.images?.map((img, i) => (
-                                <div key={i} className="aspect-square rounded-lg overflow-hidden border">
-                                  <img src={img} alt="" className="w-full h-full object-cover" />
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-
-                          <div className="space-y-6">
-                            <div className="flex items-center justify-between">
-                              <div className="space-y-1">
-                                <Label className="text-muted-foreground text-xs uppercase tracking-wider">Price</Label>
-                                <p className="text-2xl font-bold text-primary flex items-center">
-                                  <IndianRupee className="w-5 h-5" />
-                                  {selectedDesign.price.toLocaleString()}
-                                </p>
-                              </div>
-                              {selectedDesign.priceWithMaterial && (
-                                <div className="space-y-1 text-right">
-                                  <Label className="text-muted-foreground text-xs uppercase tracking-wider">With Material</Label>
-                                  <p className="text-xl font-bold text-muted-foreground flex items-center justify-end">
-                                    <IndianRupee className="w-4 h-4" />
-                                    {selectedDesign.priceWithMaterial.toLocaleString()}
-                                  </p>
-                                </div>
-                              )}
-                            </div>
-
-                            <Separator />
-
-                            <div className="grid grid-cols-2 gap-4">
-                              <div className="space-y-1">
-                                <Label className="text-muted-foreground text-xs uppercase tracking-wider">Category</Label>
-                                <p className="text-sm font-semibold">{selectedDesign.category}</p>
-                              </div>
-                              <div className="space-y-1">
-                                <Label className="text-muted-foreground text-xs uppercase tracking-wider">Delivery Time</Label>
-                                <p className="text-sm font-semibold flex items-center">
-                                  <Clock className="w-4 h-4 mr-1" /> {selectedDesign.timeInDays} days
-                                </p>
-                              </div>
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label className="text-muted-foreground text-xs uppercase tracking-wider">Description</Label>
-                              <p className="text-sm text-foreground leading-relaxed">{selectedDesign.description}</p>
-                            </div>
-
-                            {Array.isArray(selectedDesign.neckType) && selectedDesign.neckType.length > 0 && (
-                              <div className="space-y-2">
-                                <Label className="text-muted-foreground text-xs uppercase tracking-wider">Neck Types</Label>
-                                <div className="flex flex-wrap gap-2">
-                                  {selectedDesign.neckType.map(type => (
-                                    <Badge key={type} variant="outline" className="bg-background">{type}</Badge>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-
-                            {Array.isArray(selectedDesign.workType) && selectedDesign.workType.length > 0 && (
-                              <div className="space-y-2">
-                                <Label className="text-muted-foreground text-xs uppercase tracking-wider">Work Types</Label>
-                                <div className="flex flex-wrap gap-2">
-                                  {selectedDesign.workType.map(type => (
-                                    <Badge key={type} variant="outline" className="bg-background">{type}</Badge>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-
-                            {Array.isArray(selectedDesign.backDesign) && selectedDesign.backDesign.length > 0 && (
-                              <div className="space-y-2">
-                                <Label className="text-muted-foreground text-xs uppercase tracking-wider">Back Design Options</Label>
-                                <div className="flex flex-wrap gap-2">
-                                  {selectedDesign.backDesign.map(type => (
-                                    <Badge key={type} variant="outline" className="bg-background">{type}</Badge>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-
-                            {Array.isArray(selectedDesign.sleeveType) && selectedDesign.sleeveType.length > 0 && (
-                              <div className="space-y-2">
-                                <Label className="text-muted-foreground text-xs uppercase tracking-wider">Sleeve Types</Label>
-                                <div className="flex flex-wrap gap-2">
-                                  {selectedDesign.sleeveType.map(type => (
-                                    <Badge key={type} variant="outline" className="bg-background">{type}</Badge>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-
-                            {selectedDesign.status === 'correction_requested' && selectedDesign.adminFeedback && (
-                              <>
-                                <Separator />
-                                <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg space-y-2">
-                                  <Label className="text-blue-700 text-xs uppercase tracking-wider font-bold">Admin Feedback</Label>
-                                  <p className="text-sm text-blue-900">{selectedDesign.adminFeedback}</p>
-                                </div>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </DialogContent>
-                    )}
-                  </Dialog>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    className="h-9 w-9 p-0"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(design.id!);
-                    }}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                  {/* Compact Delivery Badge */}
+                  <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-md text-white text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    {design.timeInDays}d
+                  </div>
+                  {/* Image Click Area */}
+                  <div className="absolute inset-0 z-10 cursor-pointer pointer-events-auto" onClick={() => setSelectedDesign(design)} />
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+
+                <div className="p-3 bg-card flex-1 flex flex-col justify-between">
+                  <div>
+                    <div className="flex justify-between items-start mb-1">
+                      <p className="text-xs font-bold truncate flex-1">{design.name}</p>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mb-2">{design.category}</p>
+                  </div>
+                  <div className="flex justify-between items-end mt-auto">
+                    <p className="text-sm font-bold text-amber-600">₹{design.price.toLocaleString()}</p>
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full hover:bg-amber-50 group/view" onClick={() => setSelectedDesign(design)}>
+                        <Eye className="h-3.5 w-3.5 text-muted-foreground group-hover/view:text-amber-600" />
+                      </Button>
+                      {/* Edit Button - Only if correction requested */}
+                      {design.status === 'correction_requested' && (
+                        <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full hover:bg-blue-50 group/edit" onClick={() => handleEdit(design)}>
+                          <Edit className="h-3.5 w-3.5 text-muted-foreground group-hover/edit:text-blue-600" />
+                        </Button>
+                      )}
+                      <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full hover:bg-red-50 group/del" onClick={() => handleDelete(design.id)}>
+                        <Trash2 className="h-3.5 w-3.5 text-muted-foreground group-hover/del:text-red-500" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+
+          {filteredDesigns.length > visibleItemsCount && (
+            <div className="flex justify-center pt-8 pb-12">
+              <Button
+                variant="outline"
+                size="lg"
+                className="px-12 h-12 rounded-full border-amber-200 hover:border-amber-500 hover:bg-amber-50 group transition-all"
+                onClick={handleLoadMore}
+                disabled={loadMoreLoading}
+              >
+                {loadMoreLoading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin mr-2 text-amber-600" />
+                    Loading Designs...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2 text-amber-500 group-hover:animate-pulse" />
+                    Show More Masterpieces
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
         </div>
       ) : (
         <div className="border-2 border-dashed border-muted rounded-xl p-12 text-center space-y-4 bg-muted/10 h-[60vh] flex flex-col items-center justify-center">
@@ -1002,7 +951,134 @@ export default function TailorDesigns() {
             {statusFilter !== 'all' || categoryFilter !== 'all' ? "Clear Filters" : "Upload First Design"}
           </Button>
         </div>
-      )}
-    </div>
+      )
+      }
+
+      {/* Global View Dialog - Controlled by selectedDesign state */}
+      <Dialog open={!!selectedDesign} onOpenChange={(open) => !open && setSelectedDesign(null)}>
+        {selectedDesign && (
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-display">{selectedDesign.name}</DialogTitle>
+              <DialogDescription>Full details for this design</DialogDescription>
+            </DialogHeader>
+
+            <div className="grid md:grid-cols-2 gap-6 mt-4">
+              <div className="space-y-4">
+                <Carousel className="w-full">
+                  <CarouselContent>
+                    <CarouselItem>
+                      <div className="aspect-[3/4] rounded-xl overflow-hidden border bg-muted">
+                        <img src={selectedDesign.image} alt={selectedDesign.name} className="w-full h-full object-cover" />
+                      </div>
+                    </CarouselItem>
+                    {selectedDesign.images?.map((img, i) => (
+                      <CarouselItem key={i}>
+                        <div className="aspect-[3/4] rounded-xl overflow-hidden border bg-muted">
+                          <img src={img} alt={`${selectedDesign.name} - ${i + 1}`} className="w-full h-full object-cover" />
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  {(selectedDesign.images?.length || 0) > 0 && (
+                    <div className="flex justify-center gap-2 mt-2">
+                      <CarouselPrevious className="static translate-y-0" />
+                      <CarouselNext className="static translate-y-0" />
+                    </div>
+                  )}
+                </Carousel>
+              </div>
+
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label className="text-muted-foreground text-xs uppercase tracking-wider">Price</Label>
+                    <p className="text-2xl font-bold text-primary flex items-center">
+                      <IndianRupee className="w-5 h-5" />
+                      {selectedDesign.price.toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="text-right space-y-1">
+                    <Label className="text-muted-foreground text-xs uppercase tracking-wider">Status</Label>
+                    <div className="flex gap-2 justify-end items-center">
+                      {selectedDesign.isPopular && (
+                        <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-[10px] font-bold">
+                          POPULAR
+                        </Badge>
+                      )}
+                      <Badge className={cn(
+                        selectedDesign.status === 'approved' ? "bg-green-500" :
+                          selectedDesign.status === 'pending' ? "bg-amber-500" :
+                            selectedDesign.status === 'correction_requested' ? "bg-blue-500" : "bg-red-500"
+                      )}>
+                        {(selectedDesign.status || 'PENDING').toUpperCase()}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <Label className="text-muted-foreground text-xs uppercase tracking-wider">Category</Label>
+                    <p className="font-semibold">{selectedDesign.category}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-muted-foreground text-xs uppercase tracking-wider">Delivery Time</Label>
+                    <p className="font-semibold flex items-center gap-1">
+                      <Clock className="w-4 h-4" />
+                      {selectedDesign.timeInDays} Days
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-muted-foreground text-xs uppercase tracking-wider">Attributes</Label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {selectedDesign.neckType && (Array.isArray(selectedDesign.neckType) ? selectedDesign.neckType : [selectedDesign.neckType]).map(t => <Badge key={t} variant="outline" className="text-[10px] bg-background">{t}</Badge>)}
+                    {selectedDesign.workType && (Array.isArray(selectedDesign.workType) ? selectedDesign.workType : [selectedDesign.workType]).map(t => <Badge key={t} variant="outline" className="text-[10px] bg-background">{t}</Badge>)}
+                    {selectedDesign.sleeveType && (Array.isArray(selectedDesign.sleeveType) ? selectedDesign.sleeveType : [selectedDesign.sleeveType]).map(t => <Badge key={t} variant="outline" className="text-[10px] bg-background">{t}</Badge>)}
+                    {selectedDesign.occasion && (Array.isArray(selectedDesign.occasion) ? selectedDesign.occasion : [selectedDesign.occasion]).map(t => <Badge key={t} variant="outline" className="text-[10px] bg-background">{t}</Badge>)}
+                  </div>
+                </div>
+
+                {selectedDesign.features && selectedDesign.features.length > 0 && (
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-xs uppercase tracking-wider">Key Features</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedDesign.features.map(f => (
+                        <div key={f} className="flex items-center text-[11px] bg-primary/5 text-primary px-2 py-1 rounded-md border border-primary/10">
+                          <Check className="w-3 h-3 mr-1" />
+                          {f}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <Label className="text-muted-foreground text-xs uppercase tracking-wider">Description</Label>
+                  <p className="text-sm leading-relaxed">{selectedDesign.description}</p>
+                </div>
+
+                {selectedDesign.adminFeedback && (
+                  <div className="p-4 bg-orange-50 border border-orange-100 rounded-lg">
+                    <Label className="text-orange-800 text-xs font-bold uppercase tracking-wider ">Admin Feedback</Label>
+                    <p className="text-sm text-orange-900 mt-1 italic">"{selectedDesign.adminFeedback}"</p>
+                  </div>
+                )}
+
+                <div className="flex gap-3 pt-4 border-t">
+                  <Button variant="destructive" className="flex-1" onClick={() => { handleDelete(selectedDesign.id); setSelectedDesign(null); }}>
+                    <Trash2 className="w-4 h-4 mr-2" /> Delete
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        )}
+      </Dialog>
+    </div >
   );
 }

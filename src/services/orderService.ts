@@ -61,18 +61,26 @@ export const orderService = {
     },
 
     getUserOrders: async (userId: string): Promise<Order[]> => {
+        // Remove orderBy to avoid Firebase composite index requirement
+        // We'll sort client-side instead
         const q = query(
             collection(db, COLLECTION_ORDERS),
-            where("userId", "==", userId),
-            orderBy("createdAt", "desc")
+            where("userId", "==", userId)
         );
         const querySnapshot = await getDocs(q);
-        return querySnapshot.docs.map(doc => ({
+        const orders = querySnapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data(),
             // Handle timestamp conversion if needed for UI
             createdAt: doc.data().createdAt?.toDate() || new Date()
         } as Order));
+
+        // Sort client-side by createdAt descending
+        return orders.sort((a, b) => {
+            const aTime = a.createdAt instanceof Date ? a.createdAt.getTime() : 0;
+            const bTime = b.createdAt instanceof Date ? b.createdAt.getTime() : 0;
+            return bTime - aTime;
+        });
     },
 
     getAllOrders: async (): Promise<Order[]> => {

@@ -63,6 +63,45 @@ export const seedingService = {
         }
     },
 
+    seedTailorDesigns: async (tailorId: string) => {
+        const batch = writeBatch(db);
+        let count = 0;
+
+        designs.forEach((design) => {
+            // Create a unique ID for this tailor's version of the mock design
+            const newDocRef = doc(collection(db, COLLECTION_DESIGNS));
+            batch.set(newDocRef, {
+                ...design,
+                id: newDocRef.id,
+                tailorId: tailorId,
+                status: 'approved',
+                submittedAt: new Date().toISOString(),
+                createdAt: new Date(),
+                updatedAt: new Date()
+            });
+            count++;
+        });
+
+        await batch.commit();
+        console.log(`Seeded ${count} designs for tailor ${tailorId}`);
+        return true;
+    },
+
+    wipeTailorDesigns: async (tailorId: string) => {
+        const { getDocs, query, where, collection, writeBatch } = await import("firebase/firestore");
+        const q = query(collection(db, COLLECTION_DESIGNS), where("tailorId", "==", tailorId));
+        const querySnapshot = await getDocs(q);
+
+        const batch = writeBatch(db);
+        querySnapshot.forEach((doc) => {
+            batch.delete(doc.ref);
+        });
+
+        await batch.commit();
+        console.log(`Wiped designs for tailor ${tailorId}`);
+        return true;
+    },
+
     seedAll: async () => {
         try {
             console.log("Starting data seeding...");

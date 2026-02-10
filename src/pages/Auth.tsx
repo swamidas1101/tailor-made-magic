@@ -1,23 +1,21 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ShoppingBag, Building2, Mail, Lock, User, Eye, EyeOff, Phone, Check, ArrowRight, ArrowLeft, LogOut, ShieldCheck, Sparkles } from "lucide-react";
+import { ShoppingBag, Building2, Mail, Lock, User, Eye, EyeOff, Check, ArrowRight, ArrowLeft, LogOut, ShieldCheck, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { useAuth, UserRole } from "@/contexts/AuthContext";
-import { RecaptchaVerifier, ConfirmationResult } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
-type AuthMethod = "email" | "google" | "phone";
+type AuthMethod = "email" | "google";
 
 export default function Auth() {
     const {
         loginWithEmail,
         signupWithEmail,
-        signupWithPhone,
-        verifyPhoneOTP,
+
         loginWithGoogle,
         signupWithGoogle,
         user,
@@ -63,11 +61,7 @@ export default function Auth() {
     const [businessAddress, setBusinessAddress] = useState("");
     const [selectedSpecializations, setSelectedSpecializations] = useState<string[]>([]);
 
-    // Phone auth state
-    const [recaptchaVerifier, setRecaptchaVerifier] = useState<RecaptchaVerifier | null>(null);
-    const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
-    const [otp, setOtp] = useState("");
-    const [otpSent, setOtpSent] = useState(false);
+
 
     const [isLoading, setIsLoading] = useState(false);
 
@@ -85,25 +79,7 @@ export default function Auth() {
         "Ethnic Wear"
     ];
 
-    // Initialize reCAPTCHA for phone auth
-    useEffect(() => {
-        if (authMethod === "phone" && !recaptchaVerifier) {
-            try {
-                const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-                    size: 'normal',
-                    callback: () => {
-                        // reCAPTCHA solved
-                    },
-                    'expired-callback': () => {
-                        toast.error("reCAPTCHA expired. Please try again.");
-                    }
-                });
-                setRecaptchaVerifier(verifier);
-            } catch (error) {
-                console.error("reCAPTCHA initialization error:", error);
-            }
-        }
-    }, [authMethod, recaptchaVerifier]);
+
 
     // Handle Navigation / Redirects
     const handleDashboardRedirect = () => {
@@ -236,24 +212,6 @@ export default function Auth() {
             } else if (authMethod === "google") {
                 await signupWithGoogle("customer");
                 toast.success("Signed up with Google!");
-            } else if (authMethod === "phone") {
-                if (!otpSent) {
-                    if (!recaptchaVerifier) {
-                        toast.error("Please complete reCAPTCHA");
-                        return;
-                    }
-                    const result = await signupWithPhone(phoneNumber, recaptchaVerifier);
-                    setConfirmationResult(result);
-                    setOtpSent(true);
-                    toast.success("OTP sent to your phone!");
-                } else {
-                    if (!confirmationResult) {
-                        toast.error("Please request OTP first");
-                        return;
-                    }
-                    await verifyPhoneOTP(confirmationResult, otp, name, "customer");
-                    toast.success("Account created successfully!");
-                }
             }
         } catch (error: any) {
             toast.error(error.message || "Signup failed");
@@ -301,24 +259,41 @@ export default function Auth() {
             } else if (authMethod === "google") {
                 await signupWithGoogle("tailor", businessDetails);
                 toast.success("Signed up with Google!");
-            } else if (authMethod === "phone") {
-                if (!otpSent) {
-                    if (!recaptchaVerifier) {
-                        toast.error("Please complete reCAPTCHA");
-                        return;
-                    }
-                    const result = await signupWithPhone(phoneNumber, recaptchaVerifier);
-                    setConfirmationResult(result);
-                    setOtpSent(true);
-                    toast.success("OTP sent to your phone!");
-                } else {
-                    if (!confirmationResult) {
-                        toast.error("Please request OTP first");
-                        return;
-                    }
-                    await verifyPhoneOTP(confirmationResult, otp, name, "tailor", businessDetails);
-                    toast.success("Tailor account created successfully!");
-                }
+            }
+        } catch (error: any) {
+            toast.error(error.message || "Signup failed");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Handle admin signup
+    const handleAdminSignup = async () => {
+        if (isAddingRole) {
+            await handleAddRole();
+            return;
+        }
+
+        if (authMethod === "email") {
+            if (password !== confirmPassword) {
+                toast.error("Passwords do not match");
+                return;
+            }
+            if (password.length < 8) {
+                toast.error("Password must be at least 8 characters");
+                return;
+            }
+        }
+
+        setIsLoading(true);
+
+        try {
+            if (authMethod === "email") {
+                await signupWithEmail(email, password, name, "admin");
+                toast.success("Admin account created successfully!");
+            } else if (authMethod === "google") {
+                await signupWithGoogle("admin");
+                toast.success("Signed up with Google!");
             }
         } catch (error: any) {
             toast.error(error.message || "Signup failed");
@@ -882,7 +857,7 @@ export default function Auth() {
                                     /* Standard Signup: Choose Auth Method */
                                     <>
                                         {/* Auth Method Selection */}
-                                        <div className="grid grid-cols-3 gap-2 p-1 bg-muted rounded-lg">
+                                        <div className="grid grid-cols-2 gap-2 p-1 bg-muted rounded-lg">
                                             <button
                                                 onClick={() => setAuthMethod("email")}
                                                 className={`py-2 px-3 rounded-md text-sm font-medium transition-colors ${authMethod === "email" ? "bg-background shadow-sm" : "hover:bg-background/50"
@@ -896,13 +871,6 @@ export default function Auth() {
                                                     }`}
                                             >
                                                 Google
-                                            </button>
-                                            <button
-                                                onClick={() => setAuthMethod("phone")}
-                                                className={`py-2 px-3 rounded-md text-sm font-medium transition-colors ${authMethod === "phone" ? "bg-background shadow-sm" : "hover:bg-background/50"
-                                                    }`}
-                                            >
-                                                Phone
                                             </button>
                                         </div>
 
@@ -946,7 +914,13 @@ export default function Auth() {
                                                 </div>
 
                                                 <Button
-                                                    onClick={selectedRole === "customer" ? handleCustomerSignup : handleTailorSignup}
+                                                    onClick={
+                                                        selectedRole === "customer"
+                                                            ? handleCustomerSignup
+                                                            : selectedRole === "admin"
+                                                                ? handleAdminSignup
+                                                                : handleTailorSignup
+                                                    }
                                                     className="w-full"
                                                     size="lg"
                                                     disabled={isLoading}
@@ -960,7 +934,13 @@ export default function Auth() {
                                         {authMethod === "google" && (
                                             <div className="space-y-4">
                                                 <Button
-                                                    onClick={handleGoogleSignIn}
+                                                    onClick={
+                                                        selectedRole === "customer"
+                                                            ? handleCustomerSignup
+                                                            : selectedRole === "admin"
+                                                                ? handleAdminSignup
+                                                                : handleTailorSignup
+                                                    }
                                                     variant="outline"
                                                     className="w-full"
                                                     size="lg"
@@ -977,65 +957,7 @@ export default function Auth() {
                                             </div>
                                         )}
 
-                                        {/* Phone Auth */}
-                                        {authMethod === "phone" && (
-                                            <div className="space-y-4">
-                                                {!otpSent ? (
-                                                    <>
-                                                        <div className="space-y-2">
-                                                            <Label htmlFor="phone">Phone Number</Label>
-                                                            <div className="relative">
-                                                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                                                                <Input
-                                                                    id="phone"
-                                                                    type="tel"
-                                                                    placeholder="+1 234 567 8900"
-                                                                    value={phoneNumber}
-                                                                    onChange={(e) => setPhoneNumber(e.target.value)}
-                                                                    className="pl-10"
-                                                                    required
-                                                                />
-                                                            </div>
-                                                        </div>
 
-                                                        <div id="recaptcha-container"></div>
-
-                                                        <Button
-                                                            onClick={selectedRole === "customer" ? handleCustomerSignup : handleTailorSignup}
-                                                            className="w-full"
-                                                            size="lg"
-                                                            disabled={isLoading}
-                                                        >
-                                                            {isLoading ? "Sending OTP..." : "Send OTP"}
-                                                        </Button>
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <div className="space-y-2">
-                                                            <Label htmlFor="otp">Enter OTP</Label>
-                                                            <Input
-                                                                id="otp"
-                                                                type="text"
-                                                                placeholder="6-digit code"
-                                                                value={otp}
-                                                                onChange={(e) => setOtp(e.target.value)}
-                                                                maxLength={6}
-                                                                required
-                                                            />
-                                                        </div>
-
-                                                        <Button
-                                                            onClick={selectedRole === "customer" ? handleCustomerSignup : handleTailorSignup}
-                                                            className="w-full"
-                                                            size="lg"
-                                                            disabled={isLoading}
-                                                        >
-                                                            {isLoading ? "Verifying..." : "Verify & Create Account"}
-                                                        </Button>
-                                                    </>
-                                                )}
-                                            </div>
-                                        )}
 
                                         <p className="text-xs text-center text-muted-foreground">
                                             By creating an account, you agree to our{" "}

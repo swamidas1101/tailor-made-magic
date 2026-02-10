@@ -16,13 +16,15 @@ import {
   ArrowUpRight,
   Eye,
   Settings,
-  Scissors
+  Scissors,
+  Database
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { designService } from "@/services/designService";
+import { orderService, Order } from "@/services/orderService";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -33,20 +35,54 @@ export default function TailorOverview() {
   const [loading, setLoading] = useState(true);
   const [designCount, setDesignCount] = useState(0);
   const [recentDesigns, setRecentDesigns] = useState<any[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [averageRating, setAverageRating] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
       if (!user?.uid) return;
+      
+      setLoading(true);
+      
+      // Fetch designs and orders separately to handle errors independently
       try {
-        setLoading(true);
         const designs = await designService.getTailorDesigns(user.uid);
+        console.log("TailorOverview: Fetched Designs:", designs);
+        console.log("TailorOverview: Design Count:", designs.length);
+
         setDesignCount(designs.length);
         setRecentDesigns(designs.slice(0, 3));
+
+        // Calculate Rating 
+        const totalRating = designs.reduce((acc, curr) => acc + (curr.rating || 0), 0);
+        const avg = designs.length > 0 ? (totalRating / designs.length) : 0;
+        setAverageRating(avg);
       } catch (error) {
-        console.error("Error fetching dashboard data:", error);
-      } finally {
-        setLoading(false);
+        console.error("Error fetching designs:", error);
+        // Set defaults on error
+        setDesignCount(0);
+        setRecentDesigns([]);
+        setAverageRating(0);
       }
+
+      // Fetch orders separately - if it fails, designs will still display
+      try {
+        const fetchedOrders = await orderService.getUserOrders(user.uid);
+        console.log("TailorOverview: Fetched Orders:", fetchedOrders.length);
+        
+        setOrders(fetchedOrders);
+        const revenue = fetchedOrders.reduce((acc, order) => acc + (order.totalAmount || 0), 0);
+        setTotalRevenue(revenue);
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+        console.warn("Orders fetch failed - this may be due to missing Firebase index. Designs will still display.");
+        // Set defaults on error
+        setOrders([]);
+        setTotalRevenue(0);
+      }
+      
+      setLoading(false);
     };
     fetchData();
   }, [user?.uid]);
@@ -58,13 +94,14 @@ export default function TailorOverview() {
     { label: "Check Orders", icon: ShoppingBag, path: "/tailor/orders", color: "bg-blue-500", desc: "Manage requested items" },
     { label: "Withdraw", icon: IndianRupee, path: "/tailor/earnings", color: "bg-green-500", desc: "Request your payouts" },
     { label: "Edit Profile", icon: Settings, path: "/tailor/profile", color: "bg-purple-500", desc: "Update shop details" },
+    // { label: "Database Seeder", icon: Database, path: "/seed", color: "bg-rose-500", desc: "Populate mock data" }, // Hidden for real users
   ];
 
   const stats = [
-    { label: "Total Orders", value: "18", change: "+12%", icon: ShoppingBag, color: "text-blue-600", bg: "bg-blue-50" },
-    { label: "Revenue (MTD)", value: "₹42,500", change: "+8%", icon: IndianRupee, color: "text-green-600", bg: "bg-green-50" },
-    { label: "Portflio Size", value: designCount.toString(), change: "designs", icon: Star, color: "text-purple-600", bg: "bg-purple-50" },
-    { label: "Avg. Rating", value: "4.9", change: "24 reviews", icon: TrendingUp, color: "text-amber-600", bg: "bg-amber-50" },
+    { label: "Total Orders", value: orders.length.toString(), change: "Lifetime", icon: ShoppingBag, color: "text-blue-600", bg: "bg-blue-50" },
+    { label: "Total Revenue", value: `₹${totalRevenue.toLocaleString()}`, change: "Lifetime", icon: IndianRupee, color: "text-green-600", bg: "bg-green-50" },
+    { label: "Portfolio Size", value: designCount.toString(), change: "designs", icon: Star, color: "text-purple-600", bg: "bg-purple-50" },
+    { label: "Avg. Rating", value: averageRating.toFixed(1), change: "From designs", icon: TrendingUp, color: "text-amber-600", bg: "bg-amber-50" },
   ];
 
   if (loading) {
@@ -122,7 +159,7 @@ export default function TailorOverview() {
                   <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{stat.label}</p>
                   <p className="text-2xl font-bold text-foreground tracking-tight">{stat.value}</p>
                   <p className="text-[10px] font-bold text-green-600 flex items-center gap-0.5">
-                    {stat.change} <ArrowUpRight className="w-2.5 h-2.5" />
+                    {stat.change}
                   </p>
                 </div>
                 <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 shadow-sm", stat.bg)}>
@@ -244,41 +281,41 @@ export default function TailorOverview() {
                 <CardTitle className="text-base font-bold flex items-center gap-2">
                   <Bell className="w-4 h-4 text-amber-600" /> Notifications
                 </CardTitle>
-                <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                {orders.some(o => o.status === 'pending') && (
+                  <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                )}
               </div>
             </CardHeader>
             <CardContent className="p-0">
-              <div className="divide-y divide-border/50">
-                <div
-                  className="p-4 space-y-1 hover:bg-muted/5 transition-colors cursor-pointer"
-                  onClick={() => navigate("/tailor/orders")}
-                >
-                  <p className="text-xs font-bold flex items-center gap-1.5">
-                    <Badge className="h-4 px-1 py-0 text-[8px] bg-blue-100 text-blue-700 border-blue-200">New Order</Badge>
-                    #ORD-2849 received
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">Traditional Silk Blouse • 2m ago</p>
+              {orders.length === 0 ? (
+                <div className="p-6 text-center text-muted-foreground text-xs">
+                  No recent notifications.
                 </div>
-                <div
-                  className="p-4 space-y-1 hover:bg-muted/5 transition-colors cursor-pointer"
-                  onClick={() => navigate("/tailor/orders")}
-                >
-                  <p className="text-xs font-bold flex items-center gap-1.5">
-                    <Badge className="h-4 px-1 py-0 text-[8px] bg-green-100 text-green-700 border-green-200">Approved</Badge>
-                    Velvet Gown approved
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">Admin reviewed your design • 1h ago</p>
+              ) : (
+                <div className="divide-y divide-border/50">
+                  {orders.slice(0, 3).map((order) => (
+                    <div
+                      key={order.id}
+                      className="p-4 space-y-1 hover:bg-muted/5 transition-colors cursor-pointer"
+                      onClick={() => navigate("/tailor/orders")}
+                    >
+                      <p className="text-xs font-bold flex items-center gap-1.5">
+                        <Badge className={cn("h-4 px-1 py-0 text-[8px]",
+                          order.status === 'pending' ? "bg-blue-100 text-blue-700 border-blue-200" :
+                            order.status === 'delivered' ? "bg-green-100 text-green-700 border-green-200" :
+                              "bg-gray-100 text-gray-700 border-gray-200"
+                        )}>
+                          {order.status}
+                        </Badge>
+                        Order received
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {order.items.length} items • {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'Just now'}
+                      </p>
+                    </div>
+                  ))}
                 </div>
-                <div
-                  className="p-4 space-y-1 hover:bg-muted/5 transition-colors cursor-pointer opacity-70"
-                  onClick={() => navigate("/tailor/orders")}
-                >
-                  <p className="text-xs font-bold flex items-center gap-1.5 text-muted-foreground">
-                    Correction requested
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">Bridal Lehanga #b1 • 5h ago</p>
-                </div>
-              </div>
+              )}
               <Button
                 variant="ghost"
                 className="w-full h-10 text-[10px] font-bold uppercase tracking-wider text-muted-foreground hover:text-amber-600"
