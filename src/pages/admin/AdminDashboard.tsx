@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { cn } from "@/lib/utils";
 
 const adminNavItems = [
@@ -215,6 +216,9 @@ export default function AdminDashboard() {
           <Outlet />
         </div>
       </main>
+
+      {/* PWA Install Prompt */}
+      <InstallPrompt role="admin" />
     </div>
   );
 }
