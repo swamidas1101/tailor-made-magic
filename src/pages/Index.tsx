@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/layout/Layout";
 import { CategoryCard } from "@/components/categories/CategoryCard";
 import { DesignCard } from "@/components/designs/DesignCard";
-import { testimonials, designs as mockDesigns, categories as mockCategories, menCategories as mockMenCategories } from "@/data/mockData";
+import { testimonials, designs as mockDesigns, womenCategories as mockWomenCategories, menCategories as mockMenCategories } from "@/data/mockData";
 import { designService, categoryService } from "@/services/designService";
 import { useState, useEffect } from "react";
 import { Design, Category } from "@/data/mockData";
@@ -66,21 +66,19 @@ const Index = () => {
 
         if (fetchedCategories.length === 0) {
           console.warn("Firestore categories empty, using mock data");
-          setCategories(mockCategories.slice(0, 4));
+          setCategories(mockWomenCategories.slice(0, 4));
           setMenCategories(mockMenCategories.slice(0, 4));
         } else {
-          // Filter categories by type
           const womenCats = fetchedCategories.filter(c => c.type === "women").slice(0, 4);
           const menCats = fetchedCategories.filter(c => c.type === "men").slice(0, 4);
 
-          setCategories(womenCats);
-          setMenCategories(menCats);
+          setCategories(womenCats.length > 0 ? womenCats : mockWomenCategories.slice(0, 4));
+          setMenCategories(menCats.length > 0 ? menCats : mockMenCategories.slice(0, 4));
         }
       } catch (error) {
         console.error("Error fetching data:", error);
-        // Fallback to mock data on error
         setDesigns(mockDesigns.filter(d => d.isPopular).slice(0, 8));
-        setCategories(mockCategories.slice(0, 4));
+        setCategories(mockWomenCategories.slice(0, 4));
         setMenCategories(mockMenCategories.slice(0, 4));
       } finally {
         setLoading(false);
