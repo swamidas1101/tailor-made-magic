@@ -26,6 +26,9 @@ import TailorManagement from "./pages/admin/TailorManagement";
 import DesignModeration from "./pages/admin/DesignModeration";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import CategoryManagement from "./pages/admin/CategoryManagement";
+import FilterManagement from "./pages/admin/FilterManagement";
+import DatabaseSeeder from "./pages/admin/DatabaseSeeder";
 import TailorDashboard from "./pages/tailor/TailorDashboard";
 import TailorOverview from "./pages/tailor/TailorOverview";
 import TailorDesigns from "./pages/tailor/TailorDesigns";
@@ -100,8 +103,11 @@ const App = () => (
                   <Route index element={<AdminOverview />} />
                   <Route path="tailors" element={<TailorManagement />} />
                   <Route path="designs" element={<DesignModeration />} />
+                  <Route path="categories" element={<CategoryManagement />} />
+                  <Route path="filters" element={<FilterManagement />} />
                   <Route path="orders" element={<AdminOrders />} />
                   <Route path="analytics" element={<AdminAnalytics />} />
+                  <Route path="seeder" element={<DatabaseSeeder />} />
                 </Route>
                 <Route path="/tailor" element={
                   <ProtectedRoute allowedRoles={['tailor']}>

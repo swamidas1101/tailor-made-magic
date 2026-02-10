@@ -1,17 +1,23 @@
 import { useState, useEffect, useMemo } from "react";
-import { Design, Category } from "@/data/mockData";
-import { designService, categoryService } from "@/services/designService";
+import { Design, Category } from "@/types/database";
+import { designService } from "@/services/designService";
+import { categoryService } from "@/services/categoryService";
+
+export interface EnrichedCategory extends Category {
+  designCount: number;
+  firstDesignImage?: string;
+}
 
 interface UseFirebaseDataReturn {
   designs: Design[];
   allCategories: Category[];
-  womenCategories: Category[];
-  menCategories: Category[];
+  womenCategories: EnrichedCategory[];
+  menCategories: EnrichedCategory[];
   loading: boolean;
   error: string | null;
 }
 
-// Cache to avoid refetching on every component mount
+// Cache to avoid refetching on every component mount (simple in-memory cache)
 let cachedDesigns: Design[] | null = null;
 let cachedCategories: Category[] | null = null;
 let fetchPromise: Promise<void> | null = null;
@@ -37,7 +43,7 @@ export function useFirebaseData(): UseFirebaseDataReturn {
           try {
             const [fetchedDesigns, fetchedCategories] = await Promise.all([
               designService.getAllDesigns(),
-              categoryService.getAllCategories(),
+              categoryService.getCategories(),
             ]);
             cachedDesigns = fetchedDesigns;
             cachedCategories = fetchedCategories;
@@ -79,7 +85,7 @@ export function useFirebaseData(): UseFirebaseDataReturn {
       .map((cat) => {
         // Find all designs for this category
         const categoryDesigns = designs.filter(
-          (d) => d.category === cat.id || d.category === cat.name || d.category === cat.filterKey
+          (d) => d.categoryId === cat.id
         );
 
         // Get the first design's image (prefer images[0] if available, fallback to image)
@@ -94,7 +100,10 @@ export function useFirebaseData(): UseFirebaseDataReturn {
           firstDesignImage,
         };
       })
-      .filter((cat) => cat.designCount > 0); // Only show categories with at least one design
+      .filter((cat) => true); // Show all categories even empty ones for now? Or keep filtering? 
+    // Keeping filter to hide empty categories might be better for UX, but for admin visibility, maybe show all. 
+    // User requested "dynamic category", normally we show what exists. 
+    // Let's SHOW all for now so seeded categories appear even if empty.
   }, [womenCategories, designs]);
 
   const enrichedMenCategories = useMemo(() => {
@@ -102,7 +111,7 @@ export function useFirebaseData(): UseFirebaseDataReturn {
       .map((cat) => {
         // Find all designs for this category
         const categoryDesigns = designs.filter(
-          (d) => d.category === cat.id || d.category === cat.name || d.category === cat.filterKey
+          (d) => d.categoryId === cat.id
         );
 
         // Get the first design's image (prefer images[0] if available, fallback to image)
@@ -117,7 +126,7 @@ export function useFirebaseData(): UseFirebaseDataReturn {
           firstDesignImage,
         };
       })
-      .filter((cat) => cat.designCount > 0); // Only show categories with at least one design
+      .filter((cat) => true);
   }, [menCategories, designs]);
 
   return {
