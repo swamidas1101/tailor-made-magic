@@ -153,11 +153,11 @@ export default function TailorDashboard() {
         {isKYTApproved ? <Outlet /> : <TailorKYT />}
       </main>
 
-      {/* Mobile FAB - Persistent Quick Action */}
-      {isKYTApproved && (
+      {/* Mobile FAB - Persistent Quick Action (Hide on designs page to avoid duplication) */}
+      {isKYTApproved && location.pathname !== "/tailor/designs" && (
         <Button
           onClick={() => navigate("/tailor/designs")}
-          className="lg:hidden fixed right-4 bottom-20 z-40 w-14 h-14 rounded-full bg-amber-600 hover:bg-amber-700 shadow-xl shadow-amber-900/40 flex items-center justify-center p-0 transition-transform active:scale-90"
+          className="lg:hidden fixed right-4 bottom-24 z-40 w-14 h-14 rounded-full bg-amber-600 hover:bg-amber-700 shadow-xl shadow-amber-900/40 flex items-center justify-center p-0 transition-transform active:scale-90"
         >
           <Plus className="w-7 h-7 text-white" />
         </Button>

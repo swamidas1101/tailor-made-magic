@@ -152,7 +152,30 @@ export default function TailorDesigns() {
       setLoading(true);
       if (user?.uid) {
         const data = await designService.getTailorDesigns(user.uid);
-        setDesigns(data);
+        // Normalize data to handle legacy fields and fix bad gender tagging
+        const normalizedData = data.map(d => {
+          const catId = (d.categoryId || (d as any).category || "").toString();
+          const catName = (d.categoryName || (d as any).category || "").toString();
+
+          // Auto-correct gender if category explicitly says "Men" (fixes user's data issue)
+          let gender = (d.gender || (d as any).mainCategory || "women").toLowerCase();
+          if (catId.toLowerCase().includes('men') || catName.toLowerCase().startsWith('men')) {
+            gender = 'men';
+          }
+
+          return {
+            ...d,
+            id: d.id,
+            gender: gender as "men" | "women",
+            categoryId: catId,
+            categoryName: catName,
+            status: d.status || 'pending',
+            price: typeof d.price === 'string' ? parseFloat(d.price) : (d.price || 0),
+            images: d.images || (d.image ? [d.image] : []),
+            filters: d.filters || {}
+          };
+        });
+        setDesigns(normalizedData as Design[]);
       }
     } catch (error) {
       console.error(error);
@@ -236,10 +259,23 @@ export default function TailorDesigns() {
     }
   };
 
-  // Calculate category counts
-  const categoryCounts = designs.reduce((acc, design) => {
-    const catId = design.categoryId || (design as any).category;
-    acc[catId] = (acc[catId] || 0) + 1;
+  // Calculate category counts using robust matching (matches the filter logic)
+  const categoryCounts = categories.reduce((acc, cat) => {
+    const count = designs.filter(d => {
+      // Apply other active filters to the count (optional, but good UX - usually counts show "available in current view")
+      const matchesGender = genderFilter === 'all' || d.gender === genderFilter;
+      if (!matchesGender) return false;
+
+      const designCat = (d.categoryId || (d as any).category || d.categoryName || "").toString().toLowerCase().trim();
+      const catId = cat.id.toLowerCase().trim();
+      const catName = cat.name.toLowerCase().trim();
+
+      return designCat === catId ||
+        designCat === catName ||
+        (catId && (catId.includes(designCat) || designCat.includes(catId))) ||
+        (catName && (catName.includes(designCat) || designCat.includes(catName)));
+    }).length;
+    acc[cat.id] = count;
     return acc;
   }, {} as Record<string, number>);
 
@@ -655,8 +691,8 @@ export default function TailorDesigns() {
               </p>
             </div>
 
-            <div className="flex items-center gap-3 w-full md:w-auto">
-              <div className="relative flex-1 md:w-64">
+            <div className="flex items-center gap-3 w-full md:flex-1 md:justify-end">
+              <div className="relative flex-1 md:w-64 max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   placeholder="Search designs..."
@@ -813,12 +849,9 @@ export default function TailorDesigns() {
               <Plus className="w-10 h-10 text-amber-500" />
             </div>
             <h3 className="text-2xl font-bold text-gray-900 mb-2">No Designs Found</h3>
-            <p className="text-gray-500 max-w-md mx-auto mb-8">
-              {searchTerm || statusFilter !== 'all' || categoryFilter !== 'all' ? "No designs match your filters." : "Start building your portfolio by adding your first design."}
+            <p className="text-gray-500 max-w-md mx-auto">
+              {searchTerm || statusFilter !== 'all' || categoryFilter !== 'all' ? "No designs match your filters." : "Start building your portfolio by adding your first design using the plus button."}
             </p>
-            <Button onClick={() => setIsCreating(true)} className="bg-amber-600 hover:bg-amber-700 font-bold">
-              Create Design
-            </Button>
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
@@ -845,14 +878,14 @@ export default function TailorDesigns() {
 
       {/* Mobile Filter Drawer */}
       <Sheet open={isFilterDrawerOpen} onOpenChange={setIsFilterDrawerOpen}>
-        <SheetContent side="bottom" className="rounded-t-[32px] px-6 pb-8 pt-2 h-[70vh]">
-          <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6" />
-          <SheetHeader className="mb-6">
+        <SheetContent side="bottom" className="rounded-t-[32px] px-6 pb-12 pt-2 h-[80vh] flex flex-col">
+          <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6 flex-shrink-0" />
+          <SheetHeader className="mb-6 flex-shrink-0">
             <SheetTitle className="text-2xl font-bold text-gray-900">Filters</SheetTitle>
             <SheetDescription>Refine your design list</SheetDescription>
           </SheetHeader>
 
-          <div className="space-y-8">
+          <div className="flex-1 overflow-y-auto pr-2 -mr-2 space-y-8 pb-4">
             {/* Status Section */}
             <div className="space-y-4">
               <Label className="text-sm font-bold uppercase tracking-widest text-gray-500">Status</Label>
@@ -895,55 +928,51 @@ export default function TailorDesigns() {
             {/* Category Section */}
             <div className="space-y-4">
               <Label className="text-sm font-bold uppercase tracking-widest text-gray-500">Category</Label>
-              <div className="max-h-[200px] overflow-y-auto space-y-2 pr-2">
-                <Button
-                  variant={categoryFilter === 'all' ? "default" : "outline"}
-                  onClick={() => setCategoryFilter('all')}
-                  className={cn(
-                    "w-full justify-between h-11 rounded-xl text-sm",
-                    categoryFilter === 'all' ? "bg-amber-600 hover:bg-amber-700" : "border-gray-100"
-                  )}
-                >
-                  All Categories
-                </Button>
-                {categories.map((cat) => {
-                  const count = categoryCounts[cat.id] || 0;
-                  return (
-                    <Button
-                      key={cat.id}
-                      variant={categoryFilter === cat.id ? "default" : "outline"}
-                      onClick={() => setCategoryFilter(cat.id)}
-                      disabled={count === 0}
-                      className={cn(
-                        "w-full justify-between h-11 rounded-xl text-sm",
-                        categoryFilter === cat.id ? "bg-amber-600 hover:bg-amber-700" : "border-gray-100",
-                        count === 0 && "opacity-50"
-                      )}
-                    >
-                      {cat.name}
-                      <span className={cn(
-                        "text-[10px] px-2 py-0.5 rounded-full",
-                        categoryFilter === cat.id ? "bg-white/20" : "bg-gray-100 text-gray-400"
-                      )}>
-                        {count}
-                      </span>
-                    </Button>
-                  );
-                })}
-              </div>
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger className="w-full h-11 rounded-xl bg-gray-50 border-gray-200">
+                  <SelectValue placeholder="Select Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>
+                      {cat.name} ({categoryCounts[cat.id] || 0})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
-          <div className="mt-8">
+          <div className="mt-6 flex gap-3 pt-4 border-t border-gray-100 flex-shrink-0">
             <Button
-              className="w-full h-12 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold"
+              variant="outline"
+              className="flex-1 h-12 rounded-xl text-gray-500 hover:text-gray-900 border-gray-200"
+              onClick={() => {
+                setStatusFilter('all');
+                setGenderFilter('all');
+                setCategoryFilter('all');
+              }}
+            >
+              Reset
+            </Button>
+            <Button
+              className="flex-[2] h-12 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold shadow-lg shadow-amber-500/20"
               onClick={() => setIsFilterDrawerOpen(false)}
             >
               Apply Filters
             </Button>
           </div>
-        </SheetContent>
-      </Sheet>
-    </div>
+        </SheetContent >
+      </Sheet >
+
+      {/* Floating Action Button for Mobile */}
+      <Button
+        onClick={() => setIsCreating(true)}
+        className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-2xl shadow-amber-500/40 border-none sm:hidden flex items-center justify-center z-50 active:scale-95 transition-transform"
+      >
+        <Plus className="w-8 h-8" />
+      </Button>
+    </div >
   );
 }

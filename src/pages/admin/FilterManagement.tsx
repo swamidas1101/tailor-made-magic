@@ -408,8 +408,8 @@ export default function FilterManagement() {
 
                                     <CollapsibleContent>
                                         <div className="p-6 pt-2">
-                                            <div className="bg-gray-50/80 rounded-2xl p-6 border border-gray-100">
-                                                <div className="flex justify-between items-center mb-6">
+                                            <div className="bg-gray-50/80 rounded-2xl p-4 sm:p-6 border border-gray-100">
+                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                                                     <div className="flex items-center gap-3">
                                                         <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center">
                                                             <Filter className="w-4 h-4" />
@@ -424,7 +424,7 @@ export default function FilterManagement() {
                                                     <Button
                                                         size="sm"
                                                         onClick={() => handleOpenOptionDialog(group.id)}
-                                                        className="bg-white border text-gray-700 hover:border-amber-500 hover:text-amber-600 shadow-sm transition-all"
+                                                        className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white border-none shadow-lg shadow-amber-500/20 transition-all duration-300 hover:scale-[1.02] h-10 px-6 rounded-xl"
                                                     >
                                                         <Plus className="w-4 h-4 mr-2" />
                                                         Add New Option
@@ -438,39 +438,39 @@ export default function FilterManagement() {
                                                         ))}
                                                     </div>
                                                 ) : (
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                                                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-4">
                                                         {groupOptions[group.id]?.map(option => (
                                                             <div
                                                                 key={option.id}
-                                                                className="group/option flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 rounded-xl bg-white border border-gray-100 shadow-sm hover:border-amber-300 hover:shadow-md transition-all duration-200 gap-3"
+                                                                className="group/option relative flex flex-col justify-center p-2 sm:p-4 rounded-xl bg-white border border-gray-100 shadow-sm hover:border-amber-300 hover:shadow-md transition-all duration-200 min-h-[60px] sm:min-h-[80px]"
                                                             >
-                                                                <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
-                                                                    <div className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full flex-shrink-0 ${option.isActive ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]' : 'bg-gray-300'}`}></div>
+                                                                <div className="flex items-center gap-2 sm:gap-4 mb-1 sm:mb-0">
+                                                                    <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full flex-shrink-0 ${option.isActive ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]' : 'bg-gray-300'}`}></div>
                                                                     <div className="min-w-0 flex-1">
-                                                                        <p className="font-bold text-gray-900 text-sm truncate">
+                                                                        <p className="font-bold text-gray-900 text-xs sm:text-sm truncate">
                                                                             {option.name}
                                                                         </p>
-                                                                        <p className="text-[10px] sm:text-xs text-gray-400 font-mono mt-0.5 truncate">
+                                                                        <p className="text-[9px] sm:text-xs text-gray-400 font-mono sm:mt-0.5 truncate">
                                                                             {option.value}
                                                                         </p>
                                                                     </div>
                                                                 </div>
-                                                                <div className="flex items-center justify-end gap-2 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-0 border-gray-50 opacity-100 sm:opacity-0 sm:group-hover/option:opacity-100 transition-opacity">
+                                                                <div className="flex items-center justify-end gap-1 sm:gap-2 opacity-100 sm:opacity-0 sm:group-hover/option:opacity-100 transition-opacity">
                                                                     <Button
                                                                         variant="ghost"
                                                                         size="icon"
-                                                                        className="h-8 w-8 hover:bg-blue-50 text-gray-400 hover:text-blue-600 rounded-lg"
+                                                                        className="h-7 w-7 sm:h-8 sm:w-8 hover:bg-blue-50 text-gray-400 hover:text-blue-600 rounded-lg"
                                                                         onClick={() => handleOpenOptionDialog(group.id, option)}
                                                                     >
-                                                                        <Pencil className="w-3.5 h-3.5" />
+                                                                        <Pencil className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
                                                                     </Button>
                                                                     <Button
                                                                         variant="ghost"
                                                                         size="icon"
-                                                                        className="h-8 w-8 hover:bg-red-50 text-gray-400 hover:text-red-600 rounded-lg"
+                                                                        className="h-7 w-7 sm:h-8 sm:w-8 hover:bg-red-50 text-gray-400 hover:text-red-600 rounded-lg"
                                                                         onClick={() => handleDeleteOption(group.id, option.id)}
                                                                     >
-                                                                        <Trash2 className="w-3.5 h-3.5" />
+                                                                        <Trash2 className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
                                                                     </Button>
                                                                 </div>
                                                             </div>
