@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Filter, SlidersHorizontal, X, LayoutGrid, List, SortAsc } from "lucide-react";
+import { ArrowLeft, Filter, SlidersHorizontal, X, LayoutGrid, List, SortAsc, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/layout/Layout";
 import { DesignCard } from "@/components/designs/DesignCard";
@@ -118,16 +118,17 @@ export default function Categories() {
     const category = categories.find((c) => c.id === id) || menCategories.find((c) => c.id === id);
     const gender = category?.type || "women";
 
-    if (loading && !category) {
+    // If loading and we have NO data yet, show a full page loader
+    if (loading && !category && designs.length === 0) {
       return (
         <Layout>
-          <div className="container min-h-screen py-20 flex justify-center">
-            <Skeleton className="w-full h-96" />
+          <div className="container min-h-screen py-20 flex flex-col items-center justify-center">
+            <Loader2 className="w-10 h-10 text-orange-500 animate-spin mb-4" />
+            <p className="text-muted-foreground animate-pulse">Loading collection...</p>
           </div>
         </Layout>
-      )
+      );
     }
-
     return (
       <Layout>
         <div className="min-h-screen">
@@ -140,15 +141,34 @@ export default function Categories() {
 
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div className="flex items-center gap-4">
-                  {category?.image && (
+                  {loading && !category ? (
+                    <Skeleton className="w-16 h-16 rounded-lg" />
+                  ) : category?.image ? (
                     <img src={category.image} alt={category.name} className="w-16 h-16 rounded-lg object-cover shadow-sm border border-border" />
+                  ) : (
+                    <div className="w-16 h-16 rounded-lg bg-muted flex items-center justify-center">
+                      <LayoutGrid className="w-8 h-8 text-muted-foreground/20" />
+                    </div>
                   )}
                   <div>
-                    <h1 className="text-2xl md:text-3xl font-display font-bold mb-1">{category?.name}</h1>
-                    <p className="text-sm text-muted-foreground max-w-2xl">{category?.description}</p>
+                    {loading && !category ? (
+                      <>
+                        <Skeleton className="h-8 w-48 mb-2" />
+                        <Skeleton className="h-4 w-96" />
+                      </>
+                    ) : (
+                      <>
+                        <h1 className="text-2xl md:text-3xl font-display font-bold mb-1">{category?.name}</h1>
+                        <p className="text-sm text-muted-foreground max-w-2xl">{category?.description}</p>
+                      </>
+                    )}
                   </div>
                 </div>
-                <p className="text-sm text-muted-foreground">{filteredDesigns.length} designs found</p>
+                {loading ? (
+                  <Skeleton className="h-4 w-24" />
+                ) : (
+                  <p className="text-sm text-muted-foreground">{filteredDesigns.length} designs found</p>
+                )}
               </div>
             </div>
           </div>
@@ -217,7 +237,13 @@ export default function Categories() {
                 </div>
 
                 {/* Design Grid */}
-                {filteredDesigns.length > 0 ? (
+                {loading && filteredDesigns.length === 0 ? (
+                  <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                      <div key={i} className="aspect-[3/4] rounded-xl bg-muted/50 animate-pulse" />
+                    ))}
+                  </div>
+                ) : filteredDesigns.length > 0 ? (
                   <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
                     {filteredDesigns.map((design) => (
                       <DesignCard
@@ -284,7 +310,9 @@ export default function Categories() {
               <div className="h-px flex-1 bg-border"></div>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-8">
-              {categories.map((cat) => (
+              {loading && categories.length === 0 ? (
+                Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="aspect-square rounded-2xl" />)
+              ) : categories.map((cat) => (
                 <CategoryCard key={cat.id} {...cat} />
               ))}
             </div>
@@ -298,7 +326,9 @@ export default function Categories() {
               <div className="h-px flex-1 bg-border"></div>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-8">
-              {menCategories.map((cat) => (
+              {loading && menCategories.length === 0 ? (
+                Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="aspect-square rounded-2xl" />)
+              ) : menCategories.map((cat) => (
                 <CategoryCard key={cat.id} {...cat} />
               ))}
             </div>

@@ -161,9 +161,10 @@ export function DynamicFilterSidebar({
             {/* Header */}
             <div className="px-5 py-4 border-b border-border/60 bg-muted/10 flex items-center justify-between">
                 <div>
-                    <h3 className="font-display font-semibold text-foreground tracking-tight">Refine By</h3>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mt-0.5">
-                        {totalActiveFilters} Active Filters
+                    <h3 className="font-display font-bold text-lg text-foreground tracking-tight">Refine Collection</h3>
+                    <p className="text-[11px] text-muted-foreground uppercase tracking-widest font-semibold mt-0.5 flex items-center gap-2">
+                        <span>{totalActiveFilters} Active Filters</span>
+                        {totalActiveFilters > 0 && <span className="h-1 w-1 rounded-full bg-amber-500" />}
                     </p>
                 </div>
                 {totalActiveFilters > 0 && (
@@ -229,8 +230,11 @@ export function DynamicFilterSidebar({
 
                 {/* Price Range */}
                 <Collapsible open={openSections.includes("price")} onOpenChange={() => toggleSection("price")}>
-                    <CollapsibleTrigger className="flex items-center justify-between w-full py-1 text-sm font-medium hover:text-amber-600 transition-colors group">
-                        <span className="text-foreground/90 group-hover:text-amber-600 transition-colors">Price Range</span>
+                    <CollapsibleTrigger className="flex items-center justify-between w-full py-1 text-sm font-semibold hover:text-amber-600 transition-colors group">
+                        <span className="text-foreground/90 group-hover:text-amber-600 transition-colors flex items-center gap-2">
+                            Price Range
+                            <span className="text-[10px] text-muted-foreground font-normal">(In ₹)</span>
+                        </span>
                         <ChevronDown className={`w-4 h-4 text-muted-foreground/70 transition-transform duration-300 ${openSections.includes("price") ? "rotate-180 text-amber-600" : ""}`} />
                     </CollapsibleTrigger>
                     <CollapsibleContent className="pt-4 pb-2 px-1">
@@ -258,7 +262,7 @@ export function DynamicFilterSidebar({
 
                 {/* Delivery Time */}
                 <Collapsible open={openSections.includes("delivery")} onOpenChange={() => toggleSection("delivery")}>
-                    <CollapsibleTrigger className="flex items-center justify-between w-full py-1 text-sm font-medium hover:text-amber-600 transition-colors group">
+                    <CollapsibleTrigger className="flex items-center justify-between w-full py-1 text-sm font-semibold hover:text-amber-600 transition-colors group">
                         <span className="text-foreground/90 group-hover:text-amber-600 transition-colors">Delivery Time</span>
                         <ChevronDown className={`w-4 h-4 text-muted-foreground/70 transition-transform duration-300 ${openSections.includes("delivery") ? "rotate-180 text-amber-600" : ""}`} />
                     </CollapsibleTrigger>
@@ -270,7 +274,7 @@ export function DynamicFilterSidebar({
                                     onCheckedChange={() => handleDeliveryChange(days)}
                                     className="data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600 w-4 h-4 rounded-[4px]"
                                 />
-                                <span className={`text-sm transition-colors ${filters.deliveryDays === days ? "text-foreground font-medium" : "text-muted-foreground group-hover:text-foreground"}`}>
+                                <span className={`text-sm transition-colors ${filters.deliveryDays === days ? "text-foreground font-semibold" : "text-muted-foreground group-hover:text-foreground"}`}>
                                     Within {days} days
                                 </span>
                             </label>
@@ -289,7 +293,7 @@ export function DynamicFilterSidebar({
                         <div key={group.id}>
                             <div className="h-px bg-border/40 my-4" />
                             <Collapsible open={openSections.includes(group.id)} onOpenChange={() => toggleSection(group.id)}>
-                                <CollapsibleTrigger className="flex items-center justify-between w-full py-1 text-sm font-medium hover:text-amber-600 transition-colors group">
+                                <CollapsibleTrigger className="flex items-center justify-between w-full py-1 text-sm font-semibold hover:text-amber-600 transition-colors group">
                                     <span className="flex items-center gap-2 text-foreground/90 group-hover:text-amber-600 transition-colors">
                                         {group.name}
                                         {activeCount > 0 && (

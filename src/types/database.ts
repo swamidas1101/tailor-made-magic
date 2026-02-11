@@ -59,6 +59,7 @@ export interface DesignWithFilters {
     rating: number;
     reviewCount: number;
     isPopular?: boolean;
+    features?: string[];
     status: 'pending' | 'approved' | 'rejected' | 'correction_requested';
     submittedAt: string;
     adminFeedback?: string;

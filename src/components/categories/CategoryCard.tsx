@@ -31,8 +31,10 @@ export function CategoryCard({ id, name, description, image, designCount, firstD
       {/* Content */}
       <div className="absolute inset-0 p-3 md:p-4 flex flex-col justify-end">
         {/* Design Count Badge */}
-        <div className="inline-flex items-center bg-gradient-to-r from-orange-500 to-amber-500 rounded-full px-2 py-0.5 mb-2 w-fit">
-          <span className="text-[10px] font-bold text-white">{designCount}+ Designs</span>
+        <div className="inline-flex items-center rounded-full px-2 py-0.5 mb-2 w-fit bg-gradient-to-r from-orange-500 to-amber-500">
+          <span className="text-[10px] font-bold text-white">
+            {designCount > 0 ? `${designCount}+ Designs` : "Coming Soon"}
+          </span>
         </div>
 
         {/* Title */}

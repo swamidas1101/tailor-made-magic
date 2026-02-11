@@ -16,6 +16,15 @@ import { FilterGroup, FilterOption } from "@/types/database";
 const GROUPS_COLLECTION = "filterGroups";
 const OPTIONS_COLLECTION = "filterOptions";
 
+// Simple in-memory cache
+const cache: {
+    groups: Record<string, FilterGroup[]>;
+    options: Record<string, FilterOption[]>;
+} = {
+    groups: {},
+    options: {}
+};
+
 export const filterService = {
     // ==================== Filter Groups ====================
 
@@ -51,6 +60,9 @@ export const filterService = {
      * Get filter groups for a specific category and gender
      */
     async getFiltersForCategory(categoryId: string, gender: "men" | "women"): Promise<FilterGroup[]> {
+        const cacheKey = `${categoryId}-${gender}`;
+        if (cache.groups[cacheKey]) return cache.groups[cacheKey];
+
         try {
             const groupsRef = collection(db, GROUPS_COLLECTION);
             const q = query(
@@ -66,12 +78,15 @@ export const filterService = {
             } as FilterGroup));
 
             // Return sorted and filtered groups
-            return allGroups
+            const result = allGroups
                 .filter(group =>
                     group.applicableCategories.length === 0 ||
                     group.applicableCategories.includes(categoryId)
                 )
                 .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+
+            cache.groups[cacheKey] = result;
+            return result;
         } catch (error) {
             console.error("Error fetching filters for category:", error);
             throw error;
@@ -135,6 +150,8 @@ export const filterService = {
      * Get all options for a filter group
      */
     async getFilterOptions(groupId: string): Promise<FilterOption[]> {
+        if (cache.options[groupId]) return cache.options[groupId];
+
         try {
             const optionsRef = collection(db, OPTIONS_COLLECTION);
             const q = query(
@@ -149,7 +166,9 @@ export const filterService = {
                 ...doc.data()
             } as FilterOption));
 
-            return options.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+            const result = options.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+            cache.options[groupId] = result;
+            return result;
         } catch (error) {
             console.error("Error fetching filter options:", error);
             throw error;
@@ -245,9 +264,15 @@ export const filterService = {
         try {
             const docRef = doc(db, OPTIONS_COLLECTION, id);
             await deleteDoc(docRef);
+            this.invalidateCache();
         } catch (error) {
             console.error("Error deleting filter option:", error);
             throw error;
         }
+    },
+
+    invalidateCache() {
+        cache.groups = {};
+        cache.options = {};
     }
 };

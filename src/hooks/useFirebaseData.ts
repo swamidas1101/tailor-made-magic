@@ -85,7 +85,7 @@ export function useFirebaseData(): UseFirebaseDataReturn {
       .map((cat) => {
         // Find all designs for this category
         const categoryDesigns = designs.filter(
-          (d) => d.categoryId === cat.id
+          (d) => d.categoryId === cat.id && d.status === 'approved'
         );
 
         // Get the first design's image (prefer images[0] if available, fallback to image)
@@ -99,11 +99,7 @@ export function useFirebaseData(): UseFirebaseDataReturn {
           designCount: categoryDesigns.length,
           firstDesignImage,
         };
-      })
-      .filter((cat) => true); // Show all categories even empty ones for now? Or keep filtering? 
-    // Keeping filter to hide empty categories might be better for UX, but for admin visibility, maybe show all. 
-    // User requested "dynamic category", normally we show what exists. 
-    // Let's SHOW all for now so seeded categories appear even if empty.
+      });
   }, [womenCategories, designs]);
 
   const enrichedMenCategories = useMemo(() => {
@@ -111,7 +107,7 @@ export function useFirebaseData(): UseFirebaseDataReturn {
       .map((cat) => {
         // Find all designs for this category
         const categoryDesigns = designs.filter(
-          (d) => d.categoryId === cat.id
+          (d) => d.categoryId === cat.id && d.status === 'approved'
         );
 
         // Get the first design's image (prefer images[0] if available, fallback to image)
@@ -125,8 +121,7 @@ export function useFirebaseData(): UseFirebaseDataReturn {
           designCount: categoryDesigns.length,
           firstDesignImage,
         };
-      })
-      .filter((cat) => true);
+      });
   }, [menCategories, designs]);
 
   return {

@@ -19,7 +19,14 @@ const categoryMappings: Record<string, string> = {
   "Suits": "kurti",
   "Men's Shirt": "mensShirt",
   "Men's Pants": "mensPant",
+  "Mens Shirt": "mensShirt",
+  "Mens Pant": "mensPant",
+  "Shirt": "mensShirt",
+  "Pant": "mensPant",
   "Uniform": "uniform",
+  "Gown": "kurti",
+  "Salwar": "kurti",
+  "Anarkali": "kurti",
 };
 
 // Category-specific measurement configurations
@@ -111,8 +118,26 @@ export function MeasurementSelector({ isOpen, onClose, category, onConfirm }: Me
   const [selectionMode, setSelectionMode] = useState<"choose" | "saved" | "new">("choose");
   const [savedMeasurements, setSavedMeasurements] = useState<Record<string, string> | null>(null);
   const [newMeasurements, setNewMeasurements] = useState<Record<string, string>>({});
-  
-  const measurementKey = categoryMappings[category] || "blouse";
+
+  // Robust category matching
+  const getMeasurementKey = (cat: string) => {
+    if (!cat) return "blouse";
+
+    // Exact match first
+    if (categoryMappings[cat]) return categoryMappings[cat];
+
+    // Partial case-insensitive match
+    const lowerCat = cat.toLowerCase();
+    for (const [key, value] of Object.entries(categoryMappings)) {
+      if (lowerCat.includes(key.toLowerCase()) || key.toLowerCase().includes(lowerCat)) {
+        return value;
+      }
+    }
+
+    return "blouse"; // Fallback
+  };
+
+  const measurementKey = getMeasurementKey(category || "");
   const measurementConfig = measurementCategories[measurementKey];
 
   // Load saved measurements from localStorage
@@ -146,13 +171,13 @@ export function MeasurementSelector({ isOpen, onClose, category, onConfirm }: Me
     if (filledFields < 4) {
       return;
     }
-    
+
     // Save to localStorage for future use
     const stored = localStorage.getItem("measurements");
     const allMeasurements = stored ? JSON.parse(stored) : {};
     allMeasurements[measurementKey] = newMeasurements;
     localStorage.setItem("measurements", JSON.stringify(allMeasurements));
-    
+
     onConfirm(newMeasurements, true);
     onClose();
   };
@@ -178,8 +203,8 @@ export function MeasurementSelector({ isOpen, onClose, category, onConfirm }: Me
             <Ruler className="w-5 h-5" />
             Select Measurements
           </DialogTitle>
-          <DialogDescription>
-            Choose how you'd like to provide measurements for your {category.toLowerCase()}
+          <DialogDescription className="sr-only">
+            Choose how you'd like to provide measurements for your {category?.toLowerCase() || "garment"}
           </DialogDescription>
         </DialogHeader>
 
@@ -196,11 +221,10 @@ export function MeasurementSelector({ isOpen, onClose, category, onConfirm }: Me
               <button
                 onClick={() => savedMeasurements ? setSelectionMode("saved") : null}
                 disabled={!savedMeasurements}
-                className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
-                  savedMeasurements 
-                    ? "border-border hover:border-foreground/30 cursor-pointer" 
-                    : "border-border/50 opacity-50 cursor-not-allowed"
-                }`}
+                className={`w-full p-4 rounded-xl border-2 text-left transition-all ${savedMeasurements
+                  ? "border-border hover:border-foreground/30 cursor-pointer"
+                  : "border-border/50 opacity-50 cursor-not-allowed"
+                  }`}
               >
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
@@ -209,7 +233,7 @@ export function MeasurementSelector({ isOpen, onClose, category, onConfirm }: Me
                   <div className="flex-1">
                     <h3 className="font-semibold text-foreground">Use Saved Measurements</h3>
                     <p className="text-sm text-muted-foreground mt-0.5">
-                      {savedMeasurements 
+                      {savedMeasurements
                         ? `${Object.keys(savedMeasurements).length} measurements saved for ${measurementConfig?.name}`
                         : `No saved measurements for ${measurementConfig?.name}`
                       }
@@ -240,8 +264,8 @@ export function MeasurementSelector({ isOpen, onClose, category, onConfirm }: Me
 
               {/* Link to full measurements page */}
               <div className="pt-2 text-center">
-                <Link 
-                  to="/measurements" 
+                <Link
+                  to="/measurements"
                   className="text-sm text-muted-foreground hover:text-foreground underline"
                   onClick={handleClose}
                 >
@@ -260,7 +284,7 @@ export function MeasurementSelector({ isOpen, onClose, category, onConfirm }: Me
               className="space-y-4 pt-4"
             >
               <div className="flex items-center justify-between">
-                <button 
+                <button
                   onClick={() => setSelectionMode("choose")}
                   className="text-sm text-muted-foreground hover:text-foreground"
                 >
@@ -278,8 +302,8 @@ export function MeasurementSelector({ isOpen, onClose, category, onConfirm }: Me
                     <div key={field.key} className="flex justify-between text-sm py-1.5 px-2 rounded bg-background">
                       <span className="text-muted-foreground">{field.label}</span>
                       <span className="font-medium">
-                        {savedMeasurements[field.key] 
-                          ? `${savedMeasurements[field.key]} in` 
+                        {savedMeasurements[field.key]
+                          ? `${savedMeasurements[field.key]} in`
                           : "—"
                         }
                       </span>
@@ -289,15 +313,15 @@ export function MeasurementSelector({ isOpen, onClose, category, onConfirm }: Me
               </div>
 
               <div className="flex gap-2 pt-2">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="flex-1"
                   onClick={() => setSelectionMode("new")}
                 >
                   Enter New Instead
                 </Button>
-                <Button 
-                  variant="default" 
+                <Button
+                  variant="default"
                   className="flex-1"
                   onClick={handleUseSaved}
                 >
@@ -316,7 +340,7 @@ export function MeasurementSelector({ isOpen, onClose, category, onConfirm }: Me
               className="space-y-4 pt-4"
             >
               <div className="flex items-center justify-between">
-                <button 
+                <button
                   onClick={() => setSelectionMode("choose")}
                   className="text-sm text-muted-foreground hover:text-foreground"
                 >
@@ -337,7 +361,7 @@ export function MeasurementSelector({ isOpen, onClose, category, onConfirm }: Me
               {/* Progress */}
               <div className="flex items-center gap-2">
                 <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className="h-full bg-foreground transition-all duration-300"
                     style={{ width: `${(filledCount / totalFields) * 100}%` }}
                   />
@@ -372,21 +396,21 @@ export function MeasurementSelector({ isOpen, onClose, category, onConfirm }: Me
               </div>
 
               <div className="flex gap-2 pt-2">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="flex-1"
                   onClick={() => setSelectionMode("choose")}
                 >
                   Cancel
                 </Button>
-                <Button 
-                  variant="default" 
+                <Button
+                  variant="default"
                   className="flex-1"
                   disabled={filledCount < 4}
                   onClick={handleUseNew}
                 >
-                  {filledCount < 4 
-                    ? `Need ${4 - filledCount} more` 
+                  {filledCount < 4
+                    ? `Need ${4 - filledCount} more`
                     : "Confirm Measurements"
                   }
                 </Button>

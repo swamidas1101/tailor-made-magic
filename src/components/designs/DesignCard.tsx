@@ -8,6 +8,8 @@ import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { toast } from "sonner";
 
+import { cn } from "@/lib/utils";
+
 export interface DesignCardProps {
   id: string;
   name: string;
@@ -22,6 +24,7 @@ export interface DesignCardProps {
   isPopular?: boolean;
   neckType?: string | string[];
   workType?: string | string[];
+  variant?: "default" | "compact";
 }
 
 export function DesignCard({
@@ -37,7 +40,9 @@ export function DesignCard({
   isPopular,
   neckType,
   workType,
+  variant = "default",
 }: DesignCardProps) {
+  const isCompact = variant === "compact";
   const { addToCart, items: cartItems } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const wishlisted = isInWishlist(id);
@@ -238,13 +243,13 @@ export function DesignCard({
       </div>
 
       {/* Content - Compact */}
-      <div className="p-2 sm:p-3">
+      <div className={cn("p-2", !isCompact && "sm:p-3")}>
         <Link to={`/design/${id}`}>
           <div className="flex items-center gap-1.5 mb-1">
-            <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide truncate">
+            <span className="text-[9px] text-muted-foreground font-medium uppercase tracking-wide truncate">
               {category}
             </span>
-            {workType && (
+            {!isCompact && workType && (
               <>
                 <span className="text-muted-foreground/40">•</span>
                 <span className="text-[10px] text-muted-foreground truncate">
@@ -253,55 +258,56 @@ export function DesignCard({
               </>
             )}
           </div>
-          <h3 className="font-medium text-sm text-foreground line-clamp-1 mb-1">
+          <h3 className={cn("font-medium text-foreground line-clamp-1 mb-1", isCompact ? "text-xs" : "text-sm")}>
             {name}
           </h3>
         </Link>
 
         {/* Rating - Compact */}
         <div className="flex items-center gap-1 mb-2">
-          <Star className="w-3 h-3 fill-gold text-gold" />
-          <span className="text-xs font-medium text-foreground">{rating.toFixed(1)}</span>
-          <span className="text-[10px] text-muted-foreground">({reviewCount})</span>
+          <Star className="w-2.5 h-2.5 fill-gold text-gold" />
+          <span className="text-[10px] font-medium text-foreground">{rating.toFixed(1)}</span>
         </div>
 
         {/* Price & Action */}
-        <div className="flex items-center justify-between pt-2 border-t border-border/50 gap-1">
+        <div className="flex items-center justify-between pt-1.5 border-t border-border/50 gap-1">
           <div className="flex items-baseline gap-0.5 min-w-0">
-            <IndianRupee className="w-3 h-3 text-foreground" />
-            <span className="text-sm sm:text-base font-bold text-foreground truncate">{price.toLocaleString()}</span>
+            <IndianRupee className="w-2.5 h-2.5 text-foreground" />
+            <span className={cn("font-bold text-foreground truncate", isCompact ? "text-sm" : "text-sm sm:text-base")}>{price.toLocaleString()}</span>
           </div>
 
-          <div className="flex gap-1.5 flex-shrink-0">
-            <Button
-              variant="default"
-              size="sm"
-              className="h-7 sm:h-8 px-2 sm:px-3 text-[10px] sm:text-xs"
-              asChild
-            >
-              <Link to={`/design/${id}`}>Book</Link>
-            </Button>
+          <div className="flex gap-1 flex-shrink-0">
+            {!isCompact && (
+              <Button
+                variant="default"
+                size="sm"
+                className="h-7 sm:h-8 px-2 sm:px-3 text-[10px] sm:text-xs"
+                asChild
+              >
+                <Link to={`/design/${id}`}>Book</Link>
+              </Button>
+            )}
             <Button
               variant={justAddedToCart || cartItemCount > 0 ? "default" : "outline"}
               size="sm"
-              className={`h-7 w-7 sm:h-8 sm:w-8 p-0 ${justAddedToCart
+              className={cn("h-7 w-7 p-0", !isCompact && "sm:h-8 sm:w-8", justAddedToCart
                 ? "bg-green-600 hover:bg-green-700 border-green-600"
                 : cartItemCount > 0
                   ? "bg-primary text-primary-foreground hover:bg-primary/90"
                   : ""
-                }`}
+              )}
               onClick={handleAddToCart}
             >
               <div className="relative flex items-center justify-center w-full h-full">
                 {justAddedToCart ? (
-                  <Check className="w-3.5 h-3.5" />
+                  <Check className="w-3 h-3" />
                 ) : cartItemCount > 0 ? (
-                  <ShoppingBag className="w-3.5 h-3.5" />
+                  <ShoppingBag className="w-3 h-3" />
                 ) : (
-                  <ShoppingCart className="w-3.5 h-3.5" />
+                  <ShoppingCart className="w-3 h-3" />
                 )}
                 {cartItemCount > 0 && !justAddedToCart && (
-                  <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-white text-[9px] font-bold text-orange-600 shadow-sm border border-orange-100 ring-1 ring-orange-50">
+                  <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-white text-[8px] font-bold text-orange-600 shadow-sm border border-orange-100 ring-1 ring-orange-50">
                     {cartItemCount}
                   </span>
                 )}

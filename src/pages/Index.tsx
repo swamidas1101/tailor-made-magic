@@ -7,7 +7,7 @@ import { Layout } from "@/components/layout/Layout";
 import { CategoryCard } from "@/components/categories/CategoryCard";
 import { DesignCard } from "@/components/designs/DesignCard";
 import { testimonials } from "@/data/mockData";
-import { Design, Category } from "@/data/mockData";
+import { Design, Category } from "@/types/database";
 import { useFirebaseData } from "@/hooks/useFirebaseData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
@@ -40,8 +40,8 @@ const Index = () => {
     allDesigns.filter(d => d.isPopular && d.status === 'approved').slice(0, 8),
     [allDesigns]
   );
-  const featuredCategories = useMemo(() => womenCategories.slice(0, 4), [womenCategories]);
-  const featuredMenCategories = useMemo(() => menCategories.slice(0, 4), [menCategories]);
+  const featuredCategories = useMemo(() => womenCategories, [womenCategories]);
+  const featuredMenCategories = useMemo(() => menCategories, [menCategories]);
 
   // Redirect tailor/admin users
   useEffect(() => {
@@ -75,7 +75,7 @@ const Index = () => {
     <>
       <Layout>
         {/* Hero Section - Stunning Full Width */}
-        <section className="relative min-h-[90vh] flex items-center overflow-hidden">
+        <section className="relative min-h-[70vh] md:min-h-[85vh] lg:min-h-[90vh] flex items-center overflow-hidden">
           {/* Background with Parallax Effect */}
           <div className="absolute inset-0 w-full">
             <motion.img
@@ -137,9 +137,9 @@ const Index = () => {
               {/* Hero Description */}
               <motion.p
                 variants={itemVariants}
-                className="text-white/80 text-lg md:text-xl mb-8 max-w-xl leading-relaxed"
+                className="text-white/80 text-[15px] sm:text-base md:text-xl mb-8 max-w-xl leading-relaxed"
               >
-                Experience bespoke tailoring from the comfort of your home. Choose from 500+ curated designs
+                Experience bespoke tailoring from the comfort of your home. Choose from {allDesigns.length > 0 ? `${allDesigns.length}+` : "curated"} professional designs
                 and receive perfectly fitted garments at your doorstep.
               </motion.p>
 
@@ -165,7 +165,7 @@ const Index = () => {
                 className="flex flex-wrap gap-8 pt-8 border-t border-white/10"
               >
                 {[
-                  { value: "500+", label: "Designs", icon: Gem },
+                  { value: allDesigns.length > 0 ? `${allDesigns.length}+` : "...", label: "Designs", icon: Gem },
                   { value: "10K+", label: "Happy Customers", icon: Heart },
                   { value: "4.9", label: "Rating", icon: Star },
                   { value: "3-7", label: "Days Delivery", icon: Clock },
@@ -214,7 +214,7 @@ const Index = () => {
             {[...Array(2)].map((_, setIndex) => (
               <div key={setIndex} className="flex gap-12">
                 {[
-                  { icon: Star, text: "500+ Premium Designs" },
+                  { icon: Star, text: `${allDesigns.length > 0 ? allDesigns.length : 100}+ Premium Designs` },
                   { icon: Clock, text: "3-7 Days Delivery" },
                   { icon: Shield, text: "Quality Guaranteed" },
                   { icon: Award, text: "Expert Tailors" },
@@ -270,7 +270,7 @@ const Index = () => {
                 },
                 {
                   to: "/uniforms",
-                  image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1200&h=600&fit=crop",
+                  image: "https://uniformstride.in/wp-content/uploads/2017/09/Kids-School-Uniform-Manufacturer-In-Coimbatore-HU12-555x620.jpg",
                   icon: GraduationCap,
                   badge: "Bulk Orders",
                   title: "Uniforms",
@@ -378,7 +378,7 @@ const Index = () => {
               </Button>
             </motion.div>
             <motion.div
-              className="grid grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6"
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 md:gap-6"
               variants={containerVariants}
               initial="hidden"
               whileInView="visible"
@@ -417,7 +417,7 @@ const Index = () => {
               </Button>
             </motion.div>
             <motion.div
-              className="grid grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6"
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 md:gap-6"
               variants={containerVariants}
               initial="hidden"
               whileInView="visible"
@@ -456,7 +456,10 @@ const Index = () => {
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: i * 0.05 }}
                 >
-                  <DesignCard {...design} />
+                  <DesignCard
+                    {...design}
+                    category={design.categoryName || (design as any).category || "Premium"}
+                  />
                 </motion.div>
               ))}
             </div>
