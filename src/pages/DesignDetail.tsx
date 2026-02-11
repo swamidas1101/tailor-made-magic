@@ -149,9 +149,12 @@ export default function DesignDetail() {
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Breadcrumb */}
         <div className="mb-6">
-          <Link to="/categories" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <button
+            onClick={() => window.history.length > 2 ? window.history.back() : window.location.href = '/categories'}
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
             <ArrowLeft className="w-4 h-4" /> Back to Designs
-          </Link>
+          </button>
         </div>
 
         <div className="grid lg:grid-cols-[40%_60%] gap-8 lg:gap-16">
