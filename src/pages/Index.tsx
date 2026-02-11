@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
-import { ArrowRight, Star, Clock, Shield, Sparkles, Ruler, Shirt, Users, GraduationCap, Heart, TrendingUp, CheckCircle2, Flower2, Crown, Gem, Award, Play, MapPin, Scissors } from "lucide-react";
+import { ArrowRight, Star, Clock, Shield, Sparkles, Ruler, Shirt, Users, GraduationCap, Heart, TrendingUp, CheckCircle2, Flower2, Crown, Gem, Award, Play, MapPin, Scissors, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/layout/Layout";
 import { CategoryCard } from "@/components/categories/CategoryCard";
@@ -799,22 +799,25 @@ const Index = () => {
         {/* Newsletter / Updates Section - NEW */}
         <section className="py-12 md:py-16 bg-muted/20 border-y border-border/50">
           <div className="container px-4">
-            <div className="bg-card rounded-3xl p-8 md:p-12 shadow-sm border border-border/50 relative overflow-hidden">
+            <div className="bg-card rounded-3xl p-6 md:p-12 shadow-sm border border-border/50 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-64 h-64 bg-rose/5 rounded-full blur-3xl" />
-              <div className="grid md:grid-cols-2 gap-8 items-center relative z-10">
-                <div>
-                  <h3 className="text-3xl font-display font-bold mb-3">Stay in <span className="text-gradient-rose">Fashion</span></h3>
-                  <p className="text-muted-foreground mb-0">
+              <div className="grid md:grid-cols-2 gap-6 md:gap-8 items-center relative z-10">
+                <div className="text-center md:text-left">
+                  <h3 className="text-2xl md:text-3xl font-display font-bold mb-2 md:mb-3">Stay in <span className="text-gradient-rose">Fashion</span></h3>
+                  <p className="text-muted-foreground mb-0 text-sm md:text-base">
                     Subscribe to our newsletter for exclusive offers, new arrival alerts, and style tips directly to your inbox.
                   </p>
                 </div>
-                <div className="flex gap-2">
-                  <input
-                    type="email"
-                    placeholder="Enter your email address"
-                    className="flex-1 h-12 px-4 rounded-xl border border-input bg-background/50 focus:outline-none focus:ring-2 focus:ring-rose/20 transition-all"
-                  />
-                  <Button size="lg" className="rounded-xl px-8">Subscribe</Button>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="relative flex-1">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <input
+                      type="email"
+                      placeholder="Enter your email address"
+                      className="w-full h-11 md:h-12 pl-12 pr-4 rounded-xl border border-input bg-background shadow-sm focus:outline-none focus:ring-2 focus:ring-rose/20 transition-all placeholder:text-muted-foreground/60"
+                    />
+                  </div>
+                  <Button size="lg" className="rounded-xl px-8 w-full sm:w-auto shadow-md hover:shadow-lg transition-all">Subscribe</Button>
                 </div>
               </div>
             </div>
