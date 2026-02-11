@@ -70,7 +70,7 @@ export function DesignPreviewDialog({
                         </div>
 
                         <div className="space-y-6 flex-1">
-                            {/* Price & Status Block */}
+                            {/* Price Block */}
                             <div className="flex justify-between items-center py-4 border-b border-gray-100">
                                 <div>
                                     <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Price</span>
@@ -103,7 +103,7 @@ export function DesignPreviewDialog({
 
                             {/* Attributes / Key Features */}
                             <div>
-                                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-3">Key Features</span>
+                                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-3">Specifications</span>
                                 <div className="flex flex-wrap gap-2">
                                     {design.filters && Object.keys(design.filters).length > 0 ? (
                                         Object.entries(design.filters).map(([key, values]) => (
@@ -114,10 +114,12 @@ export function DesignPreviewDialog({
                                             )) : null
                                         ))
                                     ) : (
-                                        <span className="text-sm text-gray-400 italic">No specific features listed</span>
+                                        <span className="text-sm text-gray-400 italic">No specific specs listed</span>
                                     )}
                                 </div>
                             </div>
+
+
                             {/* Description */}
                             <div>
                                 <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-2">Description</span>

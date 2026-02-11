@@ -49,12 +49,14 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { categoryService } from "@/services/categoryService";
-import { Category } from "@/types/database";
 import { FileUploader } from "@/components/ui/file-uploader";
+import { categoryService } from "@/services/categoryService";
+import { measurementService } from "@/services/measurementService";
+import { Category, MeasurementConfig } from "@/types/database";
 
 export default function CategoryManagement() {
     const [categories, setCategories] = useState<Category[]>([]);
+    const [measurementConfigs, setMeasurementConfigs] = useState<MeasurementConfig[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -69,16 +71,21 @@ export default function CategoryManagement() {
         image: "",
         slug: "",
         displayOrder: 0,
+        measurementConfigId: "none",
         isActive: true
     });
 
-    const fetchCategories = async () => {
+    const fetchData = async () => {
         try {
             setLoading(true);
-            const data = await categoryService.getCategories();
-            setCategories(data);
+            const [categoryData, measurementData] = await Promise.all([
+                categoryService.getCategories(),
+                measurementService.getMeasurementConfigs()
+            ]);
+            setCategories(categoryData);
+            setMeasurementConfigs(measurementData);
         } catch (error) {
-            toast.error("Failed to load categories");
+            toast.error("Failed to load data");
             console.error(error);
         } finally {
             setLoading(false);
@@ -86,7 +93,7 @@ export default function CategoryManagement() {
     };
 
     useEffect(() => {
-        fetchCategories();
+        fetchData();
     }, []);
 
     const handleOpenDialog = (category?: Category) => {
@@ -99,6 +106,7 @@ export default function CategoryManagement() {
                 image: category.image,
                 slug: category.slug,
                 displayOrder: category.displayOrder,
+                measurementConfigId: category.measurementConfigId || "none",
                 isActive: category.isActive
             });
         } else {
@@ -110,6 +118,7 @@ export default function CategoryManagement() {
                 image: "",
                 slug: "",
                 displayOrder: categories.length,
+                measurementConfigId: "none",
                 isActive: true
             });
         }
@@ -142,19 +151,24 @@ export default function CategoryManagement() {
         try {
             setSubmitLoading(true);
 
+            const submissionData = {
+                ...formData,
+                measurementConfigId: formData.measurementConfigId === "none" ? "" : formData.measurementConfigId
+            };
+
             if (editingCategory) {
-                await categoryService.updateCategory(editingCategory.id, formData);
+                await categoryService.updateCategory(editingCategory.id, submissionData);
                 toast.success("Category updated successfully");
             } else {
                 await categoryService.createCategory({
-                    ...formData,
+                    ...submissionData,
                     createdBy: "admin" // TODO: Use actual admin ID
                 });
                 toast.success("Category created successfully");
             }
 
             setIsDialogOpen(false);
-            fetchCategories();
+            fetchData();
         } catch (error) {
             toast.error("Failed to save category");
             console.error(error);
@@ -169,7 +183,7 @@ export default function CategoryManagement() {
         try {
             await categoryService.deleteCategory(id);
             toast.success("Category deleted");
-            fetchCategories();
+            fetchData();
         } catch (error) {
             toast.error("Failed to delete category");
         }
@@ -179,7 +193,7 @@ export default function CategoryManagement() {
         try {
             await categoryService.toggleCategoryStatus(category.id, !category.isActive);
             toast.success(`Category ${!category.isActive ? 'activated' : 'deactivated'}`);
-            fetchCategories();
+            fetchData();
         } catch (error) {
             toast.error("Failed to update status");
         }
@@ -373,15 +387,35 @@ export default function CategoryManagement() {
                                     </Select>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="order">Display Order</Label>
-                                    <Input
-                                        id="order"
-                                        type="number"
-                                        value={formData.displayOrder}
-                                        onChange={(e) => setFormData(prev => ({ ...prev, displayOrder: parseInt(e.target.value) }))}
-                                        min={0}
-                                    />
+                                    <Label htmlFor="measurementConfig">Measurement Configuration</Label>
+                                    <Select
+                                        value={formData.measurementConfigId}
+                                        onValueChange={(value) => setFormData(prev => ({ ...prev, measurementConfigId: value }))}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select measurement set" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="none">None</SelectItem>
+                                            {measurementConfigs.map(config => (
+                                                <SelectItem key={config.id} value={config.id}>
+                                                    {config.icon} {config.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                 </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="order">Display Order</Label>
+                                <Input
+                                    id="order"
+                                    type="number"
+                                    value={formData.displayOrder}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, displayOrder: parseInt(e.target.value) }))}
+                                    min={0}
+                                />
                             </div>
 
                             <div className="space-y-2">

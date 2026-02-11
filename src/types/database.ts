@@ -9,9 +9,31 @@ export interface Category {
     image: string;                 // Category image URL
     displayOrder: number;          // For sorting in UI
     isActive: boolean;             // Show/hide category
+    measurementConfigId?: string;  // Linked measurement configuration
     createdAt: string;             // ISO timestamp
     updatedAt: string;             // ISO timestamp
     createdBy: string;             // Admin UID
+}
+
+export interface MeasurementField {
+    id: string;
+    name: string;
+    key: string;
+    hint: string;
+    displayOrder: number;
+    isActive: boolean;
+}
+
+export interface MeasurementConfig {
+    id: string;
+    name: string;                  // e.g., "Blouse"
+    icon: string;                  // Emoji or icon name
+    description?: string;
+    categoryIds: string[];         // Linked category IDs
+    fields: MeasurementField[];
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface FilterGroup {

@@ -27,6 +27,7 @@ import DesignModeration from "./pages/admin/DesignModeration";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import CategoryManagement from "./pages/admin/CategoryManagement";
+import MeasurementManagement from "./pages/admin/MeasurementManagement";
 import FilterManagement from "./pages/admin/FilterManagement";
 import DatabaseSeeder from "./pages/admin/DatabaseSeeder";
 import TailorDashboard from "./pages/tailor/TailorDashboard";
@@ -104,6 +105,7 @@ const App = () => (
                   <Route path="tailors" element={<TailorManagement />} />
                   <Route path="designs" element={<DesignModeration />} />
                   <Route path="categories" element={<CategoryManagement />} />
+                  <Route path="measurements" element={<MeasurementManagement />} />
                   <Route path="filters" element={<FilterManagement />} />
                   <Route path="orders" element={<AdminOrders />} />
                   <Route path="analytics" element={<AdminAnalytics />} />

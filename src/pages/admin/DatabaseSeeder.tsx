@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "sonner";
 import { Loader2, Database, CheckCircle2, AlertCircle } from "lucide-react";
 import { runFullMigration, migrateCategories, migrateFilters } from "@/scripts/migrateData";
+import { seedMeasurements } from "@/scripts/seedMeasurements";
 
 /**
  * Database Seeder Component
@@ -59,6 +60,23 @@ export default function DatabaseSeeder() {
             console.error("Migration error:", error);
             setStatus("error");
             toast.error("Failed to seed filters");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleSeedMeasurements = async () => {
+        setLoading(true);
+        setStatus("idle");
+
+        try {
+            await seedMeasurements();
+            setStatus("success");
+            toast.success("Measurement configurations seeded successfully!");
+        } catch (error) {
+            console.error("Migration error:", error);
+            setStatus("error");
+            toast.error("Failed to seed measurement configurations");
         } finally {
             setLoading(false);
         }
@@ -157,6 +175,28 @@ export default function DatabaseSeeder() {
                                         </>
                                     ) : (
                                         "Seed Filters"
+                                    )}
+                                </Button>
+                            </div>
+
+                            <div className="p-4 border rounded-lg">
+                                <h3 className="font-semibold mb-2">Measurements Only</h3>
+                                <p className="text-sm text-muted-foreground mb-4">
+                                    Seed measurement configurations and link to categories.
+                                </p>
+                                <Button
+                                    onClick={handleSeedMeasurements}
+                                    disabled={loading}
+                                    variant="outline"
+                                    className="w-full"
+                                >
+                                    {loading ? (
+                                        <>
+                                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                            Migrating...
+                                        </>
+                                    ) : (
+                                        "Seed Measurements"
                                     )}
                                 </Button>
                             </div>

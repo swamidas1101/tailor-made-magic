@@ -15,7 +15,7 @@ import { Plus, Search, Filter, Loader2, ArrowLeft, Check, ChevronDown, Scissors,
 import { toast } from "sonner";
 import { TailorDesignCard } from "@/components/designs/TailorDesignCard";
 import { DesignPreviewDialog } from "@/components/designs/DesignPreviewDialog";
-import { MultiSelect } from "@/components/ui/multi-select";
+import { FilterChipSelector } from "@/components/ui/filter-chip-selector";
 import { designService } from "@/services/designService";
 import { useAuth } from "@/contexts/AuthContext";
 import { FileUploader } from "@/components/ui/file-uploader";
@@ -372,7 +372,7 @@ export default function TailorDesigns() {
   }
 
   // Create/Edit View
-  if (isCreating) {
+  if (isCreating || editingId) {
     return (
       <div className="min-h-screen bg-gray-50/50 pb-20">
         <div className="bg-white/80 backdrop-blur-md border-b border-gray-200/60 shadow-sm sticky top-0 z-20">
@@ -442,18 +442,18 @@ export default function TailorDesigns() {
 
                   <div className="space-y-4">
                     <div className="space-y-1.5">
-                      <Label className="text-xs font-bold uppercase text-gray-500">Design Name</Label>
+                      <Label className="text-xs font-semibold uppercase text-gray-500">Design Name</Label>
                       <Input
                         value={formData.name}
                         onChange={(e) => handleInputChange("name", e.target.value)}
                         placeholder="e.g. Traditional Silk Blouse"
-                        className="font-medium h-10"
+                        className="font-normal h-10"
                       />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-1.5">
-                        <Label className="text-xs font-bold uppercase text-gray-500">Gender</Label>
+                        <Label className="text-xs font-semibold uppercase text-gray-500">Gender</Label>
                         <Select
                           value={formData.gender}
                           onValueChange={(value) => handleInputChange("gender", value)}
@@ -468,7 +468,7 @@ export default function TailorDesigns() {
                         </Select>
                       </div>
                       <div className="space-y-1.5">
-                        <Label className="text-xs font-bold uppercase text-gray-500">Category</Label>
+                        <Label className="text-xs font-semibold uppercase text-gray-500">Category</Label>
                         <Select
                           value={formData.category}
                           onValueChange={(value) => handleInputChange("category", value)}
@@ -491,7 +491,7 @@ export default function TailorDesigns() {
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label className="text-xs font-bold uppercase text-gray-500">Description</Label>
+                      <Label className="text-xs font-semibold uppercase text-gray-500">Description</Label>
                       <Textarea
                         value={formData.description}
                         onChange={(e) => handleInputChange("description", e.target.value)}
@@ -504,38 +504,43 @@ export default function TailorDesigns() {
                 </CardContent>
               </Card>
 
-              {/* Filters */}
+              {/* Features & Filters */}
               {formData.category && (
-                <Card className="border-0 shadow-sm">
-                  <CardContent className="p-6">
-                    <div className="mb-4">
-                      <h3 className="text-lg font-bold text-gray-900 mb-1">Key Features</h3>
-                      <p className="text-sm text-gray-500">Specific attributes for this category</p>
-                    </div>
-                    {loadingFilters ? (
-                      <div className="py-8 flex justify-center text-muted-foreground"><Loader2 className="w-5 h-5 animate-spin" /></div>
-                    ) : filterGroups.length > 0 ? (
-                      <div className="grid sm:grid-cols-2 gap-x-6 gap-y-5">
-                        {filterGroups.map(group => (
-                          <div key={group.id} className="space-y-2">
-                            <Label className="text-xs font-bold uppercase text-gray-500">{group.name}</Label>
-                            <MultiSelect
-                              options={filterOptions[group.id]?.map(opt => opt.value) || []}
-                              selected={formData.filters[group.id] || []}
-                              onChange={(values) => handleInputChange("filters", {
-                                ...formData.filters,
-                                [group.id]: values
-                              })}
-                              placeholder={`Select ${group.name.toLowerCase()}...`}
-                            />
-                          </div>
-                        ))}
+                <div className="space-y-6">
+                  {/* Category-Specific Filters (Neck, Sleeve, etc.) */}
+                  <Card className="border-0 shadow-sm">
+                    <CardContent className="p-6">
+                      <div className="mb-6">
+                        <h3 className="text-lg font-bold text-gray-900 mb-1">Specifications</h3>
+                        <p className="text-sm text-gray-500">Pick features that highlight your design (Select as many as you want)</p>
                       </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground italic">No specific attributes needed.</p>
-                    )}
-                  </CardContent>
-                </Card>
+
+                      {loadingFilters ? (
+                        <div className="py-8 flex justify-center text-muted-foreground"><Loader2 className="w-5 h-5 animate-spin" /></div>
+                      ) : filterGroups.length > 0 ? (
+                        <div className="space-y-8">
+                          {filterGroups.map(group => (
+                            <div key={group.id} className="space-y-3">
+                              <Label className="text-xs font-semibold uppercase tracking-wider text-amber-600">{group.name}</Label>
+                              <FilterChipSelector
+                                options={filterOptions[group.id]?.map(opt => opt.value) || []}
+                                selected={formData.filters[group.id] || []}
+                                onChange={(values) => handleInputChange("filters", {
+                                  ...formData.filters,
+                                  [group.id]: values
+                                })}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground italic">No specific attributes needed.</p>
+                      )}
+                    </CardContent>
+                  </Card>
+
+
+                </div>
               )}
 
               <Card className="border-0 shadow-sm">
@@ -546,19 +551,19 @@ export default function TailorDesigns() {
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="space-y-1.5">
-                      <Label className="text-xs font-bold uppercase text-gray-500">Stitching Price</Label>
+                      <Label className="text-xs font-semibold uppercase text-gray-500">Stitching Price</Label>
                       <div className="relative">
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">₹</span>
                         <Input
                           type="number"
                           value={formData.price}
                           onChange={(e) => handleInputChange("price", e.target.value)}
-                          className="pl-7 font-bold h-10"
+                          className="pl-7 font-normal h-10"
                         />
                       </div>
                     </div>
                     <div className="space-y-1.5">
-                      <Label className="text-xs font-bold uppercase text-gray-500">With Material</Label>
+                      <Label className="text-xs font-semibold uppercase text-gray-500">With Material</Label>
                       <div className="relative">
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">₹</span>
                         <Input
@@ -570,7 +575,7 @@ export default function TailorDesigns() {
                       </div>
                     </div>
                     <div className="space-y-1.5">
-                      <Label className="text-xs font-bold uppercase text-gray-500">Delivery Days</Label>
+                      <Label className="text-xs font-semibold uppercase text-gray-500">Delivery Days</Label>
                       <Input
                         type="number"
                         value={formData.timeInDays}
@@ -667,7 +672,7 @@ export default function TailorDesigns() {
           onDelete={() => { }} // Can't delete in preview
           hideActions={true}
         />
-      </div>
+      </div >
     );
   }
 

@@ -241,20 +241,6 @@ export default function DesignDetail() {
 
             <p className="text-foreground/80 mb-6">{design.description}</p>
 
-            {/* Features */}
-            {design.features && design.features.length > 0 && (
-              <div className="mb-6">
-                <h3 className="font-semibold mb-3">Features</h3>
-                <ul className="space-y-2">
-                  {design.features.map((feature, i) => (
-                    <li key={i} className="flex items-center gap-2 text-sm">
-                      <Check className="w-4 h-4 text-foreground" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
 
             {/* Material Option */}
             <div className="mb-6 p-4 bg-muted/50 rounded-xl">
@@ -376,7 +362,8 @@ export default function DesignDetail() {
       <MeasurementSelector
         isOpen={showMeasurementSelector}
         onClose={() => setShowMeasurementSelector(false)}
-        category={design.categoryName || (design as any).category || ""}
+        categoryId={design.categoryId}
+        categoryName={design.categoryName || (design as any).category || ""}
         onConfirm={handleMeasurementConfirm}
       />
     </Layout>
