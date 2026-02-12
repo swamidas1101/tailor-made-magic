@@ -46,6 +46,7 @@ import HowItWorks from "./pages/content/HowItWorks";
 import MeasurementGuide from "./pages/content/MeasurementGuide";
 import NotFound from "./pages/NotFound";
 import Seeder from "./pages/Seeder";
+import Account from "./pages/Account";
 
 const queryClient = new QueryClient();
 
@@ -96,6 +97,7 @@ const App = () => (
                 <Route path="/how-it-works" element={<HowItWorks />} />
                 <Route path="/measurements/guide" element={<MeasurementGuide />} />
                 <Route path="/seed" element={<Seeder />} />
+                <Route path="/account" element={<Account />} />
                 <Route path="/admin" element={
                   <ProtectedRoute allowedRoles={['admin']}>
                     <AdminDashboard />

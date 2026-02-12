@@ -9,7 +9,7 @@ const navItems = [
   { path: "/categories", label: "Categories", icon: LayoutGrid },
   { path: "/materials", label: "Materials", icon: Scissors },
   { path: "/wishlist", label: "Wishlist", icon: Heart },
-  { path: "/auth", label: "Account", icon: User },
+  { path: "/account", label: "Account", icon: User },
 ];
 
 export function BottomNav() {
@@ -32,7 +32,7 @@ export function BottomNav() {
       <div className="flex items-center justify-around h-16 px-1">
         {navItems.map((item) => {
           const active = isActive(item.path);
-          const actualPath = item.path === "/auth" && user ? "/auth" : item.path;
+          const actualPath = item.path === "/account" ? (user ? "/account" : "/auth") : item.path;
 
           return (
             <Link
