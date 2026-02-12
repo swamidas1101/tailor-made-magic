@@ -14,7 +14,7 @@ export function MaterialCard({ id, name, type, price, image, brand, rating, inSt
     const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
     const wishlisted = isInWishlist(id);
     const [justAddedToCart, setJustAddedToCart] = useState(false);
-    
+
     // Image handling - aligned with DesignCard even for single image to maintain structure
     const allImages = useMemo(() => [image], [image]);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -66,6 +66,8 @@ export function MaterialCard({ id, name, type, price, image, brand, rating, inSt
             price,
             withMaterial: true,
             size: "M", // Default for material? Or maybe just 1 meter unit logic implies size irrelevant
+            tailorId: "platform_admin",
+            shopName: "Tailo Premium",
         });
         setJustAddedToCart(true);
         toast.success("Added to cart!", {
@@ -100,7 +102,7 @@ export function MaterialCard({ id, name, type, price, image, brand, rating, inSt
             transition={{ duration: 0.3 }}
         >
             {/* Image Container - Compact aspect ratio */}
-            <div 
+            <div
                 className="relative aspect-[4/5] overflow-hidden bg-muted"
                 onTouchStart={onTouchStart}
                 onTouchMove={onTouchMove}
@@ -109,14 +111,14 @@ export function MaterialCard({ id, name, type, price, image, brand, rating, inSt
                 <Link to={`/materials`} className="block w-full h-full">
                     <AnimatePresence mode="wait">
                         <motion.img
-                           key={currentImageIndex}
-                           src={allImages[currentImageIndex]}
-                           alt={name}
-                           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                           initial={{ opacity: 0 }}
-                           animate={{ opacity: 1 }}
-                           exit={{ opacity: 0 }}
-                           transition={{ duration: 0.2 }}
+                            key={currentImageIndex}
+                            src={allImages[currentImageIndex]}
+                            alt={name}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
                         />
                     </AnimatePresence>
                 </Link>
@@ -128,7 +130,7 @@ export function MaterialCard({ id, name, type, price, image, brand, rating, inSt
                             Out of Stock
                         </Badge>
                     ) : (
-                         <Badge className="bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[10px] px-2 py-0.5 font-semibold border-0">
+                        <Badge className="bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[10px] px-2 py-0.5 font-semibold border-0">
                             {type}
                         </Badge>
                     )}
@@ -144,8 +146,8 @@ export function MaterialCard({ id, name, type, price, image, brand, rating, inSt
                 >
                     <Heart className={`w-4 h-4 ${wishlisted ? "fill-current" : ""}`} />
                 </button>
-                
-                 {/* Brand Badge (Bottom Left) */}
+
+                {/* Brand Badge (Bottom Left) */}
                 <div className="absolute bottom-2 left-2">
                     <Badge variant="secondary" className="backdrop-blur-md bg-white/90 text-xs font-medium shadow-sm">
                         {brand}
@@ -163,7 +165,7 @@ export function MaterialCard({ id, name, type, price, image, brand, rating, inSt
                         <span className="text-muted-foreground/40">•</span>
                         <span className="text-[10px] text-muted-foreground truncate">{pattern}</span>
                     </div>
-                    
+
                     <h3 className="font-medium text-sm text-foreground line-clamp-1 mb-1" title={name}>
                         {name}
                     </h3>
@@ -180,7 +182,7 @@ export function MaterialCard({ id, name, type, price, image, brand, rating, inSt
                     <div className="flex items-baseline gap-0.5 min-w-0">
                         <IndianRupee className="w-3 h-3 text-foreground" />
                         <span className="text-sm sm:text-base font-bold text-foreground truncate">{price.toLocaleString()}</span>
-                         <span className="text-[10px] sm:text-xs text-muted-foreground">/m</span>
+                        <span className="text-[10px] sm:text-xs text-muted-foreground">/m</span>
                     </div>
 
                     <div className="flex gap-1.5 flex-shrink-0">
@@ -203,7 +205,7 @@ export function MaterialCard({ id, name, type, price, image, brand, rating, inSt
                             onClick={handleAddToCart}
                             disabled={!inStock}
                         >
-                             <div className="relative">
+                            <div className="relative">
                                 {justAddedToCart ? (
                                     <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                                 ) : (

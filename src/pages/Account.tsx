@@ -1,5 +1,5 @@
 import { useNavigate, Link } from "react-router-dom";
-import { LogOut, User, Mail, Phone, Shield, ChevronRight, ShoppingBag, Heart, Settings, Repeat, Users, Package, Ruler, ArrowLeft, Headphones } from "lucide-react";
+import { LogOut, User, Mail, Phone, Shield, ChevronRight, ShoppingBag, Heart, Settings, Repeat, Users, Package, Ruler, ArrowLeft, Headphones, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
@@ -41,7 +41,7 @@ export default function Account() {
           variant="ghost"
           size="icon"
           className="absolute left-4 top-6 md:left-0 md:-ml-12"
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/")}
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
@@ -115,6 +115,16 @@ export default function Account() {
                     <Package className="w-5 h-5 text-green-600" />
                   </div>
                   <span className="font-medium">My Orders</span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              </Link>
+
+              <Link to="/account/addresses" className="flex items-center justify-between p-4 rounded-xl bg-card border border-border hover:bg-muted/50 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center">
+                    <MapPin className="w-5 h-5 text-orange-600" />
+                  </div>
+                  <span className="font-medium">Manage Addresses</span>
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground" />
               </Link>

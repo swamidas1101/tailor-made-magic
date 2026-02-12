@@ -18,6 +18,8 @@ export default function Wishlist() {
       price: item.price,
       withMaterial: false,
       size: "M",
+      tailorId: item.tailorId || "platform_admin",
+      shopName: item.shopName || "Tailo Premium",
     });
     removeFromWishlist(item.id);
     toast.success("Moved to cart!", { description: item.name });

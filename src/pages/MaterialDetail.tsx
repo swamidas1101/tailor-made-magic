@@ -67,7 +67,9 @@ export default function MaterialDetail() {
             price: material.price,
             withMaterial: true,
             size: "N/A",
-            quantity: quantity
+            quantity: quantity,
+            tailorId: "platform_admin",
+            shopName: "Tailo Premium"
         });
         toast.success("Added to cart", {
             description: `${quantity}m of ${material.name}`
@@ -82,7 +84,9 @@ export default function MaterialDetail() {
             price: material.price,
             withMaterial: true,
             size: "N/A",
-            quantity: quantity
+            quantity: quantity,
+            tailorId: "platform_admin",
+            shopName: "Tailo Premium"
         });
         toast.success("Proceeding to checkout", {
             description: `${quantity}m of ${material.name} added to cart`
@@ -100,7 +104,9 @@ export default function MaterialDetail() {
                 name: material.name,
                 image: material.image,
                 price: material.price,
-                category: material.type
+                category: material.type,
+                tailorId: "platform_admin",
+                shopName: "Tailo Premium"
             });
             toast.success("Added to wishlist");
         }

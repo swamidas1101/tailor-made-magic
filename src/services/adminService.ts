@@ -166,12 +166,12 @@ export const adminService = {
                 return {
                     id: doc.id,
                     ...data,
-                    customerName: data.customerName || "Guest Customer",
+                    customerName: data.shippingAddress?.fullName || data.customerName || "Guest Customer",
                     items: data.items || [],
                     status: data.status || "pending",
-                    total: Number(data.total) || 0,
-                    createdAt: data.createdAt ? new Date(data.createdAt.seconds * 1000) : new Date(),
-                    date: data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleDateString() : new Date().toLocaleDateString()
+                    total: Number(data.totalFinalAmount) || Number(data.total) || 0,
+                    createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(),
+                    date: data.createdAt?.toDate ? data.createdAt.toDate().toLocaleDateString() : new Date().toLocaleDateString()
                 };
             });
             return orders.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());

@@ -22,14 +22,30 @@ export const COLLECTION_CATEGORIES = "categories";
 export const designService = {
   getAllDesigns: async (): Promise<Design[]> => {
     const querySnapshot = await getDocs(collection(db, COLLECTION_DESIGNS));
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Design));
+    return querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        tailorId: data.tailorId || "platform_admin",
+        shopName: data.shopName || "Tailo Premium",
+        status: data.status || "approved"
+      } as Design;
+    });
   },
 
   getDesignById: async (id: string): Promise<Design | null> => {
     const docRef = doc(db, COLLECTION_DESIGNS, id);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-      return { id: docSnap.id, ...docSnap.data() } as Design;
+      const data = docSnap.data();
+      return {
+        id: docSnap.id,
+        ...data,
+        tailorId: data.tailorId || "platform_admin",
+        shopName: data.shopName || "Tailo Premium",
+        status: data.status || "approved"
+      } as Design;
     }
     return null;
   },

@@ -459,6 +459,8 @@ const Index = () => {
                   <DesignCard
                     {...design}
                     category={design.categoryName || (design as any).category || "Premium"}
+                    tailorId={design.tailorId}
+                    shopName={design.shopName}
                   />
                 </motion.div>
               ))}

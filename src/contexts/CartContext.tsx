@@ -12,6 +12,16 @@ export interface CartItem {
   withMaterial: boolean;
   size: string;
   quantity: number;
+  orderType?: 'stitching' | 'stitching_and_fabric';
+  measurementType?: 'manual' | 'pickup' | null;
+  measurements?: Record<string, any> | null;
+  pickupSlot?: {
+    date: string;
+    time: string;
+  } | null;
+  tailorId?: string;
+  shopName?: string;
+  estimatedDays?: number;
 }
 
 interface CartContextType {
@@ -19,6 +29,7 @@ interface CartContextType {
   addToCart: (item: Omit<CartItem, "id"> | Omit<CartItem, "id" | "quantity">) => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
+  updateItemDetails: (id: string, updates: Partial<CartItem>) => void;
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
@@ -75,18 +86,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const addToCart = (item: Omit<CartItem, "id"> | Omit<CartItem, "id" | "quantity">) => {
     const quantity = "quantity" in item ? item.quantity : 1;
-    const id = `${item.designId}-${item.size}-${item.withMaterial}`;
+
+    // Generate a unique ID that includes tailoring details to distinguish between different measurements/configs
+    const tailoringRef = item.measurementType === 'manual'
+      ? JSON.stringify(item.measurements || {})
+      : (item.pickupSlot?.time || 'none');
+
+    const id = `${item.designId}-${item.size}-${item.withMaterial}-${tailoringRef}`;
+
     setItems((prev) => {
       const existing = prev.find((i) => i.id === id);
-      let newItems: CartItem[];
       if (existing) {
-        newItems = prev.map((i) =>
+        return prev.map((i) =>
           i.id === id ? { ...i, quantity: i.quantity + quantity } : i
         );
       } else {
-        newItems = [...prev, { ...item, id, quantity }];
+        return [...prev, { ...item, id: id.substring(0, 100), quantity }]; // Clamp ID length
       }
-      return newItems;
     });
     triggerAddAnimation();
   };
@@ -103,6 +119,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems((prev) => prev.map((i) => (i.id === id ? { ...i, quantity } : i)));
   };
 
+  const updateItemDetails = (id: string, updates: Partial<CartItem>) => {
+    setItems((prev) =>
+      prev.map((item) => {
+        if (item.id === id) {
+          // If measurementType or other tailoring info changes, we might need a new ID
+          // But for simple in-cart editing, keeping the same ID is easier if we don't want to re-generate everything.
+          // However, addToCart uses these fields to distinguish items.
+          // Let's just update the fields for now.
+          return { ...item, ...updates };
+        }
+        return item;
+      })
+    );
+  };
+
   const clearCart = () => {
     setItems([]);
     localStorage.removeItem("tailo_cart"); // Should we also clear firestore? Yes via useEffect
@@ -113,7 +144,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   return (
     <CartContext.Provider
-      value={{ items, addToCart, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice, justAdded }}
+      value={{ items, addToCart, removeFromCart, updateQuantity, updateItemDetails, clearCart, totalItems, totalPrice, justAdded }}
     >
       {children}
     </CartContext.Provider>

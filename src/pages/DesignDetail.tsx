@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Star, Clock, IndianRupee, Check, Heart, Share2, Ruler, ChevronRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,9 +11,12 @@ import { SizeChartModal } from "@/components/size-chart/SizeChartModal";
 import { SimilarProducts } from "@/components/shared/SimilarProducts";
 import { useFirebaseData } from "@/hooks/useFirebaseData";
 import { useWishlist } from "@/contexts/WishlistContext";
+import { useCart } from "@/contexts/CartContext";
+import { handleCustomError, showSuccess, showInfo } from "@/lib/toastUtils";
 
 export default function DesignDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { designs, loading } = useFirebaseData();
   const design = designs.find((d) => d.id === id);
   const [withMaterial, setWithMaterial] = useState(false);
@@ -99,26 +102,39 @@ export default function DesignDetail() {
     });
   };
 
-  const handleBookNow = () => {
-    if (!measurementMode) {
-      toast.error("Please select a measurement option");
-      return;
-    }
+  const { addToCart } = useCart();
 
-    if (measurementMode === 'manual' && !selectedMeasurements) {
-      toast.error("Please add your measurements");
-      setShowMeasurementSelector(true);
-      return;
-    }
+  const handleAddToCart = () => {
+    if (!design) return;
 
-    if (measurementMode === 'pickup' && !pickupTimeSlot) {
-      toast.error("Please select a pickup time slot");
-      return;
-    }
+    const cartItem = {
+      designId: design.id,
+      name: design.name,
+      image: design.image,
+      price: withMaterial ? design.priceWithMaterial : design.price,
+      orderType: (withMaterial ? 'stitching_and_fabric' : 'stitching') as 'stitching' | 'stitching_and_fabric',
+      measurementType: measurementMode,
+      measurements: selectedMeasurements,
+      pickupSlot: measurementMode === 'pickup' ? { date: new Date().toISOString().split('T')[0], time: pickupTimeSlot } : null,
+      tailorId: design.tailorId || "platform_admin",
+      shopName: design.shopName || "Tailo Premium",
+      estimatedDays: design.timeInDays || 7,
+      size: "custom",
+      quantity: 1,
+      withMaterial
+    };
 
-    toast.success("Proceeding to checkout...", {
-      description: `${design.name} - ₹${withMaterial ? design.priceWithMaterial : design.price}`,
+    addToCart(cartItem);
+    toast.success("Added to cart", {
+      description: `${design.name} with your tailoring preferences`
     });
+  };
+
+  const handleBookNow = () => {
+    if (!design) return;
+
+    handleAddToCart();
+    navigate("/checkout");
   };
 
   const handleWishlist = () => {
@@ -132,6 +148,8 @@ export default function DesignDetail() {
         image: design.image,
         price: design.price,
         category: design.categoryName || (design as any).category || "Premium",
+        tailorId: design.tailorId || "platform_admin",
+        shopName: design.shopName || "Tailo Premium",
       });
       toast.success("Added to wishlist!");
     }
@@ -387,15 +405,26 @@ export default function DesignDetail() {
                   <p className="font-semibold">{design.timeInDays} working days</p>
                 </div>
               </div>
-              <Button
-                variant="default"
-                size="xl"
-                className="w-full"
-                onClick={handleBookNow}
-                disabled={!measurementMode || (measurementMode === 'pickup' && !pickupTimeSlot)}
-              >
-                Proceed to Checkout
-              </Button>
+              <div className="grid grid-cols-2 gap-3 mt-6">
+                <Button
+                  variant="outline"
+                  size="xl"
+                  className="rounded-xl font-bold border-orange-200 text-orange-700 hover:bg-orange-50"
+                  onClick={handleAddToCart}
+                  disabled={!measurementMode || (measurementMode === 'pickup' && !pickupTimeSlot)}
+                >
+                  Add to Cart
+                </Button>
+                <Button
+                  variant="default"
+                  size="xl"
+                  className="rounded-xl font-bold shadow-gold-glow"
+                  onClick={handleBookNow}
+                  disabled={!measurementMode || (measurementMode === 'pickup' && !pickupTimeSlot)}
+                >
+                  Buy Now
+                </Button>
+              </div>
             </div>
           </div>
         </div>

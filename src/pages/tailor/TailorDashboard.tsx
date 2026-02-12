@@ -23,7 +23,7 @@ export default function TailorDashboard() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const handleLogout = () => { logout(); navigate("/"); };
+  const handleLogout = async () => { await logout(); navigate("/"); };
   const isActive = (path: string) => path === "/tailor" ? location.pathname === "/tailor" : location.pathname.startsWith(path);
 
   // If KYT is not approved, show restricted view

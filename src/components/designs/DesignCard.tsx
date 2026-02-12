@@ -25,6 +25,8 @@ export interface DesignCardProps {
   neckType?: string | string[];
   workType?: string | string[];
   variant?: "default" | "compact";
+  tailorId?: string;
+  shopName?: string;
 }
 
 export function DesignCard({
@@ -41,6 +43,8 @@ export function DesignCard({
   neckType,
   workType,
   variant = "default",
+  tailorId,
+  shopName,
 }: DesignCardProps) {
   const isCompact = variant === "compact";
   const { addToCart, items: cartItems } = useCart();
@@ -76,6 +80,8 @@ export function DesignCard({
       price,
       withMaterial: false,
       size: "M",
+      tailorId: tailorId || "platform_admin",
+      shopName: shopName || "Tailo Premium",
     });
     setJustAddedToCart(true);
     toast.success("Added to cart!", {

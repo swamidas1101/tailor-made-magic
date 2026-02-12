@@ -30,6 +30,8 @@ import CategoryManagement from "./pages/admin/CategoryManagement";
 import MeasurementManagement from "./pages/admin/MeasurementManagement";
 import FilterManagement from "./pages/admin/FilterManagement";
 import DatabaseSeeder from "./pages/admin/DatabaseSeeder";
+import AdminPromos from "./pages/admin/AdminPromos";
+import AdminSettings from "./pages/admin/AdminSettings";
 import TailorDashboard from "./pages/tailor/TailorDashboard";
 import TailorOverview from "./pages/tailor/TailorOverview";
 import TailorDesigns from "./pages/tailor/TailorDesigns";
@@ -47,6 +49,9 @@ import MeasurementGuide from "./pages/content/MeasurementGuide";
 import NotFound from "./pages/NotFound";
 import Seeder from "./pages/Seeder";
 import Account from "./pages/Account";
+import Checkout from "./pages/Checkout";
+import AddressManagement from "./pages/customer/AddressManagement";
+import CustomerOrders from "./pages/customer/CustomerOrders";
 
 const queryClient = new QueryClient();
 
@@ -98,6 +103,17 @@ const App = () => (
                 <Route path="/measurements/guide" element={<MeasurementGuide />} />
                 <Route path="/seed" element={<Seeder />} />
                 <Route path="/account" element={<Account />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/account/addresses" element={
+                  <ProtectedRoute allowedRoles={['customer', 'tailor', 'admin']}>
+                    <AddressManagement />
+                  </ProtectedRoute>
+                } />
+                <Route path="/orders" element={
+                  <ProtectedRoute allowedRoles={['customer', 'tailor', 'admin']}>
+                    <CustomerOrders />
+                  </ProtectedRoute>
+                } />
                 <Route path="/admin" element={
                   <ProtectedRoute allowedRoles={['admin']}>
                     <AdminDashboard />
@@ -111,6 +127,8 @@ const App = () => (
                   <Route path="filters" element={<FilterManagement />} />
                   <Route path="orders" element={<AdminOrders />} />
                   <Route path="analytics" element={<AdminAnalytics />} />
+                  <Route path="promos" element={<AdminPromos />} />
+                  <Route path="settings" element={<AdminSettings />} />
                   <Route path="seeder" element={<DatabaseSeeder />} />
                 </Route>
                 <Route path="/tailor" element={

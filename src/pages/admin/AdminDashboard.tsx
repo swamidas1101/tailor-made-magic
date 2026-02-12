@@ -12,7 +12,9 @@ import {
   Ruler,
   ChevronRight,
   ShieldCheck,
-  Sparkles
+  Sparkles,
+  Ticket,
+  Settings
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -30,6 +32,8 @@ const adminNavItems = [
   { name: "Filters", path: "/admin/filters", icon: Sparkles },
   { name: "Orders", path: "/admin/orders", icon: ShoppingBag },
   { name: "Analytics", path: "/admin/analytics", icon: BarChart3 },
+  { name: "Promos", path: "/admin/promos", icon: Ticket },
+  { name: "Settings", path: "/admin/settings", icon: Settings },
   { name: "Database Seeder", path: "/admin/seeder", icon: Sparkles },
 ];
 
@@ -39,8 +43,8 @@ export default function AdminDashboard() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate("/");
   };
 
@@ -128,50 +132,61 @@ export default function AdminDashboard() {
                 <Menu className="w-6 h-6" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-[300px] p-0 bg-background text-foreground border-r border-border shadow-2xl">
-              <SheetHeader className="p-8 border-b border-border text-left">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
-                    <ShieldCheck className="w-5 h-5 text-white" />
-                  </div>
-                  <div className="text-left">
-                    <SheetTitle className="text-left font-display font-bold text-[#1E1610]">Tailor Admin</SheetTitle>
-                    <SheetDescription className="text-xs text-amber-600 uppercase tracking-widest mt-0.5 font-bold text-left">Control Center</SheetDescription>
-                  </div>
-                </div>
-              </SheetHeader>
-
-              <nav className="p-6 space-y-2">
-                {adminNavItems.map((item) => (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    onClick={() => setSidebarOpen(false)}
-                    className={cn(
-                      "flex items-center justify-between px-4 py-4 rounded-xl transition-all",
-                      isActive(item.path)
-                        ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold shadow-md shadow-amber-500/20"
-                        : "text-muted-foreground hover:text-amber-600 hover:bg-amber-50"
-                    )}
-                  >
-                    <div className="flex items-center gap-4">
-                      <item.icon className="w-5 h-5" />
-                      <span className="tracking-tight font-bold">{item.name}</span>
+            <SheetContent side="left" className="w-[300px] p-0 bg-background text-foreground border-r border-border shadow-2xl overflow-hidden">
+              <div className="flex flex-col h-full">
+                <SheetHeader className="p-8 border-b border-border text-left shrink-0">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
+                      <ShieldCheck className="w-5 h-5 text-white" />
                     </div>
-                    <ChevronRight className="w-4 h-4 opacity-50" />
-                  </Link>
-                ))}
-              </nav>
+                    <div className="text-left">
+                      <SheetTitle className="text-left font-display font-bold text-[#1E1610]">Tailor Admin</SheetTitle>
+                      <SheetDescription className="text-xs text-amber-600 uppercase tracking-widest mt-0.5 font-bold text-left">Control Center</SheetDescription>
+                    </div>
+                  </div>
+                </SheetHeader>
 
-              <div className="p-6 mt-auto border-t border-border">
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start text-red-500 hover:bg-red-50 h-12 rounded-xl gap-4 font-bold uppercase tracking-wider text-xs"
-                  onClick={handleLogout}
-                >
-                  <LogOut className="w-5 h-5" />
-                  Sign Out
-                </Button>
+                <nav className="flex-1 p-6 space-y-2 overflow-y-auto custom-scrollbar">
+                  {adminNavItems.map((item) => (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      onClick={() => setSidebarOpen(false)}
+                      className={cn(
+                        "flex items-center justify-between px-4 py-4 rounded-xl transition-all",
+                        isActive(item.path)
+                          ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold shadow-md shadow-amber-500/20"
+                          : "text-muted-foreground hover:text-amber-600 hover:bg-amber-50"
+                      )}
+                    >
+                      <div className="flex items-center gap-4">
+                        <item.icon className="w-5 h-5" />
+                        <span className="tracking-tight font-bold">{item.name}</span>
+                      </div>
+                      <ChevronRight className="w-4 h-4 opacity-50" />
+                    </Link>
+                  ))}
+                </nav>
+
+                <div className="p-6 mt-auto border-t border-border shrink-0 bg-white space-y-4">
+                  <div className="flex items-center gap-4 p-3 bg-muted/30 rounded-xl border border-border/50">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-lg font-bold text-white shadow-md">
+                      {user?.displayName?.charAt(0) || "A"}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold truncate text-[#1E1610] text-left">{user?.displayName || "Administrator"}</p>
+                      <p className="text-[10px] text-muted-foreground truncate text-left">{user?.email}</p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-red-500 hover:bg-red-50 h-12 rounded-xl gap-4 font-bold uppercase tracking-wider text-xs"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="w-5 h-5" />
+                    Sign Out
+                  </Button>
+                </div>
               </div>
             </SheetContent>
           </Sheet>

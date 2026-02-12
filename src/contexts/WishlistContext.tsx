@@ -6,6 +6,8 @@ export interface WishlistItem {
   image: string;
   price: number;
   category: string;
+  tailorId?: string;
+  shopName?: string;
 }
 
 interface WishlistContextType {

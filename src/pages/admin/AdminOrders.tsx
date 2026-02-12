@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Filter, MoreVertical, CheckCircle2, XCircle, Eye, Printer, Download, ShoppingBag, Clock, ArrowRight, User, MapPin, Phone, Mail, IndianRupee, Package, Calendar, Tag, ChevronRight, Gem, AlertTriangle, Scale, History, FileText, Truck, LayoutList } from "lucide-react";
+import { Search, Filter, MoreVertical, CheckCircle2, XCircle, Eye, Printer, Download, ShoppingBag, Clock, ArrowRight, User, MapPin, Phone, Mail, IndianRupee, Package, Calendar, Tag, ChevronRight, Gem, AlertTriangle, Scale, History, FileText, Truck, LayoutList, Ruler, Ticket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -77,7 +77,7 @@ export default function AdminOrders() {
 
   const stats = [
     { label: "Active Orders", value: orders.filter(o => o.status !== "delivered").length, icon: Clock, color: "text-amber-600", bg: "bg-amber-50" },
-    { label: "Total Revenue", value: `₹${(orders.reduce((acc, o) => acc + o.total, 0) / 1000).toFixed(1)}k`, icon: IndianRupee, color: "text-green-600", bg: "bg-green-50" },
+    { label: "Total Revenue", value: `₹${(orders.reduce((acc, o) => acc + (o.totalFinalAmount || o.total || 0), 0) / 1000).toFixed(1)}k`, icon: IndianRupee, color: "text-green-600", bg: "bg-green-50" },
     { label: "High Priority", value: "05", icon: AlertTriangle, color: "text-rose-600", bg: "bg-rose-50" },
     { label: "Completed", value: orders.filter(o => o.status === "delivered").length, icon: CheckCircle2, color: "text-blue-600", bg: "bg-blue-50" },
   ];
@@ -159,7 +159,7 @@ export default function AdminOrders() {
                 <tr className="bg-muted/20 border-b border-border/40">
                   <th className="text-left py-3 px-6 font-bold text-muted-foreground uppercase text-[10px] tracking-wider w-32">ID</th>
                   <th className="text-left py-3 px-6 font-bold text-muted-foreground uppercase text-[10px] tracking-wider">Customer</th>
-                  <th className="text-left py-3 px-6 font-bold text-muted-foreground uppercase text-[10px] tracking-wider">Item Details</th>
+                  <th className="text-left py-3 px-6 font-bold text-muted-foreground uppercase text-[10px] tracking-wider">Tailor/Shop</th>
                   <th className="text-left py-3 px-6 font-bold text-muted-foreground uppercase text-[10px] tracking-wider">Status</th>
                   <th className="text-right py-3 px-6 font-bold text-muted-foreground uppercase text-[10px] tracking-wider">Total</th>
                   <th className="px-6"></th>
@@ -189,7 +189,10 @@ export default function AdminOrders() {
                         </div>
                       </td>
                       <td className="py-3 px-6">
-                        <span className="text-xs text-muted-foreground">{order.items.length} item(s) • <span className="text-foreground/80 font-medium">{order.items[0].shopName}</span></span>
+                        <div className="flex flex-col">
+                          <span className="text-xs font-medium text-foreground">{order.items[0]?.shopName || order.shopName || "Premium Boutique"}</span>
+                          <span className="text-[10px] text-muted-foreground">{order.items.length} item(s)</span>
+                        </div>
                       </td>
                       <td className="py-3 px-6">
                         <div className="flex items-center gap-2">
@@ -204,13 +207,13 @@ export default function AdminOrders() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="h-8 w-8 p-0 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
                           onClick={() => {
                             setSelectedOrder(order);
                             setViewDialogOpen(true);
                           }}
                         >
-                          <ChevronRight className="w-4 h-4 text-amber-600" />
+                          <Eye className="w-4 h-4" />
                         </Button>
                       </td>
                     </tr>
@@ -223,117 +226,265 @@ export default function AdminOrders() {
 
         {/* Clean Order Detail Sheet/Dialog */}
         <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-          <DialogContent className="max-w-3xl p-0 overflow-hidden bg-white rounded-2xl shadow-2xl border-none">
+          <DialogContent className="w-[95vw] max-w-5xl p-0 overflow-hidden bg-white rounded-2xl shadow-2xl border-none">
             {selectedOrder && (
               <div className="flex flex-col h-full max-h-[90vh]">
-                <DialogHeader className="p-6 border-b border-border/40 bg-muted/5 flex flex-row items-center justify-between space-y-0">
-                  <div>
-                    <DialogTitle className="text-lg font-bold font-display flex items-center gap-2">
-                      Order #{selectedOrder.id}
-                      <Badge variant="outline" className={cn("ml-2 text-[10px] font-bold uppercase tracking-wider py-0.5 px-2", getStatusColor(selectedOrder.status))}>
+                <DialogHeader className="p-4 sm:p-6 border-b border-border/40 bg-muted/5 flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">
+                  <div className="flex-1 w-full">
+                    <div className="flex items-center gap-3 mb-1">
+                      <DialogTitle className="text-lg sm:text-xl font-bold font-display tracking-tight">
+                        Order #{selectedOrder.id.split('-')[1]?.toUpperCase() || selectedOrder.id.substring(0, 8).toUpperCase()}
+                      </DialogTitle>
+                      <Badge variant="outline" className={cn("text-[9px] sm:text-[10px] font-bold uppercase tracking-wider py-0.5 px-2", getStatusColor(selectedOrder.status))}>
                         {selectedOrder.status}
                       </Badge>
-                    </DialogTitle>
-                    <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {selectedOrder.date}</span>
-                      <span className="w-1 h-1 bg-muted-foreground/30 rounded-full" />
-                      <span className="flex items-center gap-1"><ShoppingBag className="w-3 h-3" /> {selectedOrder.items.length} items</span>
                     </div>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[10px] sm:text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> {selectedOrder.date}</span>
+                      <span className="hidden sm:block w-1 h-1 bg-muted-foreground/30 rounded-full" />
+                      <span className="flex items-center gap-1.5 font-bold text-amber-600"><ShoppingBag className="w-3.5 h-3.5" /> {selectedOrder.items.length} items</span>
+                      <span className="hidden sm:block w-1 h-1 bg-muted-foreground/30 rounded-full" />
+                      <span className="flex items-center gap-1.5 font-bold text-foreground">Total: ₹{(selectedOrder.totalFinalAmount || selectedOrder.total || 0).toLocaleString()}</span>
+                    </div>
+                    <DialogDescription className="sr-only">
+                      Full details and management options for Order #{selectedOrder.id}.
+                    </DialogDescription>
                   </div>
-                  <div className="flex gap-2">
-                    <Button size="icon" variant="outline" className="h-8 w-8 rounded-full"><Printer className="w-3.5 h-3.5" /></Button>
-                    <Button size="icon" variant="outline" className="h-8 w-8 rounded-full"><Mail className="w-3.5 h-3.5" /></Button>
+                  <div className="flex gap-2 w-full sm:w-auto shrink-0 transition-all">
+                    <Button size="sm" variant="outline" className="flex-1 sm:flex-none h-9 px-3 sm:px-4 rounded-xl border-amber-200 text-amber-700 hover:bg-amber-50 text-[10px] sm:text-xs">
+                      <Printer className="w-3.5 h-3.5 mr-2" /> Print
+                    </Button>
+                    <Button size="sm" variant="secondary" className="flex-1 sm:flex-none h-9 px-3 sm:px-4 rounded-xl text-[10px] sm:text-xs">
+                      <Mail className="w-3.5 h-3.5 mr-2" /> Email
+                    </Button>
                   </div>
                 </DialogHeader>
 
-                <ScrollArea className="flex-1 p-6">
-                  <div className="grid md:grid-cols-3 gap-8">
-                    {/* Left: Items */}
-                    <div className="md:col-span-2 space-y-6">
+                <div className="flex-1 overflow-y-auto">
+                  <div className="p-4 sm:p-6 grid lg:grid-cols-12 gap-6 sm:gap-8 items-start">
+                    {/* Main Content Area */}
+                    <div className="lg:col-span-8 space-y-6">
+                      {/* Products Section */}
                       <div>
-                        <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4">Items</h4>
+                        <div className="flex items-center gap-2 mb-4">
+                          <Package className="w-4 h-4 text-amber-600" />
+                          <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-foreground">Order Items</h4>
+                        </div>
                         <div className="space-y-3">
                           {selectedOrder.items.map((item: any, idx: number) => (
-                            <div key={idx} className="flex gap-4 p-3 rounded-xl bg-muted/10 border border-border/40 group hover:border-amber-200/50 transition-colors">
-                              <div className="w-16 h-16 rounded-lg bg-white relative overflow-hidden shrink-0">
-                                <img src={item.image} alt="" className="w-full h-full object-cover" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-bold text-sm text-foreground truncate">{item.name}</p>
-                                <p className="text-xs text-amber-600 font-medium truncate">{item.shopName}</p>
-                                <div className="flex items-center gap-2 mt-2">
-                                  <Badge variant="secondary" className="text-[9px] px-1.5 bg-white h-5">{item.category}</Badge>
+                            <div key={idx} className="bg-white rounded-xl border border-border/40 overflow-hidden group hover:border-amber-200/50 transition-all">
+                              <div className="p-3 flex gap-4">
+                                <div className="w-16 h-20 rounded-lg bg-muted relative overflow-hidden shrink-0 border border-border/20 shadow-sm">
+                                  <img src={item.image} alt="" className="w-full h-full object-cover" />
                                 </div>
-                              </div>
-                              <div className="text-right">
-                                <p className="font-bold text-sm tabular-nums">₹{item.price.toLocaleString()}</p>
-                                <p className="text-[10px] text-muted-foreground mt-0.5">Qty: 1</p>
+                                <div className="flex-1 min-w-0 flex flex-col justify-center">
+                                  <div className="flex justify-between items-start">
+                                    <div className="min-w-0">
+                                      <h5 className="font-bold text-xs sm:text-sm text-foreground truncate">{item.name}</h5>
+                                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
+                                        <div className="flex items-center gap-1 text-[9px] sm:text-[10px] text-amber-600 font-bold uppercase tracking-tight">
+                                          <Gem className="w-2.5 h-2.5" />
+                                          {item.shopName || selectedOrder.shopName || "Premium Boutique"}
+                                        </div>
+                                        <div className="text-[9px] sm:text-[10px] text-muted-foreground font-bold uppercase flex items-center gap-1.5">
+                                          <div className="hidden sm:block w-1 h-1 bg-muted-foreground/30 rounded-full" />
+                                          {item.orderType === 'stitching_and_fabric' ? 'Fabric + Stitching' : 'Stitching Only'}
+                                        </div>
+                                        {/* Pickup Slot in Single Line */}
+                                        {(item.pickupSlot || (idx === 0 && selectedOrder.pickupSlot)) && (
+                                          <div className="text-[9px] sm:text-[10px] text-blue-600 font-bold uppercase flex items-center gap-1.5">
+                                            <div className="hidden sm:block w-1 h-1 bg-muted-foreground/30 rounded-full" />
+                                            <Truck className="w-3 h-3 " />
+                                            Pickup: {(item.pickupSlot || selectedOrder.pickupSlot).date}
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <div className="text-right shrink-0 ml-2">
+                                      <div className="text-xs sm:text-sm font-bold tabular-nums">₹{(item.price || 0).toLocaleString()}</div>
+                                      <div className="text-[9px] text-muted-foreground font-bold uppercase mt-0.5">Qty: {item.quantity || 1}</div>
+                                    </div>
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           ))}
                         </div>
                       </div>
+
+                      {/* Payment Summary - Card Format */}
+                      <Card className="border-border/40 bg-muted/30 shadow-none relative overflow-hidden group">
+                        <div className="absolute -right-4 -top-4 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl transition-all group-hover:bg-amber-500/10" />
+                        <CardContent className="p-4 sm:p-6">
+                          <div className="grid md:grid-cols-2 gap-6 sm:gap-8 items-start">
+                            <div className="space-y-4">
+                              <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">Payment Breakdown</h4>
+                              <div className="space-y-2.5">
+                                <div className="flex justify-between text-xs font-medium text-muted-foreground">
+                                  <span>Cart Subtotal</span>
+                                  <span className="text-foreground">₹{(selectedOrder.totalAmount || selectedOrder.total || 0).toLocaleString()}</span>
+                                </div>
+                                <div className="flex justify-between text-xs font-medium text-muted-foreground">
+                                  <span className="flex items-center gap-1.5">GST (12% included) <Tag className="w-3 h-3 text-muted-foreground/50" /></span>
+                                  <span className="text-foreground">₹{Math.round(((selectedOrder.totalAmount || selectedOrder.total || 0) * 0.12)).toLocaleString()}</span>
+                                </div>
+                                <div className="flex justify-between text-xs font-medium text-muted-foreground">
+                                  <span>Delivery Charges</span>
+                                  <span className={(selectedOrder.deliveryFee === 0 || !selectedOrder.deliveryFee) ? "text-emerald-600 font-bold" : "text-foreground"}>
+                                    {(selectedOrder.deliveryFee === 0 || !selectedOrder.deliveryFee) ? "FREE" : `₹${selectedOrder.deliveryFee}`}
+                                  </span>
+                                </div>
+                                {Number(selectedOrder.discountAmount) > 0 && (
+                                  <div className="pt-2 border-t border-border/40">
+                                    <div className="flex justify-between text-xs text-emerald-600 font-bold italic">
+                                      <span className="flex items-center gap-1">
+                                        <Ticket className="w-3 h-3" />
+                                        {selectedOrder.promoCode || "SAVEMORE"}
+                                      </span>
+                                      <span>- ₹{Number(selectedOrder.discountAmount).toLocaleString()}</span>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="md:border-l md:border-border/60 md:pl-8 flex flex-col justify-between items-start md:items-end h-full pt-1">
+                              <div className="w-full text-left md:text-right">
+                                <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Final Amount Received</p>
+                                <div className="flex items-baseline justify-start md:justify-end gap-1.5 text-2xl sm:text-3xl font-black text-amber-600">
+                                  <IndianRupee className="w-5 sm:w-6 h-5 sm:h-6 self-center" />
+                                  {(selectedOrder.totalFinalAmount || selectedOrder.total || 0).toLocaleString()}
+                                </div>
+                              </div>
+                              <div className="mt-4 sm:mt-6 w-full flex items-center justify-between bg-white/50 p-3 rounded-xl border border-border/40">
+                                <div className="flex flex-col">
+                                  <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-tighter">Payment Mode</span>
+                                  <span className="text-[10px] sm:text-[11px] font-bold text-foreground">{selectedOrder.paymentMethod || "Razorpay UPI"}</span>
+                                </div>
+                                <Badge variant="outline" className={cn(
+                                  "text-[9px] font-black uppercase tracking-tighter py-0.5 px-2",
+                                  selectedOrder.paymentStatus === 'paid' ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-amber-50 text-amber-700 border-amber-200"
+                                )}>
+                                  {selectedOrder.paymentStatus || "Paid"}
+                                </Badge>
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
                     </div>
 
-                    {/* Right: Customer & Info */}
-                    <div className="space-y-6">
-                      <div className="space-y-3">
-                        <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Customer</h4>
-                        <div className="p-3 rounded-xl border border-border/40 space-y-2">
+                    {/* Sidebar Area */}
+                    <div className="lg:col-span-4 space-y-6">
+                      {/* Tailor Details Sidebar Card */}
+                      <Card className="border-border/40 bg-white shadow-sm overflow-hidden">
+                        <CardHeader className="p-4 bg-amber-50/30 border-b border-amber-100/50">
                           <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center text-[10px] text-amber-700 font-bold">
+                            <Gem className="w-4 h-4 text-amber-600" />
+                            <h4 className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-foreground">Tailor Assignment</h4>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-700 text-base sm:text-lg font-bold">
+                              {selectedOrder.items[0]?.shopName?.charAt(0) || "T"}
+                            </div>
+                            <div>
+                              <p className="font-bold text-xs sm:text-sm text-foreground">{selectedOrder.items[0]?.shopName || selectedOrder.shopName || "Premium Boutique"}</p>
+                              <p className="text-[9px] sm:text-[10px] text-muted-foreground font-medium">Boutique ID: {selectedOrder.items[0]?.tailorId?.substring(0, 8) || "PLAT-001"}</p>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-3 pt-3 border-t border-border/40">
+                            <Button variant="outline" size="sm" className="h-8 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider rounded-lg border-amber-100 text-amber-700 hover:bg-amber-50">
+                              <Phone className="w-3 h-3 mr-1.5" /> Call
+                            </Button>
+                            <Button variant="outline" size="sm" className="h-8 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider rounded-lg border-amber-100 text-amber-700 hover:bg-amber-50">
+                              <Mail className="w-3 h-3 mr-1.5" /> Message
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Customer & Shipping Summary */}
+                      <Card className="border-border/40 bg-white shadow-sm overflow-hidden">
+                        <CardHeader className="p-4 bg-muted/5 border-b border-border/40">
+                          <div className="flex items-center gap-2">
+                            <User className="w-4 h-4 text-amber-600" />
+                            <h4 className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-foreground">Delivery Information</h4>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="p-4 space-y-5">
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white text-base sm:text-lg font-bold shadow-md">
                               {selectedOrder.customerName.charAt(0)}
                             </div>
-                            <p className="font-bold text-sm">{selectedOrder.customerName}</p>
+                            <div>
+                              <p className="font-bold text-xs sm:text-sm text-foreground">{selectedOrder.customerName}</p>
+                              <p className="text-[10px] text-muted-foreground font-medium truncate max-w-[120px] sm:max-w-none">ID: {selectedOrder.userId.substring(0, 8)}</p>
+                            </div>
                           </div>
-                          <p className="text-xs text-muted-foreground pl-8">user@example.com</p>
-                          <p className="text-xs text-muted-foreground pl-8">+91 987 654 3210</p>
-                        </div>
-                      </div>
 
-                      <div className="space-y-3">
-                        <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Address</h4>
-                        <div className="p-3 rounded-xl border border-border/40 p-4">
-                          <p className="text-xs text-muted-foreground leading-relaxed">
-                            123 Fashion Avenue,<br />
-                            Design District,<br />
-                            Hyderabad, 500033
-                          </p>
-                        </div>
-                      </div>
+                          <div className="space-y-4 pt-4 border-t border-border/40">
+                            <div>
+                              <p className="text-[9px] sm:text-[10px] font-bold uppercase text-muted-foreground mb-2 flex items-center gap-1.5">
+                                <MapPin className="w-3 h-3" /> Shipping Address
+                              </p>
+                              <p className="text-xs font-bold text-foreground mb-1">{selectedOrder.shippingAddress?.fullName || selectedOrder.customerName}</p>
+                              <p className="text-[10px] sm:text-[11px] text-muted-foreground leading-relaxed">
+                                {selectedOrder.shippingAddress?.street}, {selectedOrder.shippingAddress?.landmark && <>{selectedOrder.shippingAddress.landmark}, </>}
+                                {selectedOrder.shippingAddress?.city}, {selectedOrder.shippingAddress?.state} - {selectedOrder.shippingAddress?.zipCode}
+                              </p>
+                            </div>
 
-                      <div className="bg-amber-50 rounded-xl p-4 space-y-3 border border-amber-100/50">
-                        <div className="flex justify-between text-xs">
-                          <span className="text-muted-foreground">Subtotal</span>
-                          <span className="font-medium">₹{selectedOrder.total.toLocaleString()}</span>
+                            <div className="grid grid-cols-1 gap-2">
+                              <div className="flex items-center gap-2.5 text-[10px] sm:text-[11px] font-medium text-foreground/80">
+                                <Mail className="w-3.5 h-3.5 text-amber-500" />
+                                <span className="truncate">user@example.com</span>
+                              </div>
+                              <div className="flex items-center gap-2.5 text-[10px] sm:text-[11px] font-medium text-foreground/80">
+                                <Phone className="w-3.5 h-3.5 text-amber-500" />
+                                <span>{selectedOrder.shippingAddress?.phone || selectedOrder.customerPhone || "+91 987 654 3210"}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Quick Actions */}
+                      <div className="space-y-2 sm:space-y-3 pt-2">
+                        <div className="flex items-center gap-2 mb-1 px-1">
+                          <Clock className="w-3.5 h-3.5 text-amber-600" />
+                          <h4 className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Order Management</h4>
                         </div>
-                        <div className="flex justify-between text-xs">
-                          <span className="text-muted-foreground">Shipping</span>
-                          <span className="font-bold text-green-600">Free</span>
-                        </div>
-                        <Separator className="bg-amber-200/30" />
-                        <div className="flex justify-between text-sm font-bold text-amber-900">
-                          <span>Total</span>
-                          <span>₹{selectedOrder.total.toLocaleString()}</span>
-                        </div>
+                        <Button variant="outline" className="w-full justify-start text-[10px] sm:text-xs font-bold h-9 sm:h-10 rounded-xl">
+                          <FileText className="w-4 h-4 mr-2 text-slate-400" /> View Activity Log
+                        </Button>
+                        <Button variant="outline" className="w-full justify-start text-[10px] sm:text-xs font-bold h-9 sm:h-10 rounded-xl">
+                          <History className="w-4 h-4 mr-2 text-slate-400" /> Order History
+                        </Button>
                       </div>
                     </div>
                   </div>
-                </ScrollArea>
+                </div>
 
-                <DialogFooter className="p-4 border-t border-border/40 bg-muted/5 gap-3">
-                  <Button variant="outline" className="flex-1 bg-white h-10 border-border/60">
-                    Cancel Order
+                <DialogFooter className="p-4 border-t border-border/40 bg-muted/5 flex flex-col sm:flex-row gap-3">
+                  <Button variant="ghost" className="w-full sm:w-auto text-muted-foreground hover:text-rose-600 hover:bg-rose-50 font-bold shadow-none text-[10px] sm:text-xs uppercase tracking-widest h-10 sm:h-auto" onClick={() => setViewDialogOpen(false)}>
+                    Close Panel
                   </Button>
-                  <Button className="flex-1 bg-amber-600 hover:bg-amber-700 h-10 shadow-lg shadow-amber-900/10">
-                    Update Status &rarr;
-                  </Button>
+                  <div className="flex gap-2 w-full sm:flex-1 sm:justify-end">
+                    <Button variant="outline" className="flex-1 sm:flex-none bg-white h-10 sm:h-11 border-border/60 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-widest hover:bg-slate-50 transition-all px-4 sm:px-8">
+                      Cancel
+                    </Button>
+                    <Button className="flex-1 sm:flex-none bg-amber-600 hover:bg-amber-700 text-white h-10 sm:h-11 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-widest transition-all px-6 sm:px-10">
+                      Update Status
+                    </Button>
+                  </div>
                 </DialogFooter>
               </div>
             )}
           </DialogContent>
         </Dialog>
-      </div >
-    </div >
+      </div>
+    </div>
   );
 }

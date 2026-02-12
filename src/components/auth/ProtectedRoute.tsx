@@ -20,8 +20,8 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
     }
 
     if (!user) {
-        // Redirect to auth page but save the attempted location
-        return <Navigate to="/auth" state={{ from: location }} replace />;
+        // Redirect to home page on logout/session loss
+        return <Navigate to="/" replace />;
     }
 
     // If roles are specified, check if user has the required role

@@ -258,6 +258,8 @@ export default function Categories() {
                         reviewCount={design.reviewCount || 0}
                         timeInDays={design.timeInDays}
                         isPopular={design.isPopular}
+                        tailorId={design.tailorId}
+                        shopName={design.shopName}
                       />
                     ))}
                   </div>
@@ -373,7 +375,7 @@ export default function Categories() {
               <Link to="/materials" className="group relative h-48 md:h-56 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-500 block ring-1 ring-border/50">
                 <div className="absolute inset-0 bg-orange-900">
                   <img
-                    src="https://images.unsplash.com/photo-1520283818086-367d643d92cc?q=80&w=2000"
+                    src="https://images.unsplash.com/photo-1558271821-65adc9414384?q=80&w=2000"
                     alt="Materials"
                     className="w-full h-full object-cover opacity-50 group-hover:opacity-60 group-hover:scale-105 transition-all duration-700"
                   />

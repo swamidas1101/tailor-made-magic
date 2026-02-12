@@ -68,11 +68,19 @@ export default function TailorOverview() {
 
       // Fetch orders separately - if it fails, designs will still display
       try {
-        const fetchedOrders = await orderService.getUserOrders(user.uid);
+        const fetchedOrders = await orderService.getTailorOrders(user.uid);
         console.log("TailorOverview: Fetched Orders:", fetchedOrders.length);
 
         setOrders(fetchedOrders);
-        const revenue = fetchedOrders.reduce((acc, order) => acc + (order.totalAmount || 0), 0);
+
+        // Calculate revenue only for items belonging to this tailor
+        const revenue = fetchedOrders.reduce((acc, order) => {
+          const tailorItemsTotal = order.items
+            .filter(item => item.tailorId === user.uid)
+            .reduce((itemAcc, item) => itemAcc + (item.price * (item.quantity || 1)), 0);
+          return acc + tailorItemsTotal;
+        }, 0);
+
         setTotalRevenue(revenue);
       } catch (error) {
         console.error("Error fetching orders:", error);
