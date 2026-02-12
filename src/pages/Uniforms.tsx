@@ -11,7 +11,7 @@ export default function Uniforms() {
         <section className="relative h-[60vh] flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0">
             <img
-              src="https://images.unsplash.com/photo-1596462502278-27bfdd403348?q=80&w=2070&auto=format&fit=crop"
+              src="https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80&w=2000"
               alt="Uniforms Hero"
               className="w-full h-full object-cover"
             />

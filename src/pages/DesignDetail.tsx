@@ -19,10 +19,12 @@ export default function DesignDetail() {
   const [withMaterial, setWithMaterial] = useState(false);
   const [showMeasurementSelector, setShowMeasurementSelector] = useState(false);
   const [selectedMeasurements, setSelectedMeasurements] = useState<Record<string, string> | null>(null);
+  const [measurementMode, setMeasurementMode] = useState<'manual' | 'pickup' | null>(null);
+  const [pickupTimeSlot, setPickupTimeSlot] = useState<string>("");
   const [hasSavedMeasurements, setHasSavedMeasurements] = useState(false);
   const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const wishlisted = design ? isInWishlist(design.id) : false;
-  const [activeImage, setActiveImage] = useState<string>("");
+  const [activeImage, setActiveImage] = useState<string>(design?.image || "");
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
 
@@ -91,17 +93,29 @@ export default function DesignDetail() {
 
   const handleMeasurementConfirm = (measurements: Record<string, string>, isNew: boolean) => {
     setSelectedMeasurements(measurements);
+    setMeasurementMode('manual');
     toast.success(isNew ? "Measurements saved!" : "Using saved measurements", {
       description: `${Object.keys(measurements).length} measurements applied`,
     });
   };
 
   const handleBookNow = () => {
-    if (!selectedMeasurements) {
-      toast.error("Please provide your measurements first");
+    if (!measurementMode) {
+      toast.error("Please select a measurement option");
+      return;
+    }
+
+    if (measurementMode === 'manual' && !selectedMeasurements) {
+      toast.error("Please add your measurements");
       setShowMeasurementSelector(true);
       return;
     }
+
+    if (measurementMode === 'pickup' && !pickupTimeSlot) {
+      toast.error("Please select a pickup time slot");
+      return;
+    }
+
     toast.success("Proceeding to checkout...", {
       description: `${design.name} - ₹${withMaterial ? design.priceWithMaterial : design.price}`,
     });
@@ -236,93 +250,126 @@ export default function DesignDetail() {
                 <span className="font-semibold">{design.rating}</span>
                 <span className="text-muted-foreground">({design.reviewCount} reviews)</span>
               </div>
-              <div className="flex items-center gap-1 text-muted-foreground">
-                <Clock className="w-4 h-4" />
-                <span>{design.timeInDays} days delivery</span>
-              </div>
+
             </div>
 
             <p className="text-foreground/80 mb-6">{design.description}</p>
 
 
-            {/* Material Option */}
-            <div className="mb-6 p-4 bg-muted/50 rounded-xl">
-              <h3 className="font-semibold mb-3">Material Option</h3>
-              <div className="flex gap-3">
+            {/* Material Checkbox - Renamed to Purchase Option */}
+            {/* Material Checkbox - Renamed to Purchase Option */}
+            <div className="mb-4">
+              <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide text-muted-foreground">Purchase Option</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <button
                   onClick={() => setWithMaterial(false)}
-                  className={`flex-1 p-4 rounded-lg border-2 transition-colors ${!withMaterial ? "border-foreground bg-foreground/5" : "border-border hover:border-foreground/30"
+                  className={`relative p-3 rounded-lg border-2 text-left transition-all ${!withMaterial ? "border-orange-500 bg-orange-50/50 dark:bg-orange-950/10 shadow-sm" : "border-border bg-card hover:border-orange-200"
                     }`}
                 >
-                  <p className="font-medium">Without Material</p>
-                  <p className="text-sm text-muted-foreground">You provide the fabric</p>
-                  <p className="text-lg font-bold text-foreground mt-2">₹{design.price.toLocaleString()}</p>
+                  <div className="flex justify-between items-start mb-1">
+                    <span className="font-bold text-sm text-foreground">Stitching Only</span>
+                    {!withMaterial && <Check className="w-3.5 h-3.5 text-orange-600" />}
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-1">You provide the fabric</p>
+                  <p className="text-sm font-bold text-foreground">₹{design.price.toLocaleString()}</p>
                 </button>
+
                 <button
                   onClick={() => setWithMaterial(true)}
-                  className={`flex-1 p-4 rounded-lg border-2 transition-colors ${withMaterial ? "border-foreground bg-foreground/5" : "border-border hover:border-foreground/30"
+                  className={`relative p-3 rounded-lg border-2 text-left transition-all ${withMaterial ? "border-orange-500 bg-orange-50/50 dark:bg-orange-950/10 shadow-sm" : "border-border bg-card hover:border-orange-200"
                     }`}
                 >
-                  <p className="font-medium">With Material</p>
-                  <p className="text-sm text-muted-foreground">Premium fabric included</p>
-                  <p className="text-lg font-bold text-foreground mt-2">₹{design.priceWithMaterial.toLocaleString()}</p>
+                  <div className="flex justify-between items-start mb-1">
+                    <span className="font-bold text-sm text-foreground">Stitching + Fabric</span>
+                    {withMaterial && <Check className="w-3.5 h-3.5 text-orange-600" />}
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-1">Premium fabric included</p>
+                  <p className="text-sm font-bold text-foreground">₹{design.priceWithMaterial.toLocaleString()}</p>
                 </button>
               </div>
             </div>
 
             {/* Measurements Section */}
-            <div className="mb-6">
-              <h3 className="font-semibold mb-3">Your Measurements</h3>
-              <button
-                onClick={() => setShowMeasurementSelector(true)}
-                className={`w-full p-4 rounded-xl border-2 text-left transition-all ${selectedMeasurements
-                  ? "border-foreground bg-foreground/5"
-                  : "border-border hover:border-foreground/30"
-                  }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${selectedMeasurements ? "bg-foreground text-background" : "bg-muted text-foreground"
-                      }`}>
-                      <Ruler className="w-5 h-5" />
-                    </div>
-                    <div>
-                      {selectedMeasurements ? (
-                        <>
-                          <p className="font-medium text-foreground">Measurements Added</p>
-                          <p className="text-sm text-muted-foreground">
-                            {measurementCount} measurements • Tap to change
-                          </p>
-                        </>
-                      ) : (
-                        <>
-                          <p className="font-medium text-foreground">Add Measurements</p>
-                          <p className="text-sm text-muted-foreground">
-                            {hasSavedMeasurements
-                              ? "Use saved or enter new measurements"
-                              : "Required for custom fitting"
-                            }
-                          </p>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-muted-foreground" />
-                </div>
-              </button>
-
-              {/* Size Chart Link */}
-              <div className="mt-3">
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-semibold text-xs uppercase tracking-wide text-muted-foreground">Measurements</h3>
                 <SizeChartModal
                   defaultCategory={design.categoryName || (design as any).category}
                   trigger={
-                    <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground gap-2">
-                      <Ruler className="w-4 h-4" />
-                      View Size Chart
+                    <Button variant="link" size="sm" className="h-auto p-0 text-orange-600 hover:text-orange-700 font-medium text-[10px]">
+                      <Ruler className="w-3 h-3 mr-1" />
+                      Size Guide
                     </Button>
                   }
                 />
               </div>
+
+              {/* Measurement Preference */}
+              {/* Measurement Toggle Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
+                <button
+                  onClick={() => {
+                    setShowMeasurementSelector(true);
+                  }}
+                  className={`relative p-3 rounded-lg border-2 text-left transition-all ${measurementMode === 'manual' ? "border-orange-500 bg-orange-50/50 dark:bg-orange-950/10 shadow-sm" : "border-border bg-card hover:border-orange-200"
+                    }`}
+                >
+                  <div className="flex justify-between items-start mb-1">
+                    <span className="font-bold text-sm text-foreground">Add Measurements</span>
+                    {measurementMode === 'manual' && <Check className="w-3.5 h-3.5 text-orange-600" />}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Enter your measurements now</p>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setMeasurementMode('pickup');
+                    setSelectedMeasurements(null); // Clear manual measurements if switching
+                  }}
+                  className={`relative p-3 rounded-lg border-2 text-left transition-all ${measurementMode === 'pickup' ? "border-orange-500 bg-orange-50/50 dark:bg-orange-950/10 shadow-sm" : "border-border bg-card hover:border-orange-200"
+                    }`}
+                >
+                  <div className="flex justify-between items-start mb-1">
+                    <span className="font-bold text-sm text-foreground">Measure at Pickup</span>
+                    {measurementMode === 'pickup' && <Check className="w-3.5 h-3.5 text-orange-600" />}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Tailor visits you</p>
+                </button>
+              </div>
+
+              {/* Conditional Content based on Selection */}
+              {measurementMode === 'manual' && selectedMeasurements && Object.keys(selectedMeasurements).length > 0 && (
+                <div className="mb-4 p-3 bg-green-50 text-green-800 rounded-lg text-sm flex items-start gap-2 border border-green-100">
+                  <Check className="w-4 h-4 mt-0.5 flex-shrink-0 text-green-600" />
+                  <p>{Object.keys(selectedMeasurements).length} measurements added.</p>
+                </div>
+              )}
+
+              {measurementMode === 'pickup' && (
+                <div className="mb-3 space-y-2 p-3 bg-muted/30 rounded-xl border border-border/50">
+                  <p className="text-xs font-medium text-muted-foreground">Select Pickup Time Slot</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {["Morning (9-12)", "Afternoon (12-4)", "Evening (4-7)"].map((slot) => (
+                      <button
+                        key={slot}
+                        onClick={() => setPickupTimeSlot(slot)}
+                        className={`text-[10px] py-2 px-1 rounded-lg border transition-all ${pickupTimeSlot === slot
+                          ? "bg-orange-50 border-orange-500 text-orange-700 font-medium shadow-sm"
+                          : "bg-background border-border text-muted-foreground hover:border-orange-200"
+                          }`}
+                      >
+                        {slot.split(" ")[0]}
+                        <span className="block opacity-70 scale-90">{slot.split(" ")[1]}</span>
+                      </button>
+                    ))}
+                  </div>
+                  {!pickupTimeSlot && (
+                    <p className="text-[10px] text-orange-600 animate-pulse">Please select a time slot</p>
+                  )}
+                </div>
+              )}
+
+
             </div>
 
             {/* Price & Book */}
@@ -336,29 +383,37 @@ export default function DesignDetail() {
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-muted-foreground">Delivery in</p>
+                  <p className="text-sm text-muted-foreground">Expected Delivery</p>
                   <p className="font-semibold">{design.timeInDays} working days</p>
                 </div>
               </div>
-              <Button variant="default" size="xl" className="w-full" onClick={handleBookNow}>
-                {selectedMeasurements ? "Proceed to Checkout" : "Add Measurements & Book"}
+              <Button
+                variant="default"
+                size="xl"
+                className="w-full"
+                onClick={handleBookNow}
+                disabled={!measurementMode || (measurementMode === 'pickup' && !pickupTimeSlot)}
+              >
+                Proceed to Checkout
               </Button>
             </div>
           </div>
         </div>
-        <SimilarProducts
-          items={designs.filter(d =>
-            d.status === 'approved' &&
-            d.id !== design.id &&
-            (
-              d.categoryId === design.categoryId ||
-              (design.categoryName && d.categoryName === design.categoryName) ||
-              ((design as any).category && (d as any).category === (design as any).category)
-            )
-          ).slice(0, 10)}
-          type="design"
-          title="You May Also Like"
-        />
+        <div className="mt-16 pt-8 border-t border-border/50">
+          <SimilarProducts
+            items={designs.filter(d =>
+              d.status === 'approved' &&
+              d.id !== design.id &&
+              (
+                d.categoryId === design.categoryId ||
+                (design.categoryName && d.categoryName === design.categoryName) ||
+                ((design as any).category && (d as any).category === (design as any).category)
+              )
+            ).slice(0, 10)}
+            type="design"
+            title="You May Also Like"
+          />
+        </div>
       </div>
 
       {/* Measurement Selector Modal */}

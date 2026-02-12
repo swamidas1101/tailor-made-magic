@@ -44,7 +44,7 @@ export function Header() {
 
   return (
     <header
-      className="sticky top-0 z-50 glass border-b border-border/30"
+      className="sticky top-0 z-50 bg-gradient-to-r from-orange-50/90 via-background/90 to-orange-50/90 backdrop-blur-md border-b border-orange-100/50"
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 md:h-18">
@@ -386,7 +386,7 @@ export function Header() {
             {/* Wishlist & Cart - Desktop only */}
             {(activeRole === 'customer' || !user) && (
               <>
-                <Link to="/wishlist" className="hidden md:block">
+                <Link to="/wishlist">
                   <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                     <Button variant="ghost" size="icon" className="relative hover:bg-orange-50" aria-label="Wishlist">
                       <Heart className="w-5 h-5" />
@@ -406,7 +406,7 @@ export function Header() {
                   </motion.div>
                 </Link>
 
-                <Link to="/cart" className="hidden md:block">
+                <Link to="/cart">
                   <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                     <Button
                       variant="ghost"
@@ -451,9 +451,10 @@ export function Header() {
             </Button>
 
             {/* User Menu - Desktop only */}
-            <div className="hidden md:block">
+            {/* User Menu - Hidden in Top Nav as requested (moved to bottom nav or sidebar) */}
+            {/* <div>
               <UserMenu />
-            </div>
+            </div> */}
 
             {!user && (
               <Button variant="outline" size="sm" className="hidden lg:flex group border-primary/30 hover:bg-primary/5" asChild>

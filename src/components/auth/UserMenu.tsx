@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { User, LogOut, UserCircle, ShoppingBag, Heart, Settings, Users, Repeat } from "lucide-react";
+import { User, LogOut, UserCircle, ShoppingBag, Heart, Settings, Users, Repeat, Ruler, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -159,6 +159,18 @@ export function UserMenu() {
               <Link to="/cart" className="w-full cursor-pointer">
                 <ShoppingBag className="w-4 h-4 mr-2" />
                 My Cart
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/orders" className="w-full cursor-pointer">
+                <Package className="w-4 h-4 mr-2" />
+                My Orders
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/measurements" className="w-full cursor-pointer">
+                <Ruler className="w-4 h-4 mr-2" />
+                Measurements
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />

@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, LayoutGrid, Scissors, Heart, User } from "lucide-react";
+import { Home, LayoutGrid, Scissors, GraduationCap, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -8,7 +8,7 @@ const navItems = [
   { path: "/", label: "Home", icon: Home },
   { path: "/categories", label: "Categories", icon: LayoutGrid },
   { path: "/materials", label: "Materials", icon: Scissors },
-  { path: "/wishlist", label: "Wishlist", icon: Heart },
+  { path: "/uniforms", label: "Uniforms", icon: GraduationCap },
   { path: "/account", label: "Account", icon: User },
 ];
 

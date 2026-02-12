@@ -263,57 +263,59 @@ export function DesignCard({
           </h3>
         </Link>
 
-        {/* Rating - Compact */}
-        <div className="flex items-center gap-1 mb-2">
-          <Star className="w-2.5 h-2.5 fill-gold text-gold" />
-          <span className="text-[10px] font-medium text-foreground">{rating.toFixed(1)}</span>
+        {/* Price & Rating (Stacked) */}
+        <div className="mb-1.5 mt-1 flex flex-col gap-0.5">
+          <div className="flex items-baseline gap-1">
+            <IndianRupee className="w-3.5 h-3.5 text-foreground" />
+            <span className={cn("font-bold text-foreground truncate tracking-tight", isCompact ? "text-base" : "text-base")}>
+              {price.toLocaleString()}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1">
+            <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" />
+            <span className="text-[10px] font-bold text-yellow-700 dark:text-yellow-500">{rating.toFixed(1)}</span>
+            <span className="text-[9px] text-muted-foreground ml-0.5">({reviewCount})</span>
+          </div>
         </div>
 
-        {/* Price & Action */}
-        <div className="flex items-center justify-between pt-1.5 border-t border-border/50 gap-1">
-          <div className="flex items-baseline gap-0.5 min-w-0">
-            <IndianRupee className="w-2.5 h-2.5 text-foreground" />
-            <span className={cn("font-bold text-foreground truncate", isCompact ? "text-sm" : "text-sm sm:text-base")}>{price.toLocaleString()}</span>
-          </div>
+        {/* Action Buttons Row (Right Aligned) */}
+        <div className="flex items-center justify-end pt-1.5 border-t border-border/50 gap-2">
+          <Button
+            variant="default"
+            size="sm"
+            className="h-7 px-3 text-[10px] font-medium bg-orange-500 hover:bg-orange-600 text-white shadow-sm"
+            asChild
+          >
+            <Link to={`/design/${id}`}>Book</Link>
+          </Button>
 
-          <div className="flex gap-1 flex-shrink-0">
-            {!isCompact && (
-              <Button
-                variant="default"
-                size="sm"
-                className="h-7 sm:h-8 px-2 sm:px-3 text-[10px] sm:text-xs"
-                asChild
-              >
-                <Link to={`/design/${id}`}>Book</Link>
-              </Button>
+          <Button
+            variant={justAddedToCart || cartItemCount > 0 ? "default" : "outline"}
+            size="sm"
+            className={cn("h-7 w-7 p-0 rounded-lg border-orange-200 relative overflow-visible", !isCompact && "sm:h-8 sm:w-8", justAddedToCart
+              ? "bg-green-600 hover:bg-green-700 border-green-600 text-white"
+              : cartItemCount > 0
+                ? "bg-orange-600 text-white hover:bg-orange-700 border-orange-600"
+                : "text-orange-600 hover:bg-orange-50"
             )}
-            <Button
-              variant={justAddedToCart || cartItemCount > 0 ? "default" : "outline"}
-              size="sm"
-              className={cn("h-7 w-7 p-0", !isCompact && "sm:h-8 sm:w-8", justAddedToCart
-                ? "bg-green-600 hover:bg-green-700 border-green-600"
-                : cartItemCount > 0
-                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                  : ""
+            onClick={handleAddToCart}
+          >
+            <div className="flex items-center justify-center w-full h-full">
+              {justAddedToCart ? (
+                <Check className="w-3.5 h-3.5" />
+              ) : cartItemCount > 0 ? (
+                <ShoppingBag className="w-3.5 h-3.5" />
+              ) : (
+                <ShoppingCart className="w-3.5 h-3.5" />
               )}
-              onClick={handleAddToCart}
-            >
-              <div className="relative flex items-center justify-center w-full h-full">
-                {justAddedToCart ? (
-                  <Check className="w-3 h-3" />
-                ) : cartItemCount > 0 ? (
-                  <ShoppingBag className="w-3 h-3" />
-                ) : (
-                  <ShoppingCart className="w-3 h-3" />
-                )}
-                {cartItemCount > 0 && !justAddedToCart && (
-                  <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-white text-[8px] font-bold text-orange-600 shadow-sm border border-orange-100 ring-1 ring-orange-50">
-                    {cartItemCount}
-                  </span>
-                )}
-              </div>
-            </Button>
-          </div>
+            </div>
+            {cartItemCount > 0 && !justAddedToCart && (
+              <span className="absolute -top-1.5 -right-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-white text-[8px] font-bold text-orange-600 shadow-sm border border-orange-100 ring-1 ring-orange-50 z-10">
+                {cartItemCount}
+              </span>
+            )}
+          </Button>
         </div>
       </div>
     </motion.div>

@@ -581,22 +581,22 @@ const Index = () => {
                 </div>
 
                 {/* Stats chips - horizontal scroll on mobile */}
-                <div className="flex flex-wrap gap-3">
-                  <div className="flex items-center gap-2.5 bg-card px-4 py-3 rounded-xl border border-border/50 shadow-sm">
+                <div className="flex flex-col gap-3 md:flex-row md:flex-wrap md:mx-0 pb-2">
+                  <div className="flex items-center gap-2.5 bg-card px-4 py-3 rounded-xl border border-border/50 shadow-sm w-full md:w-auto">
                     <MapPin className="w-5 h-5 text-rose flex-shrink-0" />
                     <div>
                       <p className="font-bold text-foreground text-sm">All India</p>
                       <p className="text-[10px] text-muted-foreground">Every Pin Code</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2.5 bg-card px-4 py-3 rounded-xl border border-border/50 shadow-sm">
+                  <div className="flex items-center gap-2.5 bg-card px-4 py-3 rounded-xl border border-border/50 shadow-sm w-full md:w-auto">
                     <Heart className="w-5 h-5 text-rose flex-shrink-0" />
                     <div>
                       <p className="font-bold text-foreground text-sm">Women First</p>
                       <p className="text-[10px] text-muted-foreground">Economic Freedom</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2.5 bg-card px-4 py-3 rounded-xl border border-border/50 shadow-sm">
+                  <div className="flex items-center gap-2.5 bg-card px-4 py-3 rounded-xl border border-border/50 shadow-sm w-full md:w-auto">
                     <Users className="w-5 h-5 text-rose flex-shrink-0" />
                     <div>
                       <p className="font-bold text-foreground text-sm">10K+ Tailors</p>
@@ -773,11 +773,11 @@ const Index = () => {
               </div>
               <h2 className="text-4xl md:text-5xl font-display font-bold">Happy <span className="text-gradient-gold">Customers</span></h2>
             </motion.div>
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 pb-6 md:pb-0">
               {testimonials.map((t, i) => (
                 <motion.div
                   key={t.id}
-                  className="bg-card p-7 rounded-3xl shadow-soft border border-border/50 hover:shadow-luxury hover:border-rose/30 transition-all duration-500 group"
+                  className="bg-card p-5 md:p-7 rounded-3xl shadow-soft border border-border/50 hover:shadow-luxury hover:border-rose/30 transition-all duration-500 group"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}

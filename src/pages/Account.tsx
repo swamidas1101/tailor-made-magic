@@ -1,5 +1,5 @@
 import { useNavigate, Link } from "react-router-dom";
-import { LogOut, User, Mail, Phone, Shield, ChevronRight, ShoppingBag, Heart, Settings, Repeat, Users } from "lucide-react";
+import { LogOut, User, Mail, Phone, Shield, ChevronRight, ShoppingBag, Heart, Settings, Repeat, Users, Package, Ruler, ArrowLeft, Headphones } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
@@ -36,7 +36,15 @@ export default function Account() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-6 max-w-lg">
+      <div className="container mx-auto px-4 py-6 max-w-lg relative">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute left-4 top-6 md:left-0 md:-ml-12"
+          onClick={() => navigate(-1)}
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </Button>
         {/* Profile Header */}
         <div className="flex flex-col items-center text-center mb-8">
           <Avatar className="w-20 h-20 mb-4 ring-4 ring-primary/10">
@@ -97,6 +105,37 @@ export default function Account() {
                     <ShoppingBag className="w-5 h-5 text-blue-600" />
                   </div>
                   <span className="font-medium">My Cart</span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              </Link>
+
+              <Link to="/orders" className="flex items-center justify-between p-4 rounded-xl bg-card border border-border hover:bg-muted/50 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
+                    <Package className="w-5 h-5 text-green-600" />
+                  </div>
+                  <span className="font-medium">My Orders</span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              </Link>
+
+              <Link to="/measurements" className="flex items-center justify-between p-4 rounded-xl bg-card border border-border hover:bg-muted/50 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-yellow-100 flex items-center justify-center">
+                    <Ruler className="w-5 h-5 text-yellow-600" />
+                  </div>
+                  <span className="font-medium">Measurements</span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              </Link>
+
+
+              <Link to="/support" className="flex items-center justify-between p-4 rounded-xl bg-card border border-border hover:bg-muted/50 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center">
+                    <Headphones className="w-5 h-5 text-indigo-600" />
+                  </div>
+                  <span className="font-medium">Help & Support</span>
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground" />
               </Link>

@@ -346,7 +346,7 @@ export default function Categories() {
               <Link to="/uniforms" className="group relative h-48 md:h-56 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-500 block ring-1 ring-border/50">
                 <div className="absolute inset-0 bg-blue-900">
                   <img
-                    src="https://images.unsplash.com/photo-1596462502278-27bfdd403348?q=80&w=2070&auto=format&fit=crop"
+                    src="https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80&w=2000"
                     alt="Uniforms"
                     className="w-full h-full object-cover opacity-50 group-hover:opacity-60 group-hover:scale-105 transition-all duration-700"
                   />
@@ -373,7 +373,7 @@ export default function Categories() {
               <Link to="/materials" className="group relative h-48 md:h-56 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-500 block ring-1 ring-border/50">
                 <div className="absolute inset-0 bg-orange-900">
                   <img
-                    src="https://images.unsplash.com/photo-1574634534894-89d750a6f8a2?q=80&w=2000&auto=format&fit=crop"
+                    src="https://images.unsplash.com/photo-1520283818086-367d643d92cc?q=80&w=2000"
                     alt="Materials"
                     className="w-full h-full object-cover opacity-50 group-hover:opacity-60 group-hover:scale-105 transition-all duration-700"
                   />
