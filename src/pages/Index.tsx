@@ -543,100 +543,107 @@ const Index = () => {
 
 
         {/* Empowerment & Social Impact Section */}
-        <section className="py-12 md:py-16 bg-white relative overflow-hidden">
+        <section className="py-10 md:py-16 bg-card relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-rose/20 to-transparent" />
 
           <div className="container px-4">
-            <div className="grid lg:grid-cols-2 gap-12 items-center bg-noir/5 rounded-[40px] p-8 md:p-12 lg:p-16 relative border border-white/50 backdrop-blur-sm overflow-hidden">
+            {/* Mobile: stacked vertical layout, Desktop: 2-col grid */}
+            <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 lg:gap-12 items-stretch bg-muted/30 rounded-3xl p-5 md:p-10 lg:p-16 relative border border-border/50 overflow-hidden">
               {/* Background Accents */}
               <div className="absolute -top-24 -left-24 w-64 h-64 bg-rose/10 rounded-full blur-3xl opacity-50" />
               <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-gold/10 rounded-full blur-3xl opacity-50" />
 
+              {/* Left: Mission text */}
               <motion.div
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6 }}
+                className="relative z-10"
               >
-                <motion.div
-                  className="inline-flex items-center gap-2 bg-gradient-to-r from-rose/10 to-gold/10 rounded-full px-5 py-2 mb-6 border border-rose/20 shadow-sm"
-                  whileHover={{ scale: 1.02 }}
-                >
-                  <Sparkles className="w-4 h-4 text-rose" />
-                  <span className="text-rose font-semibold text-xs uppercase tracking-wider">Our Higher Mission</span>
-                </motion.div>
+                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-rose/10 to-gold/10 rounded-full px-4 py-1.5 mb-4 border border-rose/20">
+                  <Sparkles className="w-3.5 h-3.5 text-rose" />
+                  <span className="text-rose font-semibold text-[11px] uppercase tracking-wider">Our Higher Mission</span>
+                </div>
 
-                <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-noir mb-6 leading-tight">
-                  Empowering the <br />
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-foreground mb-4 leading-tight">
+                  Empowering the <br className="hidden md:block" />
                   <span className="text-gradient-rose">Women of India</span>
                 </h2>
 
-                <div className="space-y-6 mb-8 text-noir/70 md:max-w-xl">
-                  <p className="text-lg leading-relaxed">
-                    Our core aim is to reach <span className="text-noir font-bold">every pin code across India</span>, bringing economic empowerment to talented women tailors in every corner of the country.
+                <div className="space-y-4 mb-6">
+                  <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+                    Our core aim is to reach <span className="text-foreground font-semibold">every pin code across India</span>, bringing economic empowerment to talented women tailors in every corner of the country.
                   </p>
-                  <p className="text-lg leading-relaxed italic border-l-4 border-rose/30 pl-4">
-                    "We are building a future where professional skill development and world-class heritage craftsmanship meet at your doorstep."
+                  <p className="text-sm md:text-base text-muted-foreground leading-relaxed italic border-l-3 border-rose/30 pl-3">
+                    "Building a future where professional skill development and world-class heritage craftsmanship meet at your doorstep."
                   </p>
                 </div>
 
-                <div className="flex flex-wrap gap-4">
-                  <div className="flex items-center gap-3 bg-white/60 backdrop-blur-sm px-6 py-4 rounded-2xl border border-white/50 shadow-sm">
-                    <MapPin className="w-6 h-6 text-rose" />
+                {/* Stats chips - horizontal scroll on mobile */}
+                <div className="flex flex-wrap gap-3">
+                  <div className="flex items-center gap-2.5 bg-card px-4 py-3 rounded-xl border border-border/50 shadow-sm">
+                    <MapPin className="w-5 h-5 text-rose flex-shrink-0" />
                     <div>
-                      <p className="font-bold text-noir">All India Reach</p>
-                      <p className="text-xs text-muted-foreground italic">Every Pin Code Mission</p>
+                      <p className="font-bold text-foreground text-sm">All India</p>
+                      <p className="text-[10px] text-muted-foreground">Every Pin Code</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 bg-white/60 backdrop-blur-sm px-6 py-4 rounded-2xl border border-white/50 shadow-sm">
-                    <Heart className="w-6 h-6 text-rose" />
+                  <div className="flex items-center gap-2.5 bg-card px-4 py-3 rounded-xl border border-border/50 shadow-sm">
+                    <Heart className="w-5 h-5 text-rose flex-shrink-0" />
                     <div>
-                      <p className="font-bold text-noir">Women Focused</p>
-                      <p className="text-xs text-muted-foreground italic">Economic Independence</p>
+                      <p className="font-bold text-foreground text-sm">Women First</p>
+                      <p className="text-[10px] text-muted-foreground">Economic Freedom</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2.5 bg-card px-4 py-3 rounded-xl border border-border/50 shadow-sm">
+                    <Users className="w-5 h-5 text-rose flex-shrink-0" />
+                    <div>
+                      <p className="font-bold text-foreground text-sm">10K+ Tailors</p>
+                      <p className="text-[10px] text-muted-foreground">Growing Network</p>
                     </div>
                   </div>
                 </div>
               </motion.div>
 
+              {/* Right: Vision card */}
               <motion.div
-                className="relative"
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
+                className="relative z-10"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
               >
-                <div className="relative z-10 bg-gradient-to-br from-noir to-zinc-800 p-8 md:p-10 rounded-[30px] shadow-2xl border border-white/10 overflow-hidden">
+                <div className="bg-gradient-to-br from-foreground to-foreground/90 p-6 md:p-8 rounded-2xl shadow-xl border border-border/10 overflow-hidden relative h-full flex flex-col justify-between">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-gold/10 rounded-full blur-2xl" />
 
-                  <div className="inline-flex items-center gap-2 bg-gold/20 backdrop-blur-sm rounded-full px-4 py-1.5 mb-6 border border-gold/30">
-                    <Award className="w-4 h-4 text-gold" />
-                    <span className="text-gold font-bold text-[10px] uppercase tracking-widest">Vision 2026</span>
+                  <div>
+                    <div className="inline-flex items-center gap-2 bg-gold/20 backdrop-blur-sm rounded-full px-3 py-1 mb-4 border border-gold/30">
+                      <Award className="w-3.5 h-3.5 text-gold" />
+                      <span className="text-gold font-bold text-[10px] uppercase tracking-widest">Vision 2026</span>
+                    </div>
+
+                    <h3 className="text-xl md:text-2xl font-display font-bold text-background mb-3">
+                      Skill India Collaboration
+                    </h3>
+
+                    <p className="text-background/70 text-sm leading-relaxed mb-6">
+                      <span className="text-gold font-semibold uppercase text-[10px] tracking-wider block mb-1">Coming Soon</span>
+                      Official collaboration with Government of India's <span className="text-gold font-bold">Skill India</span> mission in progress.
+                    </p>
                   </div>
 
-                  <h3 className="text-2xl md:text-3xl font-display font-bold text-white mb-4">
-                    Skill India Collaboration
-                  </h3>
-
-                  <p className="text-white/70 text-base leading-relaxed mb-8">
-                    <span className="text-gold font-semibold uppercase text-xs tracking-wider block mb-2 underline decoration-gold/30 underline-offset-4">Coming Soon</span>
-                    Our Vision for a Skill-Driven Nation. Official collaboration with Government of India's <span className="text-gold font-bold">Skill India</span> mission in progress.
-                  </p>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white/5 rounded-2xl p-4 border border-white/10 hover:bg-white/10 transition-colors">
-                      <GraduationCap className="w-6 h-6 text-gold mb-2" />
-                      <p className="text-white text-[11px] font-semibold leading-tight">Certified Skill Training</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-background/10 rounded-xl p-3 border border-background/10">
+                      <GraduationCap className="w-5 h-5 text-gold mb-1.5" />
+                      <p className="text-background text-[11px] font-semibold leading-tight">Certified Skill Training</p>
                     </div>
-                    <div className="bg-white/5 rounded-2xl p-4 border border-white/10 hover:bg-white/10 transition-colors">
-                      <TrendingUp className="w-6 h-6 text-gold mb-2" />
-                      <p className="text-white text-[11px] font-semibold leading-tight">Growth Opportunities</p>
+                    <div className="bg-background/10 rounded-xl p-3 border border-background/10">
+                      <TrendingUp className="w-5 h-5 text-gold mb-1.5" />
+                      <p className="text-background text-[11px] font-semibold leading-tight">Growth Opportunities</p>
                     </div>
                   </div>
                 </div>
-
-                {/* Decorative Elements around the card */}
-                <div className="absolute -top-4 -right-4 w-24 h-24 bg-gold/20 rounded-full blur-2xl animate-pulse" />
-                <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-rose/20 rounded-full blur-3xl animate-pulse delay-1000" />
               </motion.div>
             </div>
           </div>
