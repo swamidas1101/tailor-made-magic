@@ -50,13 +50,13 @@ export function Header() {
         <div className="flex items-center justify-between h-16 md:h-18">
           {/* Left: Mobile Menu + Logo */}
           <div className="flex items-center gap-3">
-            {/* Mobile Menu Trigger */}
+            {/* Mobile Menu Trigger - Desktop only */}
             <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
               <SheetTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="lg:hidden hover:bg-rose/10"
+                  className="hidden lg:flex hover:bg-rose/10"
                   aria-label="Open menu"
                 >
                   <Menu className="w-5 h-5" />
@@ -210,11 +210,11 @@ export function Header() {
               >
                 <Scissors className="w-5 h-5 md:w-5 md:h-5 text-white" />
               </motion.div>
-              <div className="hidden sm:block">
+              <div>
                 <h1 className="text-xl md:text-2xl font-display font-bold text-foreground leading-none">
                   Tailo
                 </h1>
-                <p className="text-[10px] md:text-xs text-muted-foreground font-medium">Premium Tailoring</p>
+                <p className="hidden sm:block text-[10px] md:text-xs text-muted-foreground font-medium">Premium Tailoring</p>
               </div>
             </Link>
           </div>
@@ -383,9 +383,10 @@ export function Header() {
               </Button>
             </motion.div>
 
+            {/* Wishlist & Cart - Desktop only */}
             {(activeRole === 'customer' || !user) && (
               <>
-                <Link to="/wishlist">
+                <Link to="/wishlist" className="hidden md:block">
                   <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                     <Button variant="ghost" size="icon" className="relative hover:bg-orange-50" aria-label="Wishlist">
                       <Heart className="w-5 h-5" />
@@ -405,7 +406,7 @@ export function Header() {
                   </motion.div>
                 </Link>
 
-                <Link to="/cart">
+                <Link to="/cart" className="hidden md:block">
                   <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                     <Button
                       variant="ghost"
@@ -444,13 +445,15 @@ export function Header() {
               </>
             )}
 
-            {/* Notification Bell */}
+            {/* Notification Bell - Desktop only */}
             <Button variant="ghost" size="icon" className="hidden md:flex hover:bg-orange-50" aria-label="Notifications">
               <Bell className="w-5 h-5" />
             </Button>
 
-            {/* User Menu with Dropdown */}
-            <UserMenu />
+            {/* User Menu - Desktop only */}
+            <div className="hidden md:block">
+              <UserMenu />
+            </div>
 
             {!user && (
               <Button variant="outline" size="sm" className="hidden lg:flex group border-primary/30 hover:bg-primary/5" asChild>
