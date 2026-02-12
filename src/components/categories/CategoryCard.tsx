@@ -14,37 +14,28 @@ export function CategoryCard({ id, name, description, image, designCount, firstD
   return (
     <Link
       to={`/category/${id}`}
-      className="group relative block rounded-xl overflow-hidden aspect-[3/4] md:aspect-[4/3] shadow-md"
+      className="group block bg-card rounded-2xl overflow-hidden border border-border/40 hover:border-primary/30 hover:shadow-lg transition-all duration-300"
     >
-      {/* Background Image */}
-      <div className="absolute inset-0">
+      {/* Image - compact square */}
+      <div className="relative aspect-square overflow-hidden bg-muted">
         <img
           src={firstDesignImage || image}
           alt={name}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
+        {/* Design count chip */}
+        {designCount > 0 && (
+          <div className="absolute top-2 right-2 bg-background/90 backdrop-blur-sm text-foreground text-[10px] font-bold px-2 py-0.5 rounded-full border border-border/50">
+            {designCount}+ designs
+          </div>
+        )}
       </div>
 
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-
-      {/* Content */}
-      <div className="absolute inset-0 p-3 md:p-4 flex flex-col justify-end">
-        {/* Design Count Badge */}
-        <div className="inline-flex items-center rounded-full px-2 py-0.5 mb-2 w-fit bg-gradient-to-r from-orange-500 to-amber-500">
-          <span className="text-[10px] font-bold text-white">
-            {designCount > 0 ? `${designCount}+ Designs` : "Coming Soon"}
-          </span>
-        </div>
-
-        {/* Title */}
-        <h3 className="font-display text-base md:text-lg font-bold text-white mb-0.5 line-clamp-1">{name}</h3>
-
-        {/* Description - hidden on mobile */}
-        <p className="text-white/70 text-xs line-clamp-1 hidden md:block">{description}</p>
-
-        {/* CTA on hover */}
-        <div className="flex items-center gap-1 text-amber-300 text-xs font-medium mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+      {/* Info section */}
+      <div className="p-2.5 md:p-3">
+        <h3 className="font-semibold text-sm text-foreground line-clamp-1 mb-0.5">{name}</h3>
+        <p className="text-muted-foreground text-[11px] line-clamp-2 leading-relaxed mb-1.5">{description}</p>
+        <div className="flex items-center gap-1 text-primary text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">
           <span>Explore</span>
           <ArrowRight className="w-3 h-3" />
         </div>

@@ -11,7 +11,7 @@ import { Category, FilterGroup, FilterOption } from "@/types/database";
 
 // ==================== CATEGORIES DATA ====================
 
-const womenCategories: Omit<Category, "id" | "createdAt" | "updatedAt">[] = [
+const womenCategories: (Omit<Category, "id" | "createdAt" | "updatedAt"> & { designCount?: number })[] = [
     {
         name: "Blouse Designs",
         slug: "blouse-designs",
@@ -102,7 +102,7 @@ const womenCategories: Omit<Category, "id" | "createdAt" | "updatedAt">[] = [
     },
 ];
 
-const menCategories: Omit<Category, "id" | "createdAt" | "updatedAt">[] = [
+const menCategories: (Omit<Category, "id" | "createdAt" | "updatedAt"> & { designCount?: number })[] = [
     {
         name: "Formal Shirts",
         slug: "formal-shirts",

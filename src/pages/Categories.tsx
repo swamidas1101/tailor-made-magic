@@ -103,14 +103,13 @@ export default function Categories() {
     return result;
   }, [id, filters, sortBy, designs]);
 
-  const totalActiveFilters = Object.values(filters).reduce((acc, val, idx) => {
-    const key = Object.keys(filters)[idx];
+  const totalActiveFilters = Object.entries(filters).reduce((acc: number, [key, val]) => {
     if (key === 'priceRange') {
       const range = val as [number, number];
       return acc + (range[0] > 0 || range[1] < 10000 ? 1 : 0);
     }
     if (key === 'deliveryDays') return acc + (val ? 1 : 0);
-    return acc + (Array.isArray(val) ? val.length : 0);
+    return acc + (Array.isArray(val) ? (val as string[]).length : 0);
   }, 0);
 
   // If specific category selected
