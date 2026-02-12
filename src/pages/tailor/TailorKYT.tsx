@@ -40,10 +40,20 @@ export default function TailorKYT() {
     const [isSaving, setIsSaving] = useState(false);
     const [isFetchingZip, setIsFetchingZip] = useState(false);
 
+    const [showOtpInput, setShowOtpInput] = useState(false);
+    const [otp, setOtp] = useState("");
+    const [timer, setTimer] = useState(0);
+
     // Initial State derived from KYT Data
     const [formData, setFormData] = useState<KYTData>({
         currentStep: 1,
-        personal: { fullName: user?.displayName || '', phone: user?.phoneNumber || '', profileImage: '' },
+        personal: {
+            fullName: user?.displayName || '',
+            phone: user?.phoneNumber || '',
+            profileImage: '',
+            dob: '',
+            isMobileVerified: false
+        },
         address: { shopName: '', shopAddress: '', city: '', state: '', zip: '' },
         professional: { experienceYears: '', specialization: [] },
         documents: { aadharNumber: '', panNumber: '', gstNumber: '', aadharImage: '', panImage: '' },
@@ -52,18 +62,33 @@ export default function TailorKYT() {
 
     useEffect(() => {
         if (kytData) {
-            setFormData(prev => ({ ...prev, ...kytData }));
+            setFormData(prev => ({
+                ...prev,
+                ...kytData,
+                personal: {
+                    ...prev.personal!,
+                    ...kytData.personal,
+                    // Persist verification if phone hasn't changed
+                    isMobileVerified: kytData.personal?.isMobileVerified ?? false
+                }
+            }));
             if (kytData.currentStep) {
-                // Adjust currentStep if it was saved as 4 in the old 4-step system
                 setCurrentStep(Math.min(kytData.currentStep, 3));
             }
         }
     }, [kytData]);
 
+    // OTP Timer
+    useEffect(() => {
+        if (timer > 0) {
+            const interval = setInterval(() => setTimer(prev => prev - 1), 1000);
+            return () => clearInterval(interval);
+        }
+    }, [timer]);
+
     // Zip Code Automation
     useEffect(() => {
         const fetchZipDetails = async (pin: string) => {
-            // Optimization: Don't fetch if already submitted or approved
             if (kytStatus === 'submitted' || kytStatus === 'approved') return;
             if (pin.length !== 6 || !/^\d{6}$/.test(pin)) return;
 
@@ -74,103 +99,79 @@ export default function TailorKYT() {
 
                 if (data[0].Status === "Success") {
                     const postOffice = data[0].PostOffice[0];
-                    const city = postOffice.District;
-                    const state = postOffice.State;
-
                     setFormData(prev => ({
                         ...prev,
-                        address: {
-                            ...prev.address!,
-                            city,
-                            state
-                        }
+                        address: { ...prev.address!, city: postOffice.District, state: postOffice.State }
                     }));
-                    toast.success(`Location found: ${city}, ${state}`);
-                } else {
-                    toast.error("Invalid Pin Code or no data found.");
+                    toast.success(`Location found: ${postOffice.District}, ${postOffice.State}`);
                 }
             } catch (error) {
                 console.error("Zip Fetch Error:", error);
-                toast.error("Failed to fetch location details.");
             } finally {
                 setIsFetchingZip(false);
             }
         };
 
         const pin = formData.address?.zip;
-        if (pin && pin.length === 6) {
-            fetchZipDetails(pin);
-        }
+        if (pin && pin.length === 6) fetchZipDetails(pin);
     }, [formData.address?.zip]);
 
-    const validateStep = () => {
-        if (currentStep === 1) {
-            if (!formData.address?.shopAddress || !formData.address?.city || !formData.address?.state || !formData.address?.zip) {
-                toast.error("Please fill in all address details.");
-                return false;
-            }
-            if (!/^\d{6}$/.test(formData.address.zip)) {
-                toast.error("Please enter a valid 6-digit Zip Code.");
-                return false;
-            }
-            if (!formData.personal?.profileImage) {
-                toast.error("Please upload a passport size photo.");
-                return false;
-            }
-        } else if (currentStep === 2) {
-            if (!formData.documents?.aadharNumber || !formData.documents?.panNumber) {
-                toast.error("Aadhar and PAN numbers are required.");
-                return false;
-            }
-            if (!/^\d{12}$/.test(formData.documents.aadharNumber)) {
-                toast.error("Aadhar Number must be exactly 12 digits.");
-                return false;
-            }
-            if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(formData.documents.panNumber)) {
-                toast.error("Invalid PAN Number format (e.g., ABCDE1234F).");
-                return false;
-            }
-            if (!formData.documents?.aadharImage || !formData.documents?.panImage) {
-                toast.error("Please upload images for both Aadhar and PAN cards.");
-                return false;
-            }
-        } else if (currentStep === 3) {
-            if (!formData.bank?.holderName || !formData.bank?.bankName || !formData.bank?.accountNumber || !formData.bank?.ifsc) {
-                toast.error("Please fill in all bank details.");
-                return false;
-            }
-            if (!/^\d{9,18}$/.test(formData.bank.accountNumber)) {
-                toast.error("Account Number should be between 9 and 18 digits.");
-                return false;
-            }
-            if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(formData.bank.ifsc)) {
-                toast.error("Invalid IFSC Code format (e.g., HDFC0001234).");
-                return false;
-            }
-            if (formData.bank.accountNumber !== formData.bank.confirmAccountNumber) {
-                toast.error("Account Numbers do not match.");
-                return false;
-            }
+    const handleSendOtp = () => {
+        if (!formData.personal?.phone || formData.personal.phone.length !== 10) {
+            toast.error("Please enter a valid 10-digit phone number.");
+            return;
         }
-        return true;
+        setShowOtpInput(true);
+        setTimer(30);
+        toast.info("OTP sent to your mobile (Use 111111).");
+    };
+
+    const handleVerifyOtp = () => {
+        if (otp === "111111") {
+            updateField('personal', 'isMobileVerified', true);
+            setShowOtpInput(false);
+            toast.success("Mobile number verified successfully!");
+        } else {
+            toast.error("Invalid OTP. Try 111111");
+        }
+    };
+
+    // Validation for "Next" button state
+    const isStepValid = () => {
+        if (currentStep === 1) {
+            const p = formData.personal;
+            const a = formData.address;
+            const isPersonalValid = !!(p?.fullName && p?.phone?.length === 10 && p?.dob && p?.profileImage && p?.isMobileVerified);
+            const isAddressValid = !!(a?.shopName && a?.shopAddress && a?.city && a?.state && a?.zip?.length === 6);
+            return isPersonalValid && isAddressValid;
+        }
+        if (currentStep === 2) {
+            const d = formData.documents;
+            return !!(d?.aadharNumber?.length === 12 && d?.panNumber?.length === 10 && d?.aadharImage && d?.panImage);
+        }
+        if (currentStep === 3) {
+            const b = formData.bank;
+            return !!(b?.holderName && b?.bankName && b?.accountNumber && b?.ifsc && b?.accountNumber === b?.confirmAccountNumber);
+        }
+        return false;
     };
 
     const handleNext = async () => {
-        if (!validateStep()) return;
-
+        if (!isStepValid()) {
+            toast.error("Please fill all mandatory fields correctly.");
+            return;
+        }
         setIsLoading(true);
         try {
             if (currentStep < 3) {
                 await updateKYTData({ ...formData, currentStep: currentStep + 1 });
                 setCurrentStep(prev => prev + 1);
             } else {
-                // Submit logic
                 await updateKYTData(formData, 'submitted');
                 toast.success("Profile submitted for verification!");
             }
         } catch (error: any) {
-            console.error("KYT Error:", error);
-            toast.error(error.message || "Something went wrong. Please try again.");
+            toast.error(error.message || "Something went wrong.");
         } finally {
             setIsLoading(false);
         }
@@ -186,67 +187,69 @@ export default function TailorKYT() {
             await updateKYTData({ ...formData, currentStep });
             toast.success("Progress saved!");
         } catch (error: any) {
-            console.error("Save Error:", error);
             toast.error("Failed to save progress.");
         } finally {
             setIsSaving(false);
         }
     };
 
-    const handleImageUpload = (section: 'personal' | 'documents', field: string, file: File) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            const base64String = reader.result as string;
-            updateField(section, field, base64String);
-        };
-        reader.readAsDataURL(file);
-    };
-
     const removeImage = (section: 'personal' | 'documents', field: string) => {
         updateField(section, field, '');
+    };
+
+    // Avatar Upload Handler
+    const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                updateField('personal', 'profileImage', reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
     };
 
     const updateField = (section: keyof KYTData, field: string, value: any) => {
         let finalValue = value;
 
-        // Auto uppercase for PAN
-        if (section === 'documents' && field === 'panNumber') {
-            finalValue = value.toUpperCase();
-        }
+        if (section === 'documents' && field === 'panNumber') finalValue = value.toUpperCase();
 
-        // Numeric restriction for specific fields
         const numericFields = ['zip', 'aadharNumber', 'accountNumber', 'confirmAccountNumber'];
-        if (numericFields.includes(field)) {
-            finalValue = value.replace(/\D/g, '');
+        if (numericFields.includes(field)) finalValue = value.replace(/\D/g, '');
+
+        // Strict 10-digit mobile number
+        if (field === 'phone') {
+            finalValue = value.replace(/\D/g, '').slice(0, 10);
         }
 
-        // Character limits
         if (field === 'zip') finalValue = finalValue.slice(0, 6);
         if (field === 'aadharNumber') finalValue = finalValue.slice(0, 12);
         if (field === 'panNumber') finalValue = finalValue.slice(0, 10);
 
+        // Reset verification if phone changes
+        if (section === 'personal' && field === 'phone' && value !== formData.personal?.phone) {
+            setFormData(prev => ({
+                ...prev,
+                personal: { ...prev.personal!, [field]: finalValue, isMobileVerified: false }
+            }));
+            return;
+        }
+
         setFormData(prev => ({
             ...prev,
-            [section]: {
-                ...(prev[section] as any),
-                [field]: finalValue
-            }
+            [section]: { ...(prev[section] as any), [field]: finalValue }
         }));
     };
 
     const handleReturnHome = async () => {
-        try {
-            await logout();
-            navigate('/', { replace: true });
-        } catch (error) {
-            console.error("Logout Error:", error);
-            window.location.href = '/';
-        }
+        try { await logout(); navigate('/', { replace: true }); } catch (e) { window.location.href = '/'; }
     };
 
+    // Render Success/Pending Screens
     if (kytStatus === 'submitted' || kytStatus === 'approved') {
         return (
             <div className="flex flex-col items-center justify-center min-h-[70vh] p-8 text-center bg-background">
+                {/* Status UI remains same */}
                 <div className="max-w-md w-full p-8 rounded-2xl border border-border bg-card shadow-lg">
                     {kytStatus === 'approved' ? (
                         <div className="mb-6 flex justify-center">
@@ -261,32 +264,17 @@ export default function TailorKYT() {
                             </div>
                         </div>
                     )}
-
                     <h2 className="text-2xl font-display font-bold mb-4 text-foreground">
                         {kytStatus === 'approved' ? "Profile Verified!" : "Verification Pending"}
                     </h2>
-
                     <p className="text-muted-foreground mb-8 leading-relaxed">
                         {kytStatus === 'approved'
-                            ? "Great news! Your profile has been verified. You now have full access to your tailor dashboard and can start managing orders."
-                            : "Your profile has been successfully submitted and is now under review by our administration team. This process typically takes 24-48 business hours."}
+                            ? "Great news! Your profile is verified. You can now access your dashboard."
+                            : "Your profile is under review (24-48 hours)."}
                     </p>
-
                     <div className="space-y-4">
-                        {kytStatus === 'submitted' && (
-                            <div className="p-4 rounded-lg bg-muted/50 border border-border text-left">
-                                <div className="flex items-start gap-3">
-                                    <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-                                    <div>
-                                        <p className="text-sm font-semibold text-foreground">What happens next?</p>
-                                        <p className="text-xs text-muted-foreground mt-1">We will notify you via email once your verification is complete. Until then, your access to certain features will be limited.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
                         {kytStatus === 'approved' ? (
-                            <Button className="w-full h-12 bg-amber-500 hover:bg-amber-600 text-[#2d1f14] font-bold text-lg rounded-xl shadow-lg transition-transform hover:scale-[1.02] active:scale-[0.98]" onClick={() => window.location.reload()}>
+                            <Button className="w-full h-12 bg-amber-500 hover:bg-amber-600 text-[#2d1f14] font-bold text-lg rounded-xl" onClick={() => window.location.reload()}>
                                 Enter Dashboard
                             </Button>
                         ) : (
@@ -301,319 +289,333 @@ export default function TailorKYT() {
     }
 
     return (
-        <div className="max-w-4xl mx-auto p-4 lg:p-8">
-            <div className="mb-8 relative">
-                <h1 className="text-3xl font-display font-bold text-foreground">Complete Your Profile</h1>
-                <p className="text-muted-foreground">We need a few details to verify your identity and business.</p>
-
-                {/* Rejection Banner */}
+        <div className="max-w-3xl mx-auto p-4 lg:p-6">
+            <div className="mb-6 relative">
+                {/* Compact Header */}
+                <div className="flex items-center justify-between mb-2">
+                    <h1 className="text-2xl font-display font-bold text-foreground">Complete Profile</h1>
+                    <span className="text-xs font-medium px-2 py-1 bg-amber-50 rounded-md text-amber-700 border border-amber-200">
+                        Step {currentStep} of 3
+                    </span>
+                </div>
+                <div className="h-1 w-full bg-muted overflow-hidden rounded-full">
+                    <div
+                        className="h-full bg-primary transition-all duration-500 ease-out"
+                        style={{ width: `${(currentStep / 3) * 100}%` }}
+                    />
+                </div>
                 {kytStatus === 'rejected' && (
                     <motion.div
-                        initial={{ opacity: 0, y: -20 }}
+                        initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-4 shadow-sm"
+                        className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3 shadow-sm text-sm"
                     >
-                        <ShieldAlert className="w-6 h-6 text-red-600 shrink-0 mt-1" />
+                        <ShieldAlert className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
                         <div>
                             <h4 className="font-bold text-red-900">Revision Requested</h4>
-                            <p className="text-sm text-red-700 mt-1">
-                                {formData.rejectionReason || "Admin has requested some changes to your profile. Please review the details and re-submit."}
-                            </p>
+                            <p className="text-red-700 mt-1">{formData.rejectionReason}</p>
                         </div>
                     </motion.div>
                 )}
             </div>
 
-            {/* Stepper */}
-            <div className="relative flex items-center justify-between mb-12 px-2 overflow-x-auto pb-4 lg:pb-0">
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-muted -z-10 hidden lg:block" />
-                {steps.map((s, i) => {
-                    const isActive = s.id === currentStep;
-                    const isCompleted = s.id < currentStep;
-                    return (
-                        <div key={s.id} className="flex flex-col items-center min-w-[80px]">
-                            <div className={`
-                                w-10 h-10 rounded-full flex items-center justify-center border-2 bg-background transition-colors duration-300
-                                ${isActive ? 'border-primary text-primary shadow-[0_0_15px_rgba(234,179,8,0.3)]' : isCompleted ? 'border-primary bg-primary text-primary-foreground' : 'border-muted text-muted-foreground'}
-                            `}>
-                                {isCompleted ? <CheckCircle2 className="w-6 h-6" /> : <s.icon className="w-5 h-5" />}
-                            </div>
-                            <span className={`text-xs font-medium mt-2 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}>{s.name}</span>
-                        </div>
-                    );
-                })}
-            </div>
-
-            <div className="bg-card border border-border rounded-xl p-6 lg:p-8 shadow-sm">
+            <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
                 <AnimatePresence mode='wait'>
                     <motion.div
                         key={currentStep}
-                        initial={{ opacity: 0, x: 20 }}
+                        initial={{ opacity: 0, x: 10 }}
                         animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        transition={{ duration: 0.3 }}
+                        exit={{ opacity: 0, x: -10 }}
+                        transition={{ duration: 0.2 }}
                     >
-                        {/* Step 1: Personal & Address Info */}
+                        {/* Step 1: Personal (Compact) */}
                         {currentStep === 1 && (
-                            <div className="space-y-8">
-                                <div className="space-y-4">
-                                    <h3 className="text-lg font-semibold flex items-center gap-2">
-                                        <div className="w-1 h-6 bg-primary rounded-full" />
-                                        Personal Information
-                                    </h3>
-                                    <div className="grid grid-cols-12 gap-6 items-stretch">
-                                        {/* Personal Info - Left 8 cols */}
-                                        <div className="col-span-12 md:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div className="space-y-1">
-                                                <Label className="text-xs">Full Name</Label>
-                                                <Input
-                                                    value={formData.personal?.fullName || user?.displayName || ''}
-                                                    onChange={(e) => updateField('personal', 'fullName', e.target.value)}
-                                                    className="h-9 text-sm"
+                            <div className="space-y-6">
+                                {/* Personal Details Row */}
+                                <div className="flex flex-col md:flex-row gap-6">
+                                    {/* Avatar/Profile Photo Uploader */}
+                                    <div className="flex flex-col items-center gap-2 md:w-32 shrink-0">
+                                        <div className="relative group cursor-pointer">
+                                            <div className={cn(
+                                                "w-24 h-24 rounded-full border-2 border-dashed flex items-center justify-center overflow-hidden bg-muted/30 transition-all",
+                                                formData.personal?.profileImage ? "border-amber-500 border-solid" : "border-muted-foreground/30 hover:border-amber-400"
+                                            )}>
+                                                {formData.personal?.profileImage ? (
+                                                    <img src={formData.personal.profileImage} alt="Profile" className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <UserIcon className="w-8 h-8 text-muted-foreground/50" />
+                                                )}
+                                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-full">
+                                                    <Upload className="w-6 h-6 text-white" />
+                                                </div>
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={handleAvatarUpload}
+                                                    className="absolute inset-0 opacity-0 cursor-pointer"
                                                 />
                                             </div>
-                                            <div className="space-y-1">
-                                                <Label className="text-xs">Phone Number</Label>
-                                                <Input
-                                                    value={formData.personal?.phone || user?.phoneNumber || ''}
-                                                    onChange={(e) => updateField('personal', 'phone', e.target.value)}
-                                                    className="h-9 text-sm"
-                                                />
-                                            </div>
-                                            <div className="space-y-1 md:col-span-2">
-                                                <Label className="text-xs">Email Address</Label>
-                                                <Input value={user?.email || ''} disabled className="h-9 bg-muted/50 text-sm" />
-                                            </div>
+                                            {!formData.personal?.profileImage && (
+                                                <span className="text-[10px] text-muted-foreground mt-1 text-center block">Upload Photo</span>
+                                            )}
                                         </div>
+                                    </div>
 
-                                        {/* Photo - Right 4 cols */}
-                                        <div className="col-span-12 md:col-span-4">
-                                            <FileUploader
-                                                label="Passport Photo"
-                                                value={formData.personal?.profileImage || ''}
-                                                onChange={(base64) => updateField('personal', 'profileImage', base64)}
-                                                onRemove={() => removeImage('personal', 'profileImage')}
-                                                icon={UserIcon}
-                                                aspectRatio="aspect-square"
-                                                description="Face clearly visible."
+                                    {/* Fields */}
+                                    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3 content-start">
+                                        <div className="space-y-1">
+                                            <Label className="text-xs font-semibold">Full Name <span className="text-red-500">*</span></Label>
+                                            <Input
+                                                value={formData.personal?.fullName || ''}
+                                                onChange={(e) => updateField('personal', 'fullName', e.target.value)}
+                                                className="h-9 text-sm"
+                                                placeholder="Legal Name"
                                             />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-xs font-semibold">Email Address</Label>
+                                            <Input value={user?.email || ''} disabled className="h-9 bg-muted/50 text-sm cursor-not-allowed" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-xs font-semibold">Date of Birth <span className="text-red-500">*</span></Label>
+                                            <Input
+                                                type="date"
+                                                value={formData.personal?.dob || ''}
+                                                onChange={(e) => updateField('personal', 'dob', e.target.value)}
+                                                className="h-9 text-sm"
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-xs font-semibold">Mobile Number <span className="text-red-500">*</span></Label>
+                                            <div className="flex gap-2">
+                                                <div className="relative flex-1">
+                                                    <Input
+                                                        value={formData.personal?.phone || ''}
+                                                        onChange={(e) => updateField('personal', 'phone', e.target.value)}
+                                                        className={cn("h-9 text-sm", formData.personal?.isMobileVerified ? "border-green-500 bg-green-50/20 pr-8" : "")}
+                                                        placeholder="10-digit number"
+                                                        maxLength={10}
+                                                        disabled={formData.personal?.isMobileVerified}
+                                                    />
+                                                    {formData.personal?.isMobileVerified && (
+                                                        <CheckCircle2 className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-green-600" />
+                                                    )}
+                                                </div>
+                                                {!formData.personal?.isMobileVerified && !showOtpInput && (
+                                                    <Button
+                                                        size="sm"
+                                                        onClick={handleSendOtp}
+                                                        className="h-9 px-4 shrink-0"
+                                                        disabled={!formData.personal?.phone || formData.personal.phone.length !== 10}
+                                                    >
+                                                        Verify
+                                                    </Button>
+                                                )}
+                                            </div>
+
+                                            {/* OTP Input Refined */}
+                                            <AnimatePresence>
+                                                {showOtpInput && (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, height: 0 }}
+                                                        animate={{ opacity: 1, height: 'auto' }}
+                                                        exit={{ opacity: 0, height: 0 }}
+                                                        className="pt-2 flex items-center gap-2"
+                                                    >
+                                                        <Input
+                                                            value={otp}
+                                                            onChange={(e) => setOtp(e.target.value)}
+                                                            placeholder="Enter OTP (111111)"
+                                                            className="h-9 text-sm w-40 tracking-widest text-center"
+                                                            maxLength={6}
+                                                        />
+                                                        <Button size="sm" onClick={handleVerifyOtp} className="h-9 bg-green-600 hover:bg-green-700 text-white">Confirm</Button>
+                                                        <span className="text-xs text-muted-foreground ml-2">
+                                                            Resend in {timer}s
+                                                        </span>
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="space-y-6 pt-4 border-t">
-                                    <h3 className="text-lg font-semibold flex items-center gap-2">
-                                        <div className="w-1 h-6 bg-primary rounded-full" />
-                                        Shop / Business Address
+                                <div className="h-px bg-border/50" />
+
+                                {/* Address Section Compact */}
+                                <div className="space-y-3">
+                                    <h3 className="text-sm font-semibold flex items-center gap-2 text-foreground/80">
+                                        <div className="w-1 h-4 bg-amber-500 rounded-full" />
+                                        Address Details
                                     </h3>
-                                    <div className="grid grid-cols-12 gap-3 sm:gap-4">
-                                        <div className="col-span-12 space-y-1">
-                                            <Label className="text-xs">Shop Name</Label>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                        <div className="md:col-span-2 space-y-1">
+                                            <Label className="text-xs">Shop Name <span className="text-red-500">*</span></Label>
                                             <Input
-                                                placeholder="e.g. Royal Tailors"
                                                 value={formData.address?.shopName}
                                                 onChange={(e) => updateField('address', 'shopName', e.target.value)}
                                                 className="h-9 text-sm"
+                                                placeholder="Business Name"
                                             />
                                         </div>
-
-                                        {/* Shop Address - Full Width */}
-                                        <div className="col-span-12 space-y-1">
-                                            <Label className="text-xs">Detailed Shop Address</Label>
-                                            <Textarea
-                                                placeholder="Shop No, Building Name, Street, Landmark..."
-                                                value={formData.address?.shopAddress}
-                                                onChange={(e) => updateField('address', 'shopAddress', e.target.value)}
-                                                className="min-h-[60px] text-sm resize-none"
-                                            />
-                                        </div>
-
-                                        {/* Pin Code, City, State - Compact Row */}
-                                        <div className="col-span-12 md:col-span-4 space-y-1">
-                                            <Label className="text-xs">Pin Code</Label>
+                                        <div className="space-y-1">
+                                            <Label className="text-xs">Pin Code <span className="text-red-500">*</span></Label>
                                             <div className="relative">
                                                 <Input
                                                     value={formData.address?.zip}
                                                     onChange={(e) => updateField('address', 'zip', e.target.value)}
-                                                    inputMode="numeric"
-                                                    placeholder="6 Digit PIN"
                                                     maxLength={6}
-                                                    className={cn("h-9 text-sm pr-8", isFetchingZip ? "pr-8" : "")}
+                                                    className="h-9 text-sm"
+                                                    placeholder="6 Digits"
                                                 />
-                                                {isFetchingZip && (
-                                                    <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                                                        <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
-                                                    </div>
-                                                )}
+                                                {isFetchingZip && <Loader2 className="absolute right-2 top-2 w-4 h-4 animate-spin text-muted-foreground" />}
                                             </div>
                                         </div>
-                                        <div className="col-span-12 md:col-span-4 space-y-1">
-                                            <Label className="text-xs">City</Label>
+                                        <div className="md:col-span-3 space-y-1">
+                                            <Label className="text-xs">Full Address <span className="text-red-500">*</span></Label>
                                             <Input
-                                                placeholder="City"
-                                                value={formData.address?.city}
-                                                onChange={(e) => updateField('address', 'city', e.target.value)}
+                                                value={formData.address?.shopAddress}
+                                                onChange={(e) => updateField('address', 'shopAddress', e.target.value)}
                                                 className="h-9 text-sm"
+                                                placeholder="Shop No, Street, Landmark"
                                             />
                                         </div>
-                                        <div className="col-span-12 md:col-span-4 space-y-1">
-                                            <Label className="text-xs">State</Label>
-                                            <Input
-                                                placeholder="State"
-                                                value={formData.address?.state}
-                                                onChange={(e) => updateField('address', 'state', e.target.value)}
-                                                className="h-9 text-sm"
-                                            />
+                                        <div className="space-y-1">
+                                            <Label className="text-xs">City <span className="text-red-500">*</span></Label>
+                                            <Input value={formData.address?.city} onChange={(e) => updateField('address', 'city', e.target.value)} className="h-9 text-sm" />
+                                        </div>
+                                        <div className="space-y-1 md:col-span-2">
+                                            <Label className="text-xs">State <span className="text-red-500">*</span></Label>
+                                            <Input value={formData.address?.state} onChange={(e) => updateField('address', 'state', e.target.value)} className="h-9 text-sm" />
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         )}
 
-                        {/* Step 2: Documents */}
+                        {/* Step 2: Documents (Compact) */}
                         {currentStep === 2 && (
-                            <div className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <Label>Aadhar Number</Label>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-3">
+                                    <div className="space-y-1.5">
+                                        <Label className="text-xs">Aadhar Number <span className="text-red-500">*</span></Label>
                                         <Input
-                                            placeholder="12 Digit Aadhar"
                                             value={formData.documents?.aadharNumber}
                                             onChange={(e) => updateField('documents', 'aadharNumber', e.target.value)}
-                                            inputMode="numeric"
                                             maxLength={12}
+                                            className="h-9 text-sm"
+                                            placeholder="12-digit number"
                                         />
                                     </div>
-                                    <div className="space-y-2">
-                                        <Label>PAN Number</Label>
+                                    <FileUploader
+                                        label="Aadhar Card"
+                                        value={formData.documents?.aadharImage || ''}
+                                        onChange={(base64) => updateField('documents', 'aadharImage', base64)}
+                                        onRemove={() => removeImage('documents', 'aadharImage')}
+                                        icon={Upload}
+                                        className="h-32"
+                                        description="Front Side"
+                                    />
+                                </div>
+                                <div className="space-y-3">
+                                    <div className="space-y-1.5">
+                                        <Label className="text-xs">PAN Number <span className="text-red-500">*</span></Label>
                                         <Input
-                                            placeholder="ABCDE1234F"
                                             value={formData.documents?.panNumber}
                                             onChange={(e) => updateField('documents', 'panNumber', e.target.value)}
                                             maxLength={10}
-                                            className="uppercase"
+                                            className="h-9 text-sm uppercase"
+                                            placeholder="ABCDE1234F"
                                         />
                                     </div>
-                                    <div className="space-y-2 md:col-span-2">
-                                        <Label>GST Number (Optional)</Label>
-                                        <Input
-                                            placeholder="22AAAAA0000A1Z5"
-                                            value={formData.documents?.gstNumber}
-                                            onChange={(e) => updateField('documents', 'gstNumber', e.target.value)}
-                                        />
-                                    </div>
-
-                                    {/* Aadhar & PAN Side by Side */}
-                                    <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
-                                        <FileUploader
-                                            label="Aadhar Card Front"
-                                            value={formData.documents?.aadharImage || ''}
-                                            onChange={(base64) => updateField('documents', 'aadharImage', base64)}
-                                            onRemove={() => removeImage('documents', 'aadharImage')}
-                                            icon={Upload}
-                                            description="Upload a clear image of your Aadhar card front side."
-                                        />
-                                        <FileUploader
-                                            label="PAN Card Image"
-                                            value={formData.documents?.panImage || ''}
-                                            onChange={(base64) => updateField('documents', 'panImage', base64)}
-                                            onRemove={() => removeImage('documents', 'panImage')}
-                                            icon={Upload}
-                                            description="Upload a clear image of your PAN card."
-                                        />
-                                    </div>
+                                    <FileUploader
+                                        label="PAN Card"
+                                        value={formData.documents?.panImage || ''}
+                                        onChange={(base64) => updateField('documents', 'panImage', base64)}
+                                        onRemove={() => removeImage('documents', 'panImage')}
+                                        icon={Upload}
+                                        className="h-32"
+                                        description="Clear photo"
+                                    />
+                                </div>
+                                <div className="md:col-span-2 space-y-1.5">
+                                    <Label className="text-xs">GST Number (Optional)</Label>
+                                    <Input
+                                        value={formData.documents?.gstNumber}
+                                        onChange={(e) => updateField('documents', 'gstNumber', e.target.value)}
+                                        className="h-9 text-sm"
+                                    />
                                 </div>
                             </div>
                         )}
 
-                        {/* Step 3: Bank Details */}
+                        {/* Step 3: Bank Details (Compact) */}
                         {currentStep === 3 && (
-                            <div className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <Label>Account Holder Name</Label>
-                                        <Input
-                                            placeholder="Name as per bank records"
-                                            value={formData.bank?.holderName}
-                                            onChange={(e) => updateField('bank', 'holderName', e.target.value)}
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Bank Name</Label>
-                                        <Input
-                                            placeholder="e.g. HDFC Bank"
-                                            value={formData.bank?.bankName}
-                                            onChange={(e) => updateField('bank', 'bankName', e.target.value)}
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Account Number</Label>
-                                        <Input
-                                            type="password"
-                                            placeholder="Enter account number"
-                                            value={formData.bank?.accountNumber}
-                                            onChange={(e) => updateField('bank', 'accountNumber', e.target.value)}
-                                            inputMode="numeric"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Confirm Account Number</Label>
-                                        <Input
-                                            type="text"
-                                            placeholder="Re-enter account number"
-                                            value={formData.bank?.confirmAccountNumber || ''}
-                                            onChange={(e) => updateField('bank', 'confirmAccountNumber', e.target.value)}
-                                            inputMode="numeric"
-                                            onPaste={(e) => e.preventDefault()} // Prevent pasting
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>IFSC Code</Label>
-                                        <Input
-                                            placeholder="HDFC0001234"
-                                            value={formData.bank?.ifsc}
-                                            onChange={(e) => updateField('bank', 'ifsc', e.target.value)}
-                                        />
-                                    </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-1">
+                                    <Label className="text-xs">Account Holder <span className="text-red-500">*</span></Label>
+                                    <Input value={formData.bank?.holderName} onChange={(e) => updateField('bank', 'holderName', e.target.value)} className="h-9 text-sm" />
+                                </div>
+                                <div className="space-y-1">
+                                    <Label className="text-xs">Bank Name <span className="text-red-500">*</span></Label>
+                                    <Input value={formData.bank?.bankName} onChange={(e) => updateField('bank', 'bankName', e.target.value)} className="h-9 text-sm" />
+                                </div>
+                                <div className="space-y-1">
+                                    <Label className="text-xs">Account Number <span className="text-red-500">*</span></Label>
+                                    <Input type="password" value={formData.bank?.accountNumber} onChange={(e) => updateField('bank', 'accountNumber', e.target.value)} className="h-9 text-sm" />
+                                </div>
+                                <div className="space-y-1">
+                                    <Label className="text-xs">Confirm A/C Number <span className="text-red-500">*</span></Label>
+                                    <Input value={formData.bank?.confirmAccountNumber} onChange={(e) => updateField('bank', 'confirmAccountNumber', e.target.value)} className="h-9 text-sm" />
+                                </div>
+                                <div className="space-y-1">
+                                    <Label className="text-xs">IFSC Code <span className="text-red-500">*</span></Label>
+                                    <Input value={formData.bank?.ifsc} onChange={(e) => updateField('bank', 'ifsc', e.target.value)} className="h-9 text-sm uppercase" />
                                 </div>
                             </div>
                         )}
                     </motion.div>
                 </AnimatePresence>
 
-                {/* Navigation Buttons */}
-                <div className="flex flex-col-reverse sm:flex-row items-center justify-between mt-8 pt-6 border-t border-border gap-4">
+                {/* Footer Actions */}
+                <div className="flex items-center justify-between mt-6 pt-4 border-t border-border">
                     <Button
-                        variant="outline"
+                        variant="ghost"
+                        size="sm"
                         onClick={handleBack}
                         disabled={currentStep === 1 || isLoading}
-                        className="w-full sm:w-auto gap-2"
+                        className="text-muted-foreground hover:text-foreground"
                     >
-                        <ArrowLeft className="w-4 h-4" /> Back
+                        <ArrowLeft className="w-4 h-4 mr-1" /> Back
                     </Button>
 
-                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                    <div className="flex items-center gap-2">
                         <Button
                             variant="ghost"
+                            size="sm"
                             onClick={handleSaveDraft}
                             disabled={isSaving || isLoading}
-                            className="w-full sm:w-auto"
+                            className="hidden sm:flex text-xs"
                         >
-                            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-                            Save Draft
+                            {isSaving ? "Saving..." : "Save Draft"}
                         </Button>
                         <Button
+                            size="sm"
                             onClick={handleNext}
-                            disabled={isLoading}
-                            className="w-full sm:w-auto min-w-[120px]"
+                            disabled={isLoading || !isStepValid()}
+                            className={cn(
+                                "min-w-[100px] transition-all",
+                                !isStepValid() ? "bg-muted text-muted-foreground cursor-not-allowed" : "bg-amber-600 hover:bg-amber-700 text-white"
+                            )}
                         >
-                            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : currentStep === 3 ? "Submit Verification" : "Next Step"}
-                            {!isLoading && currentStep !== 3 && <ArrowRight className="w-4 h-4 ml-2" />}
+                            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : currentStep === 3 ? "Submit" : "Next"}
+                            {!isLoading && currentStep !== 3 && <ArrowRight className="w-4 h-4 ml-1" />}
                         </Button>
                     </div>
                 </div>
             </div>
         </div>
     );
+
 }
 

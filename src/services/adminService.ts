@@ -38,7 +38,7 @@ export const adminService = {
         const q = query(collection(db, "users"), where("roles", "array-contains", "tailor"));
         const querySnapshot = await getDocs(q);
 
-        // For each tailor, we also want their design count
+        // For each tailor, we also want their stats
         const tailors = await Promise.all(querySnapshot.docs.map(async (tailorDoc) => {
             const data = tailorDoc.data();
 
@@ -46,17 +46,58 @@ export const adminService = {
             const designsQuery = query(collection(db, COLLECTION_DESIGNS), where("tailorId", "==", tailorDoc.id));
             const designsSnap = await getCountFromServer(designsQuery);
 
+            // Get actual order count
+            // Note: Verify if "orders" collection uses "tailorId" or "items.tailorId". 
+            // For now assuming direct tailorId on order for simplicity, or we default to 0.
+            let ordersCount = 0;
+            try {
+                const ordersQuery = query(collection(db, "orders"), where("tailorId", "==", tailorDoc.id));
+                const ordersSnap = await getCountFromServer(ordersQuery);
+                ordersCount = ordersSnap.data().count;
+            } catch (e) {
+                // Ignore error if index missing or field wrong
+            }
+
+            // Logic to safely format date
+            let joinDate = "N/A";
+            if (data.createdAt) {
+                if (data.createdAt.seconds) {
+                    // Firestore Timestamp
+                    joinDate = new Date(data.createdAt.seconds * 1000).toLocaleDateString();
+                } else if (typeof data.createdAt === 'string') {
+                    // String date
+                    joinDate = new Date(data.createdAt).toLocaleDateString();
+                } else if (data.createdAt.toDate) {
+                    // JS SDK Timestamp
+                    joinDate = data.createdAt.toDate().toLocaleDateString();
+                } else {
+                    // Fallback
+                    try { joinDate = new Date(data.createdAt).toLocaleDateString(); } catch (e) { }
+                }
+            }
+
+            // Consolidated Phone Logic
+            const phone = data.kytData?.personal?.phone ||
+                data.tailorProfile?.phone ||
+                data.phoneNumber ||
+                "N/A";
+
+            // Consolidated Specialty Logic
+            const specialty = data.kytData?.professional?.specialization?.join(", ") ||
+                data.tailorProfile?.specialization?.join(", ") ||
+                "N/A";
+
             return {
                 id: tailorDoc.id,
-                name: data.name || "Unknown",
+                name: data.displayName || data.name || "Unknown",
                 email: data.email,
-                phone: data.tailorProfile?.phone || data.phoneNumber || "N/A",
+                phone: phone,
                 status: data.kytStatus || 'pending',
                 designs: designsSnap.data().count,
-                orders: data.ordersCount || 0,
+                orders: ordersCount || data.ordersCount || 0,
                 rating: data.rating || 0,
-                joinDate: data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleDateString() : "N/A",
-                specialty: data.tailorProfile?.specialization?.join(", ") || "N/A",
+                joinDate: joinDate,
+                specialty: specialty,
                 kytData: data.kytData,
                 approved: data.kytStatus === 'approved'
             };

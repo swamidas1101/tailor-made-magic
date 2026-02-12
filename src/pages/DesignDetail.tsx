@@ -262,30 +262,30 @@ export default function DesignDetail() {
               <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide text-muted-foreground">Purchase Option</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <button
+                  type="button"
                   onClick={() => setWithMaterial(false)}
-                  className={`relative p-3 rounded-lg border-2 text-left transition-all ${!withMaterial ? "border-orange-500 bg-orange-50/50 dark:bg-orange-950/10 shadow-sm" : "border-border bg-card hover:border-orange-200"
+                  className={`flex items-center justify-between p-3 rounded-lg border transition-all ${!withMaterial
+                    ? "border-orange-500 bg-orange-50 ring-1 ring-orange-500"
+                    : "border-border hover:border-orange-200 bg-white"
                     }`}
                 >
-                  <div className="flex justify-between items-start mb-1">
-                    <span className="font-bold text-sm text-foreground">Stitching Only</span>
-                    {!withMaterial && <Check className="w-3.5 h-3.5 text-orange-600" />}
-                  </div>
-                  <p className="text-xs text-muted-foreground mb-1">You provide the fabric</p>
-                  <p className="text-sm font-bold text-foreground">₹{design.price.toLocaleString()}</p>
+                  <span className="font-bold text-sm text-foreground">Stitching Only</span>
+                  {!withMaterial && <Check className="w-3.5 h-3.5 text-orange-600" />}
                 </button>
 
-                <button
-                  onClick={() => setWithMaterial(true)}
-                  className={`relative p-3 rounded-lg border-2 text-left transition-all ${withMaterial ? "border-orange-500 bg-orange-50/50 dark:bg-orange-950/10 shadow-sm" : "border-border bg-card hover:border-orange-200"
-                    }`}
-                >
-                  <div className="flex justify-between items-start mb-1">
+                {design.priceWithMaterial > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setWithMaterial(true)}
+                    className={`flex items-center justify-between p-3 rounded-lg border transition-all ${withMaterial
+                      ? "border-orange-500 bg-orange-50 ring-1 ring-orange-500"
+                      : "border-border hover:border-orange-200 bg-white"
+                      }`}
+                  >
                     <span className="font-bold text-sm text-foreground">Stitching + Fabric</span>
                     {withMaterial && <Check className="w-3.5 h-3.5 text-orange-600" />}
-                  </div>
-                  <p className="text-xs text-muted-foreground mb-1">Premium fabric included</p>
-                  <p className="text-sm font-bold text-foreground">₹{design.priceWithMaterial.toLocaleString()}</p>
-                </button>
+                  </button>
+                )}
               </div>
             </div>
 

@@ -54,6 +54,8 @@ export interface KYTData {
     fullName: string;
     profileImage?: string;
     phone: string;
+    dob?: string;
+    isMobileVerified?: boolean;
   };
   address?: {
     shopName: string;
@@ -460,6 +462,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await signOut(auth);
       setUserRoles(null);
       setActiveRole(null);
+      setKytStatus('pending'); // Reset KYC status to prevent stale state
+      setKytData(null);
     } catch (error) {
       console.error("Logout Error:", error);
     }

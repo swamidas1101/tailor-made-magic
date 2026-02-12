@@ -8,33 +8,35 @@ export default function Uniforms() {
     <Layout>
       <div className="min-h-screen bg-background">
         {/* Hero Section */}
-        <section className="relative h-[60vh] flex items-center justify-center overflow-hidden">
-          <div className="absolute inset-0">
-            <img
-              src="https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80&w=2000"
-              alt="Uniforms Hero"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-950/90 via-blue-900/80 to-blue-900/60" />
-          </div>
+        {/* Hero Section */}
+        <section className="relative py-20 lg:py-32 flex items-center justify-center overflow-hidden bg-slate-950">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-900/40 via-slate-950 to-slate-950" />
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5" />
 
-          <div className="container relative z-10 px-4 text-center">
+          <div className="container relative z-10 px-4 text-center max-w-4xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <h1 className="text-4xl md:text-6xl font-display font-bold text-white mb-6">
-                Premium Corporate & <br /><span className="text-blue-300">Institutional Uniforms</span>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-900/30 border border-blue-800 text-blue-300 text-xs font-semibold uppercase tracking-wider mb-6">
+                <Briefcase className="w-3.5 h-3.5" />
+                Professional Solutions
+              </div>
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-bold text-white mb-6 leading-tight">
+                Premium Corporate & <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-200">
+                  Institutional Uniforms
+                </span>
               </h1>
-              <p className="text-lg md:text-xl text-blue-100 max-w-2xl mx-auto mb-8 font-light leading-relaxed">
+              <p className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-10 font-light leading-relaxed">
                 Elevate your brand identity with tailored perfection. We specialize in high-quality uniforms for schools, hospitals, hospitality, and corporate sectors.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Button size="lg" className="bg-white text-blue-900 hover:bg-blue-50">
+                <Button size="lg" className="h-12 px-8 bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/20">
                   Request a Quote
                 </Button>
-                <Button size="lg" variant="outline" className="border-blue-300 text-blue-100 hover:bg-blue-900/50 hover:text-white">
+                <Button size="lg" variant="outline" className="h-12 px-8 border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white">
                   View Catalog
                 </Button>
               </div>

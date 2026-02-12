@@ -450,14 +450,14 @@ export function Header() {
               <Bell className="w-5 h-5" />
             </Button>
 
-            {/* User Menu - Desktop only */}
-            {/* User Menu - Hidden in Top Nav as requested (moved to bottom nav or sidebar) */}
-            {/* <div>
-              <UserMenu />
-            </div> */}
+            {user && (
+              <div className="hidden md:block">
+                <UserMenu />
+              </div>
+            )}
 
             {!user && (
-              <Button variant="outline" size="sm" className="hidden lg:flex group border-primary/30 hover:bg-primary/5" asChild>
+              <Button variant="outline" size="sm" className="hidden md:flex group border-primary/30 hover:bg-primary/5" asChild>
                 <Link to="/auth">
                   Sign In
                   <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-0.5 transition-transform" />

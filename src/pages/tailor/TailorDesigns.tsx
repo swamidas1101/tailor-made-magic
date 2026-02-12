@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Search, Filter, Loader2, ArrowLeft, Check, ChevronDown, Scissors, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { TailorDesignCard } from "@/components/designs/TailorDesignCard";
@@ -82,7 +83,7 @@ export default function TailorDesigns() {
     category: "",
     description: "",
     price: "",
-    priceWithMaterial: "",
+    priceWithMaterial: "0",
     timeInDays: "",
     images: [],
     gender: "women",
@@ -562,15 +563,42 @@ export default function TailorDesigns() {
                         />
                       </div>
                     </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold uppercase text-gray-500">With Material</Label>
+                    <div className="space-y-1.5 mt-2">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="withMaterial"
+                          checked={formData.priceWithMaterial !== "0"}
+                          onCheckedChange={(checked) => {
+                            if (!checked) {
+                              handleInputChange("priceWithMaterial", "0");
+                            } else {
+                              handleInputChange("priceWithMaterial", ""); // Clear "0" to let user type
+                            }
+                          }}
+                        />
+                        <Label
+                          htmlFor="withMaterial"
+                          className="text-xs font-semibold uppercase text-gray-500 cursor-pointer"
+                        >
+                          Stitching + Material Price
+                        </Label>
+                      </div>
+
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">₹</span>
+                        <span className={cn(
+                          "absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 transition-opacity",
+                          formData.priceWithMaterial === "0" ? "opacity-50" : "opacity-100"
+                        )}>₹</span>
                         <Input
                           type="number"
                           value={formData.priceWithMaterial}
                           onChange={(e) => handleInputChange("priceWithMaterial", e.target.value)}
-                          className="pl-7 h-10"
+                          className={cn(
+                            "pl-7 h-10 transition-colors",
+                            formData.priceWithMaterial === "0" && "bg-gray-50 text-gray-400"
+                          )}
+                          placeholder="0"
+                          disabled={formData.priceWithMaterial === "0"}
                         />
                       </div>
                     </div>
@@ -600,10 +628,10 @@ export default function TailorDesigns() {
                   <div className="grid grid-cols-2 gap-3 mb-3">
                     {formData.images.map((img, index) => (
                       <div key={index} className={cn(
-                        "relative rounded-lg overflow-hidden group shadow-sm bg-gray-50 border border-gray-100",
-                        index === 0 ? "col-span-2 aspect-[4/3]" : "aspect-square"
+                        "relative rounded-lg overflow-hidden group shadow-sm bg-gray-50", // Removed border
+                        index === 0 ? "col-span-2" : "" // Removed fixed aspect ratios
                       )}>
-                        <img src={img} alt="" className="w-full h-full object-contain" />
+                        <img src={img} alt="" className="w-full h-auto block" /> {/* h-auto for full adjustment */}
                         <button
                           type="button"
                           onClick={() => {
@@ -628,7 +656,7 @@ export default function TailorDesigns() {
                       value=""
                       onChange={(base64) => handleInputChange("images", [...formData.images, base64])}
                       onRemove={() => { }}
-                      className="h-32 rounded-lg border-dashed border-2 hover:border-amber-400 hover:bg-amber-50/50 transition-colors"
+                      className="h-32 rounded-lg border-dashed border hover:border-amber-400 hover:bg-amber-50/50 transition-colors" // Reduced border width
                     />
                   )}
                 </CardContent>
