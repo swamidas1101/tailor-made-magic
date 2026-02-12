@@ -91,7 +91,7 @@ export function Footer() {
             <h4 className="font-semibold mb-2 md:mb-3 text-sm text-white">Support</h4>
             <ul className="space-y-1 md:space-y-1.5">
               {footerLinks.support.slice(0, 4).map((link) => (
-                <li key={link.path}>
+                <li key={link.name}>
                   <Link to={link.path} className="text-xs md:text-sm text-white/80 hover:text-white transition-colors">
                     {link.name}
                   </Link>

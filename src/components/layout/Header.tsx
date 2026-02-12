@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, Scissors, Phone, Heart, ShoppingBag, ChevronRight, X, Sparkles, ChevronDown, ArrowRight, Bell } from "lucide-react";
+import { Menu, Scissors, Phone, Heart, ShoppingBag, ChevronRight, X, Sparkles, ChevronDown, ArrowRight, Bell, List, GraduationCap, Gem, Ruler } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { UserMenu } from "@/components/auth/UserMenu";
@@ -43,11 +43,8 @@ export function Header() {
   const { womenCategories: categories, menCategories } = useFirebaseData();
 
   return (
-    <motion.header
+    <header
       className="sticky top-0 z-50 glass border-b border-border/30"
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 md:h-18">
@@ -86,13 +83,17 @@ export function Header() {
                     <Link
                       to="/"
                       onClick={() => setIsMenuOpen(false)}
-                      className={`flex items-center justify-between px-6 py-4 text-sm font-medium border-b border-border/40 transition-all ${location.pathname === "/"
+                      className={`flex items-center gap-4 px-6 py-4 text-sm font-medium border-b border-border/40 transition-all ${location.pathname === "/"
                         ? "bg-orange-50/50 text-orange-700"
                         : "text-foreground hover:bg-muted/30"
                         }`}
                     >
-                      <span className="text-base">Home</span>
-                      <ChevronRight className="w-4 h-4 text-muted-foreground/50" />
+                      <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
+                        location.pathname === "/" ? "bg-orange-100 text-orange-600" : "bg-muted text-muted-foreground")}>
+                        <Sparkles className="w-4 h-4" />
+                      </div>
+                      <span className="text-base font-semibold text-foreground">Home</span>
+                      <ChevronRight className="w-4 h-4 ml-auto text-muted-foreground/50" />
                     </Link>
 
                     <Accordion type="single" collapsible className="w-full">
@@ -103,45 +104,54 @@ export function Header() {
                             : "text-foreground"
                             }`}
                         >
-                          Categories
+                          <div className="flex items-center gap-4">
+                            <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
+                              location.pathname.includes('category') ? "bg-orange-100 text-orange-600" : "bg-muted text-muted-foreground")}>
+                              <Gem className="w-4 h-4" />
+                            </div>
+                            <span className="text-base font-semibold">Catalog</span>
+                          </div>
                         </AccordionTrigger>
                         <AccordionContent className="pb-0 bg-muted/20">
                           <div className="flex flex-col">
                             <Link
                               to="/categories"
                               onClick={() => setIsMenuOpen(false)}
-                              className="px-8 py-3 text-sm font-semibold text-orange-600 hover:bg-orange-50/50 flex items-center gap-2"
+                              className="px-8 py-3 text-sm font-bold text-orange-600 hover:bg-orange-100/30 flex items-center justify-between border-b border-border/20"
                             >
-                              View All Categories <ArrowRight className="w-3 h-3" />
+                              <span>View All Collections</span>
+                              <ArrowRight className="w-4 h-4" />
                             </Link>
 
-                            <div className="px-8 py-2">
-                              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Women's Tailoring</p>
-                              <div className="space-y-1">
+                            <div className="px-8 py-4">
+                              <p className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-[0.2em] mb-3">Shop Women</p>
+                              <div className="grid grid-cols-1 gap-1">
                                 {categories.map((cat) => (
                                   <Link
                                     key={cat.id}
                                     to={`/category/${cat.id}`}
                                     onClick={() => setIsMenuOpen(false)}
-                                    className="block py-2 text-sm text-foreground/80 hover:text-orange-600 transition-colors"
+                                    className="flex items-center justify-between py-2 text-sm text-foreground/80 hover:text-orange-600 font-medium transition-colors"
                                   >
                                     {cat.name}
+                                    <ChevronRight className="w-3 h-3 opacity-30" />
                                   </Link>
                                 ))}
                               </div>
                             </div>
 
-                            <div className="px-8 py-2 pb-4">
-                              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 mt-2">Men's Tailoring</p>
-                              <div className="space-y-1">
+                            <div className="px-8 py-4 bg-muted/5 border-t border-border/10">
+                              <p className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-[0.2em] mb-3">Shop Men</p>
+                              <div className="grid grid-cols-1 gap-1">
                                 {menCategories.map((cat) => (
                                   <Link
                                     key={cat.id}
                                     to={`/category/${cat.id}`}
                                     onClick={() => setIsMenuOpen(false)}
-                                    className="block py-2 text-sm text-foreground/80 hover:text-orange-600 transition-colors"
+                                    className="flex items-center justify-between py-2 text-sm text-foreground/80 hover:text-orange-600 font-medium transition-colors"
                                   >
                                     {cat.name}
+                                    <ChevronRight className="w-3 h-3 opacity-30" />
                                   </Link>
                                 ))}
                               </div>
@@ -151,18 +161,26 @@ export function Header() {
                       </AccordionItem>
                     </Accordion>
 
-                    {navLinks.slice(1).map((link) => (
+                    {[
+                      { name: "Materials", path: "/materials", icon: List },
+                      { name: "Uniforms", path: "/uniforms", icon: GraduationCap },
+                      { name: "Measurements", path: "/measurements", icon: Ruler },
+                    ].map((link) => (
                       <Link
                         key={link.path}
                         to={link.path}
                         onClick={() => setIsMenuOpen(false)}
-                        className={`flex items-center justify-between px-6 py-4 text-sm font-medium border-b border-border/40 transition-all ${location.pathname === link.path
+                        className={`flex items-center gap-4 px-6 py-4 text-sm font-medium border-b border-border/40 transition-all ${location.pathname === link.path
                           ? "bg-orange-50/50 text-orange-700"
                           : "text-foreground hover:bg-muted/30"
                           }`}
                       >
-                        <span className="text-base">{link.name}</span>
-                        <ChevronRight className="w-4 h-4 text-muted-foreground/50" />
+                        <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
+                          location.pathname === link.path ? "bg-orange-100 text-orange-600" : "bg-muted text-muted-foreground")}>
+                          <link.icon className="w-4 h-4" />
+                        </div>
+                        <span className="text-base font-semibold text-foreground">{link.name}</span>
+                        <ChevronRight className="w-4 h-4 ml-auto text-muted-foreground/50" />
                       </Link>
                     ))}
                   </nav>
@@ -211,10 +229,8 @@ export function Header() {
                 Home
               </span>
               {location.pathname === "/" && (
-                <motion.div
+                <div
                   className="absolute bottom-0 left-2 right-2 h-0.5 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full"
-                  layoutId="activeNav"
-                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 />
               )}
             </Link>
@@ -243,19 +259,27 @@ export function Header() {
                             <h4 className="font-display font-bold text-base text-gray-900 group-hover/women:text-rose-700 transition-colors">Women's Tailoring</h4>
                           </div>
                           <ul className="grid gap-2">
-                            {categories.map((cat) => (
-                              <li key={cat.id}>
-                                <NavigationMenuLink asChild>
-                                  <Link
-                                    to={`/category/${cat.id}`}
-                                    className="flex items-center justify-between text-sm text-gray-600 hover:text-rose-600 hover:bg-white rounded-lg px-3 py-2 transition-all hover:shadow-sm"
-                                  >
-                                    <span>{cat.name}</span>
-                                    <ChevronRight className="w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-rose-400" />
-                                  </Link>
-                                </NavigationMenuLink>
-                              </li>
-                            ))}
+                            {categories.length > 0 ? (
+                              categories.map((cat) => (
+                                <li key={cat.id}>
+                                  <NavigationMenuLink asChild>
+                                    <Link
+                                      to={`/category/${cat.id}`}
+                                      className="flex items-center justify-between text-sm text-gray-600 hover:text-rose-600 hover:bg-white rounded-lg px-3 py-2 transition-all hover:shadow-sm"
+                                    >
+                                      <span>{cat.name}</span>
+                                      <ChevronRight className="w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-rose-400" />
+                                    </Link>
+                                  </NavigationMenuLink>
+                                </li>
+                              ))
+                            ) : (
+                              <div className="space-y-2 p-3">
+                                <div className="h-4 bg-rose-50 animate-pulse rounded w-3/4" />
+                                <div className="h-4 bg-rose-50 animate-pulse rounded w-1/2" />
+                                <div className="h-4 bg-rose-50 animate-pulse rounded w-2/3" />
+                              </div>
+                            )}
                           </ul>
                         </div>
 
@@ -268,19 +292,27 @@ export function Header() {
                             <h4 className="font-display font-bold text-base text-gray-900 group-hover/men:text-blue-700 transition-colors">Men's Tailoring</h4>
                           </div>
                           <ul className="grid gap-2">
-                            {menCategories.map((cat) => (
-                              <li key={cat.id}>
-                                <NavigationMenuLink asChild>
-                                  <Link
-                                    to={`/category/${cat.id}`}
-                                    className="flex items-center justify-between text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded-lg px-3 py-2 transition-all hover:shadow-sm"
-                                  >
-                                    <span>{cat.name}</span>
-                                    <ChevronRight className="w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-blue-400" />
-                                  </Link>
-                                </NavigationMenuLink>
-                              </li>
-                            ))}
+                            {menCategories.length > 0 ? (
+                              menCategories.map((cat) => (
+                                <li key={cat.id}>
+                                  <NavigationMenuLink asChild>
+                                    <Link
+                                      to={`/category/${cat.id}`}
+                                      className="flex items-center justify-between text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded-lg px-3 py-2 transition-all hover:shadow-sm"
+                                    >
+                                      <span>{cat.name}</span>
+                                      <ChevronRight className="w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-blue-400" />
+                                    </Link>
+                                  </NavigationMenuLink>
+                                </li>
+                              ))
+                            ) : (
+                              <div className="space-y-2 p-3">
+                                <div className="h-4 bg-blue-50 animate-pulse rounded w-3/4" />
+                                <div className="h-4 bg-blue-50 animate-pulse rounded w-1/2" />
+                                <div className="h-4 bg-blue-50 animate-pulse rounded w-2/3" />
+                              </div>
+                            )}
                           </ul>
                         </div>
 
@@ -335,10 +367,8 @@ export function Header() {
                   {link.name}
                 </span>
                 {location.pathname === link.path && (
-                  <motion.div
+                  <div
                     className="absolute bottom-0 left-2 right-2 h-0.5 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full"
-                    layoutId="activeNav"
-                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
                   />
                 )}
               </Link>
@@ -440,6 +470,6 @@ export function Header() {
           </div>
         </div>
       </div>
-    </motion.header>
+    </header>
   );
 }

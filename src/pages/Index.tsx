@@ -1,13 +1,13 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
-import { ArrowRight, Star, Clock, Shield, Sparkles, Ruler, Shirt, Users, GraduationCap, Heart, TrendingUp, CheckCircle2, Flower2, Crown, Gem, Award, Play } from "lucide-react";
+import { ArrowRight, Star, Clock, Shield, Sparkles, Ruler, Shirt, Users, GraduationCap, Heart, TrendingUp, CheckCircle2, Flower2, Crown, Gem, Award, Play, MapPin, Scissors, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/layout/Layout";
 import { CategoryCard } from "@/components/categories/CategoryCard";
 import { DesignCard } from "@/components/designs/DesignCard";
 import { testimonials } from "@/data/mockData";
-import { Design, Category } from "@/data/mockData";
+import { Design, Category } from "@/types/database";
 import { useFirebaseData } from "@/hooks/useFirebaseData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
@@ -40,8 +40,8 @@ const Index = () => {
     allDesigns.filter(d => d.isPopular && d.status === 'approved').slice(0, 8),
     [allDesigns]
   );
-  const featuredCategories = useMemo(() => womenCategories.slice(0, 4), [womenCategories]);
-  const featuredMenCategories = useMemo(() => menCategories.slice(0, 4), [menCategories]);
+  const featuredCategories = useMemo(() => womenCategories, [womenCategories]);
+  const featuredMenCategories = useMemo(() => menCategories, [menCategories]);
 
   // Redirect tailor/admin users
   useEffect(() => {
@@ -75,7 +75,7 @@ const Index = () => {
     <>
       <Layout>
         {/* Hero Section - Stunning Full Width */}
-        <section className="relative min-h-[90vh] flex items-center overflow-hidden">
+        <section className="relative min-h-[70vh] md:min-h-[85vh] lg:min-h-[90vh] flex items-center overflow-hidden">
           {/* Background with Parallax Effect */}
           <div className="absolute inset-0 w-full">
             <motion.img
@@ -137,9 +137,9 @@ const Index = () => {
               {/* Hero Description */}
               <motion.p
                 variants={itemVariants}
-                className="text-white/80 text-lg md:text-xl mb-8 max-w-xl leading-relaxed"
+                className="text-white/80 text-[15px] sm:text-base md:text-xl mb-8 max-w-xl leading-relaxed"
               >
-                Experience bespoke tailoring from the comfort of your home. Choose from 500+ curated designs
+                Experience bespoke tailoring from the comfort of your home. Choose from {allDesigns.length > 0 ? `${allDesigns.length}+` : "curated"} professional designs
                 and receive perfectly fitted garments at your doorstep.
               </motion.p>
 
@@ -165,7 +165,7 @@ const Index = () => {
                 className="flex flex-wrap gap-8 pt-8 border-t border-white/10"
               >
                 {[
-                  { value: "500+", label: "Designs", icon: Gem },
+                  { value: allDesigns.length > 0 ? `${allDesigns.length}+` : "...", label: "Designs", icon: Gem },
                   { value: "10K+", label: "Happy Customers", icon: Heart },
                   { value: "4.9", label: "Rating", icon: Star },
                   { value: "3-7", label: "Days Delivery", icon: Clock },
@@ -214,7 +214,7 @@ const Index = () => {
             {[...Array(2)].map((_, setIndex) => (
               <div key={setIndex} className="flex gap-12">
                 {[
-                  { icon: Star, text: "500+ Premium Designs" },
+                  { icon: Star, text: `${allDesigns.length > 0 ? allDesigns.length : 100}+ Premium Designs` },
                   { icon: Clock, text: "3-7 Days Delivery" },
                   { icon: Shield, text: "Quality Guaranteed" },
                   { icon: Award, text: "Expert Tailors" },
@@ -232,7 +232,7 @@ const Index = () => {
         </section>
 
         {/* Quick Access Services */}
-        <section className="py-20 md:py-28 gradient-mesh">
+        <section className="py-12 md:py-16 gradient-mesh">
           <div className="container px-4">
             <motion.div
               className="text-center mb-14"
@@ -270,7 +270,7 @@ const Index = () => {
                 },
                 {
                   to: "/uniforms",
-                  image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1200&h=600&fit=crop",
+                  image: "https://uniformstride.in/wp-content/uploads/2017/09/Kids-School-Uniform-Manufacturer-In-Coimbatore-HU12-555x620.jpg",
                   icon: GraduationCap,
                   badge: "Bulk Orders",
                   title: "Uniforms",
@@ -355,7 +355,7 @@ const Index = () => {
           </div>
         </section>
 
-        <section className="py-20 md:py-28 bg-muted/30 pattern-dots">
+        <section className="py-12 md:py-16 bg-muted/30 pattern-dots">
           <div className="container px-4">
             <motion.div
               className="flex justify-between items-end mb-12"
@@ -378,7 +378,7 @@ const Index = () => {
               </Button>
             </motion.div>
             <motion.div
-              className="grid grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6"
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 md:gap-6"
               variants={containerVariants}
               initial="hidden"
               whileInView="visible"
@@ -394,7 +394,7 @@ const Index = () => {
         </section>
 
         {/* Men's Categories - New Section */}
-        <section className="py-20 md:py-28 bg-background">
+        <section className="py-12 md:py-16 bg-background">
           <div className="container px-4">
             <motion.div
               className="flex justify-between items-end mb-12"
@@ -417,7 +417,7 @@ const Index = () => {
               </Button>
             </motion.div>
             <motion.div
-              className="grid grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6"
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 md:gap-6"
               variants={containerVariants}
               initial="hidden"
               whileInView="visible"
@@ -433,15 +433,15 @@ const Index = () => {
         </section>
 
         {/* Popular Designs */}
-        <section className="py-20 md:py-28">
+        <section className="py-6 md:py-6">
           <div className="container px-4">
             <motion.div
-              className="text-center mb-14"
+              className="text-center"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
             >
-              <div className="inline-flex items-center gap-2 bg-gold/10 rounded-full px-4 py-1.5 mb-4">
+              <div className="inline-flex items-center gap-2 bg-gold/10 rounded-full px-4 py-1.5 mb-1">
                 <TrendingUp className="w-4 h-4 text-gold" />
                 <span className="text-gold-dark font-semibold text-sm">Trending Now</span>
               </div>
@@ -456,12 +456,15 @@ const Index = () => {
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: i * 0.05 }}
                 >
-                  <DesignCard {...design} />
+                  <DesignCard
+                    {...design}
+                    category={design.categoryName || (design as any).category || "Premium"}
+                  />
                 </motion.div>
               ))}
             </div>
             <motion.div
-              className="text-center mt-12"
+              className="text-center mt-6"
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
@@ -476,8 +479,11 @@ const Index = () => {
           </div>
         </section>
 
-        {/* How It Works */}
-        <section className="py-20 md:py-28 bg-gradient-to-b from-muted/50 to-background">
+        {/* How It Works - Redesigned */}
+        <section className="py-12 md:py-16 bg-gradient-to-b from-muted/50 to-background relative overflow-hidden">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-rose/5 rounded-full blur-3xl -z-10" />
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gold/5 rounded-full blur-3xl -z-10" />
+
           <div className="container px-4">
             <motion.div
               className="text-center mb-16"
@@ -489,36 +495,44 @@ const Index = () => {
                 <Sparkles className="w-4 h-4 text-burgundy" />
                 <span className="text-burgundy font-semibold text-sm">Simple Process</span>
               </div>
-              <h2 className="text-4xl md:text-5xl font-display font-bold">How It <span className="text-gradient-rose">Works</span></h2>
+              <h2 className="text-4xl md:text-5xl font-display font-bold">Your Journey to <span className="text-gradient-rose">Elegance</span></h2>
             </motion.div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-8 relative">
-              {/* Connection Line - Desktop Only */}
-              <div className="hidden md:block absolute top-16 left-[12%] right-[12%] h-0.5 bg-gradient-to-r from-rose via-gold to-burgundy opacity-30" />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative">
+              {/* Connecting Line - Desktop */}
+              <div className="hidden lg:block absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-rose/30 to-transparent -translate-y-1/2 z-0" />
 
               {[
-                { step: "01", title: "Choose", desc: "Browse designs", icon: Heart, color: "from-rose to-rose-dark" },
-                { step: "02", title: "Measure", desc: "Add details", icon: Ruler, color: "from-gold to-gold-dark" },
-                { step: "03", title: "Order", desc: "Checkout", icon: TrendingUp, color: "from-burgundy to-burgundy-light" },
-                { step: "04", title: "Receive", desc: "Home delivery", icon: CheckCircle2, color: "from-rose to-gold" },
+                { step: "01", title: "Discover", desc: "Explore our curated collection or upload your dream design.", icon: Heart, startColor: "from-rose-500", endColor: "to-pink-600" },
+                { step: "02", title: "Measure", desc: "Follow our simple guide or book a home visit for perfect fitting.", icon: Ruler, startColor: "from-amber-500", endColor: "to-orange-600" },
+                { step: "03", title: "Stitch", desc: "Expert tailors bring your vision to life with premium materials.", icon: Scissors, startColor: "from-emerald-500", endColor: "to-teal-600" },
+                { step: "04", title: "Style", desc: "Receive your bespoke outfit at your doorstep, ready to wear.", icon: Sparkles, startColor: "from-blue-500", endColor: "to-indigo-600" },
               ].map((item, i) => (
                 <motion.div
                   key={i}
-                  className="relative text-center"
+                  className="relative z-10 group"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
                 >
-                  <div className="bg-card/50 backdrop-blur-sm md:bg-transparent p-3 rounded-2xl md:p-0 border border-border/30 md:border-0 h-full flex flex-col items-center justify-center">
-                    <motion.div
-                      className={`w-12 h-12 md:w-20 md:h-20 mx-auto mb-3 md:mb-6 rounded-xl md:rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center shadow-luxury`}
-                      whileHover={{ scale: 1.1, rotate: 5 }}
-                    >
-                      <item.icon className="w-6 h-6 md:w-9 md:h-9 text-white" />
-                    </motion.div>
-                    <span className="text-[10px] md:text-xs text-rose font-bold tracking-widest block mb-1">{item.step}</span>
-                    <h3 className="font-display font-bold text-sm md:text-xl mb-1 md:mb-2">{item.title}</h3>
-                    <p className="text-[10px] md:text-sm text-muted-foreground md:max-w-[200px] mx-auto leading-tight">{item.desc}</p>
+                  <div className="bg-card h-full rounded-[2rem] p-8 border border-border/50 shadow-soft hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 relative overflow-hidden">
+                    {/* Hover Gradient Background */}
+                    <div className={`absolute inset-0 bg-gradient-to-br ${item.startColor} ${item.endColor} opacity-5 group-hover:opacity-10 transition-opacity duration-500`} />
+
+                    {/* Step Number */}
+                    <div className="absolute top-4 right-6 text-6xl font-display font-bold text-foreground/5 transition-colors duration-500 select-none">
+                      {item.step}
+                    </div>
+
+                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${item.startColor} ${item.endColor} flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-500`}>
+                      <item.icon className="w-7 h-7 text-white" />
+                    </div>
+
+                    <h3 className="text-xl font-display font-bold mb-3">{item.title}</h3>
+                    <p className="text-muted-foreground text-sm leading-relaxed">
+                      {item.desc}
+                    </p>
                   </div>
                 </motion.div>
               ))}
@@ -526,8 +540,110 @@ const Index = () => {
           </div>
         </section>
 
+
+
+        {/* Empowerment & Social Impact Section */}
+        <section className="py-12 md:py-16 bg-white relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-rose/20 to-transparent" />
+
+          <div className="container px-4">
+            <div className="grid lg:grid-cols-2 gap-12 items-center bg-noir/5 rounded-[40px] p-8 md:p-12 lg:p-16 relative border border-white/50 backdrop-blur-sm overflow-hidden">
+              {/* Background Accents */}
+              <div className="absolute -top-24 -left-24 w-64 h-64 bg-rose/10 rounded-full blur-3xl opacity-50" />
+              <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-gold/10 rounded-full blur-3xl opacity-50" />
+
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+              >
+                <motion.div
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-rose/10 to-gold/10 rounded-full px-5 py-2 mb-6 border border-rose/20 shadow-sm"
+                  whileHover={{ scale: 1.02 }}
+                >
+                  <Sparkles className="w-4 h-4 text-rose" />
+                  <span className="text-rose font-semibold text-xs uppercase tracking-wider">Our Higher Mission</span>
+                </motion.div>
+
+                <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-noir mb-6 leading-tight">
+                  Empowering the <br />
+                  <span className="text-gradient-rose">Women of India</span>
+                </h2>
+
+                <div className="space-y-6 mb-8 text-noir/70 md:max-w-xl">
+                  <p className="text-lg leading-relaxed">
+                    Our core aim is to reach <span className="text-noir font-bold">every pin code across India</span>, bringing economic empowerment to talented women tailors in every corner of the country.
+                  </p>
+                  <p className="text-lg leading-relaxed italic border-l-4 border-rose/30 pl-4">
+                    "We are building a future where professional skill development and world-class heritage craftsmanship meet at your doorstep."
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-4">
+                  <div className="flex items-center gap-3 bg-white/60 backdrop-blur-sm px-6 py-4 rounded-2xl border border-white/50 shadow-sm">
+                    <MapPin className="w-6 h-6 text-rose" />
+                    <div>
+                      <p className="font-bold text-noir">All India Reach</p>
+                      <p className="text-xs text-muted-foreground italic">Every Pin Code Mission</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 bg-white/60 backdrop-blur-sm px-6 py-4 rounded-2xl border border-white/50 shadow-sm">
+                    <Heart className="w-6 h-6 text-rose" />
+                    <div>
+                      <p className="font-bold text-noir">Women Focused</p>
+                      <p className="text-xs text-muted-foreground italic">Economic Independence</p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              <motion.div
+                className="relative"
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+              >
+                <div className="relative z-10 bg-gradient-to-br from-noir to-zinc-800 p-8 md:p-10 rounded-[30px] shadow-2xl border border-white/10 overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-gold/10 rounded-full blur-2xl" />
+
+                  <div className="inline-flex items-center gap-2 bg-gold/20 backdrop-blur-sm rounded-full px-4 py-1.5 mb-6 border border-gold/30">
+                    <Award className="w-4 h-4 text-gold" />
+                    <span className="text-gold font-bold text-[10px] uppercase tracking-widest">Vision 2026</span>
+                  </div>
+
+                  <h3 className="text-2xl md:text-3xl font-display font-bold text-white mb-4">
+                    Skill India Collaboration
+                  </h3>
+
+                  <p className="text-white/70 text-base leading-relaxed mb-8">
+                    <span className="text-gold font-semibold uppercase text-xs tracking-wider block mb-2 underline decoration-gold/30 underline-offset-4">Coming Soon</span>
+                    Our Vision for a Skill-Driven Nation. Official collaboration with Government of India's <span className="text-gold font-bold">Skill India</span> mission in progress.
+                  </p>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-white/5 rounded-2xl p-4 border border-white/10 hover:bg-white/10 transition-colors">
+                      <GraduationCap className="w-6 h-6 text-gold mb-2" />
+                      <p className="text-white text-[11px] font-semibold leading-tight">Certified Skill Training</p>
+                    </div>
+                    <div className="bg-white/5 rounded-2xl p-4 border border-white/10 hover:bg-white/10 transition-colors">
+                      <TrendingUp className="w-6 h-6 text-gold mb-2" />
+                      <p className="text-white text-[11px] font-semibold leading-tight">Growth Opportunities</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Decorative Elements around the card */}
+                <div className="absolute -top-4 -right-4 w-24 h-24 bg-gold/20 rounded-full blur-2xl animate-pulse" />
+                <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-rose/20 rounded-full blur-3xl animate-pulse delay-1000" />
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
         {/* Why Choose Us */}
-        <section className="py-20 md:py-28">
+        <section className="py-12 md:py-16">
           <div className="container px-4">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
               <motion.div
@@ -636,7 +752,7 @@ const Index = () => {
         </section>
 
         {/* Testimonials */}
-        <section className="py-20 md:py-28 bg-gradient-to-b from-muted/30 to-background">
+        <section className="py-12 md:py-16 bg-gradient-to-b from-muted/30 to-background">
           <div className="container px-4">
             <motion.div
               className="text-center mb-14"
@@ -676,6 +792,34 @@ const Index = () => {
                   </div>
                 </motion.div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Newsletter / Updates Section - NEW */}
+        <section className="py-12 md:py-16 bg-muted/20 border-y border-border/50">
+          <div className="container px-4">
+            <div className="bg-card rounded-3xl p-6 md:p-12 shadow-sm border border-border/50 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-rose/5 rounded-full blur-3xl" />
+              <div className="grid md:grid-cols-2 gap-6 md:gap-8 items-center relative z-10">
+                <div className="text-center md:text-left">
+                  <h3 className="text-2xl md:text-3xl font-display font-bold mb-2 md:mb-3">Stay in <span className="text-gradient-rose">Fashion</span></h3>
+                  <p className="text-muted-foreground mb-0 text-sm md:text-base">
+                    Subscribe to our newsletter for exclusive offers, new arrival alerts, and style tips directly to your inbox.
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="relative flex-1">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <input
+                      type="email"
+                      placeholder="Enter your email address"
+                      className="w-full h-11 md:h-12 pl-12 pr-4 rounded-xl border border-input bg-background shadow-sm focus:outline-none focus:ring-2 focus:ring-rose/20 transition-all placeholder:text-muted-foreground/60"
+                    />
+                  </div>
+                  <Button size="lg" className="rounded-xl px-8 w-full sm:w-auto shadow-md hover:shadow-lg transition-all">Subscribe</Button>
+                </div>
+              </div>
             </div>
           </div>
         </section>

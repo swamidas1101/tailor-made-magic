@@ -13,7 +13,7 @@ import {
   orderBy,
   limit
 } from "firebase/firestore";
-import { Design, Category, designs as mockDesigns } from "@/data/mockData";
+import { Design, Category } from "@/types/database";
 
 export const COLLECTION_DESIGNS = "designs";
 export const COLLECTION_CATEGORIES = "categories";
@@ -34,11 +34,10 @@ export const designService = {
     return null;
   },
 
-  getDesignsByCategory: async (categoryName: string): Promise<Design[]> => {
-    // Note: mockData uses 'category' field which matches the Category name
+  getDesignsByCategory: async (categoryId: string): Promise<Design[]> => {
     const q = query(
       collection(db, COLLECTION_DESIGNS),
-      where("category", "==", categoryName)
+      where("categoryId", "==", categoryId)
     );
     const querySnapshot = await getDocs(q);
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Design));
@@ -54,16 +53,20 @@ export const designService = {
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Design));
   },
 
-  createDesign: async (design: Omit<Design, "id">) => {
+  createDesign: async (design: Omit<Design, "id" | "createdAt" | "updatedAt">) => {
     return await addDoc(collection(db, COLLECTION_DESIGNS), {
       ...design,
-      createdAt: serverTimestamp()
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
     });
   },
 
   updateDesign: async (id: string, data: Partial<Design>) => {
     const docRef = doc(db, COLLECTION_DESIGNS, id);
-    await updateDoc(docRef, data);
+    await updateDoc(docRef, {
+      ...data,
+      updatedAt: serverTimestamp()
+    });
   },
 
   deleteDesign: async (id: string) => {
@@ -79,19 +82,12 @@ export const designService = {
       const querySnapshot = await getDocs(q);
       const designs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Design));
 
-      if (designs.length > 0) {
-        // Sort client-side to handle missing createdAt gracefully
-        return designs.sort((a, b) => {
-          const aTime = (a as any).createdAt?.toMillis?.() || 0;
-          const bTime = (b as any).createdAt?.toMillis?.() || 0;
-          return bTime - aTime; // descending
-        });
-      }
-
-      // FALLBACK FOR DEMO: If no designs found in DB, return mock designs
-      // to ensure the UI looks populated as described by the user (3 designs).
-      console.log("No designs found in DB, returning mock designs for demo.");
-      return mockDesigns.slice(0, 3).map(d => ({ ...d, tailorId }));
+      return designs.sort((a, b) => {
+        // Robust sort handling if createdAt is missing or not yet a Timestamp object
+        const aTime = (a as any).createdAt?.toMillis?.() || 0;
+        const bTime = (b as any).createdAt?.toMillis?.() || 0;
+        return bTime - aTime;
+      });
 
     } catch (error) {
       console.error("Error fetching tailor designs:", error);

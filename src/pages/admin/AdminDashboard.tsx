@@ -9,6 +9,7 @@ import {
   LogOut,
   Menu,
   Scissors,
+  Ruler,
   ChevronRight,
   ShieldCheck,
   Sparkles
@@ -24,8 +25,12 @@ const adminNavItems = [
   { name: "Overview", path: "/admin", icon: LayoutDashboard },
   { name: "Tailor Management", path: "/admin/tailors", icon: Users },
   { name: "Design Moderation", path: "/admin/designs", icon: FileCheck },
+  { name: "Categories", path: "/admin/categories", icon: Scissors },
+  { name: "Measurements", path: "/admin/measurements", icon: Ruler },
+  { name: "Filters", path: "/admin/filters", icon: Sparkles },
   { name: "Orders", path: "/admin/orders", icon: ShoppingBag },
   { name: "Analytics", path: "/admin/analytics", icon: BarChart3 },
+  { name: "Database Seeder", path: "/admin/seeder", icon: Sparkles },
 ];
 
 export default function AdminDashboard() {

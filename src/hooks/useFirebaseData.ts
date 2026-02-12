@@ -1,17 +1,23 @@
 import { useState, useEffect, useMemo } from "react";
-import { Design, Category } from "@/data/mockData";
-import { designService, categoryService } from "@/services/designService";
+import { Design, Category } from "@/types/database";
+import { designService } from "@/services/designService";
+import { categoryService } from "@/services/categoryService";
+
+export interface EnrichedCategory extends Category {
+  designCount: number;
+  firstDesignImage?: string;
+}
 
 interface UseFirebaseDataReturn {
   designs: Design[];
   allCategories: Category[];
-  womenCategories: Category[];
-  menCategories: Category[];
+  womenCategories: EnrichedCategory[];
+  menCategories: EnrichedCategory[];
   loading: boolean;
   error: string | null;
 }
 
-// Cache to avoid refetching on every component mount
+// Cache to avoid refetching on every component mount (simple in-memory cache)
 let cachedDesigns: Design[] | null = null;
 let cachedCategories: Category[] | null = null;
 let fetchPromise: Promise<void> | null = null;
@@ -37,7 +43,7 @@ export function useFirebaseData(): UseFirebaseDataReturn {
           try {
             const [fetchedDesigns, fetchedCategories] = await Promise.all([
               designService.getAllDesigns(),
-              categoryService.getAllCategories(),
+              categoryService.getCategories(),
             ]);
             cachedDesigns = fetchedDesigns;
             cachedCategories = fetchedCategories;
@@ -79,7 +85,7 @@ export function useFirebaseData(): UseFirebaseDataReturn {
       .map((cat) => {
         // Find all designs for this category
         const categoryDesigns = designs.filter(
-          (d) => d.category === cat.id || d.category === cat.name || d.category === cat.filterKey
+          (d) => d.categoryId === cat.id && d.status === 'approved'
         );
 
         // Get the first design's image (prefer images[0] if available, fallback to image)
@@ -93,8 +99,7 @@ export function useFirebaseData(): UseFirebaseDataReturn {
           designCount: categoryDesigns.length,
           firstDesignImage,
         };
-      })
-      .filter((cat) => cat.designCount > 0); // Only show categories with at least one design
+      });
   }, [womenCategories, designs]);
 
   const enrichedMenCategories = useMemo(() => {
@@ -102,7 +107,7 @@ export function useFirebaseData(): UseFirebaseDataReturn {
       .map((cat) => {
         // Find all designs for this category
         const categoryDesigns = designs.filter(
-          (d) => d.category === cat.id || d.category === cat.name || d.category === cat.filterKey
+          (d) => d.categoryId === cat.id && d.status === 'approved'
         );
 
         // Get the first design's image (prefer images[0] if available, fallback to image)
@@ -116,8 +121,7 @@ export function useFirebaseData(): UseFirebaseDataReturn {
           designCount: categoryDesigns.length,
           firstDesignImage,
         };
-      })
-      .filter((cat) => cat.designCount > 0); // Only show categories with at least one design
+      });
   }, [menCategories, designs]);
 
   return {
