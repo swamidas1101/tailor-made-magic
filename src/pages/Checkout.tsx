@@ -8,92 +8,25 @@ import { useCart } from "@/contexts/CartContext";
 import { userService, Address } from "@/services/userService";
 import { orderService, Order, OrderItem } from "@/services/orderService";
 import { promoCodeService, PromoCode } from "@/services/promoCodeService";
+import { settingsService, AppSettings } from "@/services/settingsService";
 import { handleCustomError, showSuccess, showInfo } from "@/lib/toastUtils";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
-// Mini Payment Modal Component
+// Declare Razorpay for TypeScript
+declare global {
+    interface Window {
+        Razorpay: any;
+    }
+}
+
+// Mini Payment Modal Component - Now used as a "Processing" overlay or status indicator
 function PaymentModal({ isOpen, onClose, onConfirm, amount }: { isOpen: boolean, onClose: () => void, onConfirm: () => void, amount: number }) {
-    const [step, setStep] = useState(1);
-
-    useEffect(() => {
-        if (isOpen) {
-            setStep(1);
-            const timer = setTimeout(() => setStep(2), 2000); // Simulate processing
-            return () => clearTimeout(timer);
-        }
-    }, [isOpen]);
-
-    return (
-        <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="sm:max-w-[400px] p-0 overflow-hidden border-none shadow-2xl rounded-3xl">
-                <div className="bg-gradient-to-br from-slate-900 to-slate-800 p-8 text-white relative">
-                    <DialogHeader className="sr-only">
-                        <DialogTitle>Secure Payment</DialogTitle>
-                        <DialogDescription>Gateway for secure UPI and card payments.</DialogDescription>
-                    </DialogHeader>
-                    <div className="absolute top-4 right-4 opacity-20">
-                        <ShieldCheck className="w-12 h-12" />
-                    </div>
-
-                    <h2 className="text-xl font-bold mb-1">Secure Payment</h2>
-                    <p className="text-slate-400 text-sm mb-6 flex items-center gap-1.5">
-                        <Lock className="w-3 h-3" /> Encrypted Transaction
-                    </p>
-
-                    <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10 mb-6">
-                        <div className="flex justify-between items-center mb-1">
-                            <span className="text-xs text-slate-400 uppercase tracking-wider">Amount to Pay</span>
-                            <Badge variant="secondary" className="bg-orange-500/20 text-orange-400 border-none">Personalized</Badge>
-                        </div>
-                        <div className="text-3xl font-black flex items-center">
-                            <IndianRupee className="w-6 h-6" />
-                            {amount.toLocaleString()}
-                        </div>
-                    </div>
-
-                    <div className="space-y-4">
-                        {step === 1 ? (
-                            <div className="flex flex-col items-center py-4">
-                                <Loader2 className="w-10 h-10 text-orange-500 animate-spin mb-4" />
-                                <p className="text-slate-300 animate-pulse">Connecting to server...</p>
-                            </div>
-                        ) : (
-                            <motion.div
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="space-y-4 text-center"
-                            >
-                                <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700 flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center">
-                                            <Smartphone className="w-5 h-5 text-slate-300" />
-                                        </div>
-                                        <div className="text-left">
-                                            <p className="text-sm font-bold">UPI / Cards</p>
-                                            <p className="text-[10px] text-slate-400">All Indian Banks Supported</p>
-                                        </div>
-                                    </div>
-                                    <Badge variant="outline" className="text-green-500 border-green-500/30 text-[10px]">Ready</Badge>
-                                </div>
-                                <Button
-                                    className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold h-12 rounded-xl text-lg shadow-lg"
-                                    onClick={onConfirm}
-                                >
-                                    Pay Now
-                                </Button>
-                                <p className="text-[10px] text-slate-500">
-                                    By clicking Pay Now, you agree to the Terms of Service.
-                                </p>
-                            </motion.div>
-                        )}
-                    </div>
-                </div>
-            </DialogContent>
-        </Dialog>
-    );
+    // This component is now deprecated in favor of real Razorpay popup, 
+    // but kept as a fallback or for the "Secure Payment" branding before redirect
+    return null;
 }
 
 export default function Checkout() {
@@ -107,7 +40,7 @@ export default function Checkout() {
     const [appliedPromo, setAppliedPromo] = useState<PromoCode | null>(null);
     const [isPlacingOrder, setIsPlacingOrder] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [appSettings, setAppSettings] = useState<AppSettings | null>(null);
     const [availablePromos, setAvailablePromos] = useState<PromoCode[]>([]);
     const [showPromoDropdown, setShowPromoDropdown] = useState(false);
 
@@ -126,12 +59,39 @@ export default function Checkout() {
         }
 
         if (user) {
-            loadAddresses();
-            loadPromos();
+            loadInitialData();
         } else {
             setLoading(false);
         }
     }, [user, authLoading, navigate, cartItems.length]);
+
+    async function loadInitialData() {
+        if (!user) return;
+        setLoading(true);
+        try {
+            const [savedAddresses, promos, settings] = await Promise.all([
+                userService.getSavedAddresses(user.uid),
+                promoCodeService.getActivePromos(),
+                settingsService.getSettings()
+            ]);
+
+            setAddresses(savedAddresses);
+            setAvailablePromos(promos);
+            setAppSettings(settings);
+
+            const defaultAddr = savedAddresses.find(a => a.isDefault);
+            if (defaultAddr) {
+                setSelectedAddressId(defaultAddr.id);
+            } else if (savedAddresses.length > 0) {
+                setSelectedAddressId(savedAddresses[0].id);
+            }
+        } catch (error) {
+            console.error("Failed to load initial data:", error);
+            handleCustomError(error, "Failed to load checkout details.");
+        } finally {
+            setLoading(false);
+        }
+    }
 
     async function loadPromos() {
         try {
@@ -177,7 +137,7 @@ export default function Checkout() {
         if (appliedPromo?.discountType === 'free_delivery' || appliedPromo?.code === 'FREEDEL') {
             return 0;
         }
-        return DELIVERY_FEE;
+        return appSettings?.deliveryCharge || DELIVERY_FEE;
     };
 
     const calculateTotal = () => {
@@ -264,16 +224,103 @@ export default function Checkout() {
             return;
         }
 
-        setIsPlacingOrder(true);
-        setShowPaymentModal(false);
+        const address = addresses.find(a => a.id === selectedAddressId);
+        if (!address) {
+            showInfo("Selected address not found");
+            return;
+        }
+
+        if (!appSettings?.razorpayKey || appSettings.razorpayKey.includes("dummy")) {
+            handleCustomError(
+                { code: "missing-config", message: "Razorpay Key ID is not configured. Please add your key in Admin Settings." },
+                "Checkout Error"
+            );
+            return;
+        }
+
+        const finalAmount = calculateTotal();
+
+        // Ensure Razorpay script is loaded
+        const loadRazorpayScript = () => {
+            return new Promise((resolve) => {
+                if (window.Razorpay) {
+                    resolve(true);
+                    return;
+                }
+                const script = document.createElement("script");
+                script.src = "https://checkout.razorpay.com/v1/checkout.js";
+                script.onload = () => resolve(true);
+                script.onerror = () => resolve(false);
+                document.body.appendChild(script);
+            });
+        };
 
         try {
-            const address = addresses.find(a => a.id === selectedAddressId);
-            if (!address) throw new Error("Selected address not found");
+            setIsPlacingOrder(true);
 
-            // Payment simulation successfully completed via PaymentModal
-            const paymentId = "pay_sim_" + Math.random().toString(36).substring(7);
+            console.log("Initializing Razorpay with Key:", appSettings.razorpayKey.substring(0, 8) + "...");
 
+            const isLoaded = await loadRazorpayScript();
+            if (!isLoaded || !window.Razorpay) {
+                console.error("Razorpay SDK Fail: Loaded?", isLoaded, "Window.Razorpay?", !!window.Razorpay);
+                handleCustomError(
+                    { code: "script-load-error", message: "Could not load Razorpay SDK. Please check your internet connection or disable ad-blockers." },
+                    "Payment Error"
+                );
+                setIsPlacingOrder(false);
+                return;
+            }
+
+            // Initialize Razorpay
+            const options = {
+                key: appSettings.razorpayKey,
+                amount: Math.round(finalAmount * 100), // Amount in paise, ensured integer
+                currency: "INR",
+                name: "Tailor Made Magic",
+                description: "Order Payment",
+                handler: async function (response: any) {
+                    console.log("Payment successful, creation order...");
+                    await processOrderCreation(response.razorpay_payment_id, address);
+                },
+                prefill: {
+                    name: user.displayName || address.fullName,
+                    email: user.email || "",
+                    contact: address.phone
+                },
+                notes: {
+                    userId: user.uid,
+                    orderItemsCount: cartItems.length
+                },
+                theme: {
+                    color: "#F97316"
+                },
+                modal: {
+                    ondismiss: function () {
+                        console.log("Razorpay modal dismissed");
+                        setIsPlacingOrder(false);
+                    }
+                }
+            };
+
+            const rzp = new window.Razorpay(options);
+            rzp.on('payment.failed', function (response: any) {
+                console.error("Payment Failed:", response.error);
+                handleCustomError(response.error, "Payment Failed");
+                setIsPlacingOrder(false);
+            });
+
+            rzp.open();
+        } catch (error) {
+            console.error("Razorpay Initialization Error:", error);
+            handleCustomError(error, "Failed to initialize payment gateway. Please check your admin settings.");
+            setIsPlacingOrder(false);
+        }
+    };
+
+    const processOrderCreation = async (paymentId: string, address: Address) => {
+        setIsPlacingOrder(true);
+
+        try {
             const subtotal = calculateSubtotal();
             const discount = calculateDiscount();
             const delivery = getDeliveryFee();
@@ -301,7 +348,7 @@ export default function Checkout() {
             const tailorIds = Array.from(new Set(orderItems.map(item => item.tailorId).filter(id => !!id))) as string[];
 
             const orderData: Omit<Order, "id" | "createdAt"> = {
-                userId: user.uid,
+                userId: user!.uid,
                 items: orderItems,
                 totalAmount: subtotal,
                 deliveryFee: delivery,
@@ -319,7 +366,7 @@ export default function Checkout() {
                     label: address.label || "Home"
                 },
                 paymentStatus: "paid",
-                paymentMethod: "Tailo Secure Sim",
+                paymentMethod: "Razorpay",
                 // For top level backwards compatibility/easy access
                 measurementType: orderItems[0]?.measurementType || 'manual',
                 measurements: orderItems[0]?.measurements || null,
@@ -341,7 +388,7 @@ export default function Checkout() {
 
             navigate("/account", { state: { orderSuccess: true } });
         } catch (error) {
-            handleCustomError(error, "Failed to place order.");
+            handleCustomError(error, "Failed to save order after payment. Please contact support with payment ID: " + paymentId);
         } finally {
             setIsPlacingOrder(false);
         }
@@ -638,7 +685,7 @@ export default function Checkout() {
 
                             <Button
                                 className="w-full rounded-2xl py-6 text-lg font-bold shadow-gold-glow hover:shadow-gold-glow-lg transition-all"
-                                onClick={() => setShowPaymentModal(true)}
+                                onClick={handlePlaceOrder}
                                 disabled={isPlacingOrder || !selectedAddressId}
                             >
                                 {isPlacingOrder ? (
@@ -661,13 +708,6 @@ export default function Checkout() {
                     </div>
                 </div>
             </div>
-
-            <PaymentModal
-                isOpen={showPaymentModal}
-                onClose={() => setShowPaymentModal(false)}
-                onConfirm={handlePlaceOrder}
-                amount={calculateTotal()}
-            />
         </Layout >
     );
 }
