@@ -118,12 +118,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             // If still no roles, we might be in a middle of creation, or it's a broken doc.
             // But we should NOT write "customer" to DB yet.
             const derivedRoles = roles || ["customer"]; // Only for local state, do not persist yet
-            const currentActive = data.activeRole || derivedRoles[0];
+
+            // MULTI-TAB SUPPORT: Use sessionStorage for activeRole to allow different roles in different tabs
+            // We ONLY use data.activeRole if sessionStorage is completely empty (first time in this tab)
+            const sessionActiveRole = sessionStorage.getItem(`activeRole_${currentUser.uid}`) as UserRole | null;
+            const currentActive = sessionActiveRole || data.activeRole || derivedRoles[0];
 
             // Set state only after data is ready
             setUser(currentUser);
             setUserRoles(derivedRoles);
             setActiveRole(currentActive);
+
+            // Ensure sessionStorage is synced FOR THIS TAB
+            if (currentActive) {
+              sessionStorage.setItem(`activeRole_${currentUser.uid}`, currentActive);
+            }
 
             // KYT Data handling remains same...
             if (currentActive === 'tailor') {
@@ -132,13 +141,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
 
             // MIGRATION & REPAIR LOGIC
+            // We only update the DB if roles are missing or if activeRole is literally null in DB
             const needsMigration = data.role && !data.roles;
-            const missingActiveRole = data.roles && !data.activeRole;
+            const missingActiveRoleInDB = data.roles && !data.activeRole;
 
-            if (needsMigration || missingActiveRole) {
+            if (needsMigration || missingActiveRoleInDB) {
               await updateDoc(userDocRef, {
-                roles: derivedRoles, // Will be the migrated [data.role] or existing data.roles
-                activeRole: currentActive,
+                roles: derivedRoles,
+                activeRole: data.activeRole || currentActive,
                 ...(currentActive === 'tailor' && !data.kytStatus ? { kytStatus: 'pending' } : {})
               });
             }
@@ -212,6 +222,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Force update local state to avoid race condition with onAuthStateChanged default
         setUserRoles([role]);
         setActiveRole(role);
+        sessionStorage.setItem(`activeRole_${newUser.uid}`, role);
       } else {
         // Account exists. If they tried to sign up as Tailor but are Customer, we could technically addRole here.
         // For now, let's just warn or handle as login.
@@ -310,6 +321,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       setUserRoles([role]);
       setActiveRole(role);
+      sessionStorage.setItem(`activeRole_${newUser.uid}`, role);
     } catch (error) {
       console.error("Email Signup Error:", error);
       throw error;
@@ -354,6 +366,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       setUserRoles([role]);
       setActiveRole(role);
+      sessionStorage.setItem(`activeRole_${newUser.uid}`, role);
     } catch (error) {
       console.error("OTP Verification Error:", error);
       throw error;
@@ -364,9 +377,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!user) return;
 
     try {
-      // Optimistic update
+      // 1. Update LOCAL TAB state immediately
       setActiveRole(role);
+      sessionStorage.setItem(`activeRole_${user.uid}`, role);
 
+      // 2. Update DB so it's the new default for future sessions/tabs
+      // This is safe because onAuthStateChanged now PRIORITIZES sessionStorage.
+      // Other already-open tabs will NOT be affected because they won't re-run onAuthStateChanged roles logic unless refreshed.
+      // And if they are refreshed, they have their OWN sessionStorage.
       const userDocRef = doc(db, "users", user.uid);
       await updateDoc(userDocRef, {
         activeRole: role
@@ -400,6 +418,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Update local state
       setUserRoles(prev => prev ? [...prev, role] : [role]);
       setActiveRole(role);
+      sessionStorage.setItem(`activeRole_${user.uid}`, role);
     } catch (error) {
       console.error("Error adding role:", error);
       throw error;
@@ -462,6 +481,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await signOut(auth);
       setUserRoles(null);
       setActiveRole(null);
+      // We don't necessarily clear sessionStorage immediately as they might want roles back if they re-login in same tab
+      // But for security, clearing active role key is safer
+      if (user) {
+        sessionStorage.removeItem(`activeRole_${user.uid}`);
+      }
       setKytStatus('pending'); // Reset KYC status to prevent stale state
       setKytData(null);
     } catch (error) {

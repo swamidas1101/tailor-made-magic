@@ -52,19 +52,21 @@ export default function Uniforms() {
               <h2 className="text-3xl md:text-4xl font-display font-bold text-gray-900 mt-2">Tailored for Every Profession</h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
               {[
-                { icon: GraduationCap, title: "Schools", desc: "Durable, comfortable, and smart uniforms for students of all ages.", bg: "bg-orange-100", text: "text-orange-600" },
-                { icon: Stethoscope, title: "Healthcare", desc: "Antimicrobial fabrics designed for comfort during long shifts.", bg: "bg-teal-100", text: "text-teal-600" },
-                { icon: Briefcase, title: "Corporate", desc: "Sharp, professional attire that reflects your company's prestige.", bg: "bg-blue-100", text: "text-blue-600" },
-                { icon: Factory, title: "Industrial", desc: "Rugged, safety-compliant workwear built for tough environments.", bg: "bg-gray-100", text: "text-gray-600" }
+                { icon: GraduationCap, title: "Schools", desc: "Durable & smart uniforms.", bg: "bg-orange-100", text: "text-orange-600" },
+                { icon: Stethoscope, title: "Healthcare", desc: "Comfortable antimicrobial scrubs.", bg: "bg-teal-100", text: "text-teal-600" },
+                { icon: Briefcase, title: "Corporate", desc: "Sharp professional attire.", bg: "bg-blue-100", text: "text-blue-600" },
+                { icon: Factory, title: "Industrial", desc: "Rugged safety workwear.", bg: "bg-gray-100", text: "text-gray-600" }
               ].map((item, index) => (
-                <div key={index} className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 group border border-border/50">
-                  <div className={`w-14 h-14 ${item.bg} ${item.text} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
-                    <item.icon className="w-7 h-7" />
+                <div key={index} className="bg-white p-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 group border border-border/50 flex items-center gap-5">
+                  <div className={`w-12 h-12 flex-shrink-0 ${item.bg} ${item.text} rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform`}>
+                    <item.icon className="w-6 h-6" />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">{item.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed">{item.desc}</p>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-0.5">{item.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-tight">{item.desc}</p>
+                  </div>
                 </div>
               ))}
             </div>

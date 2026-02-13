@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { ShoppingBag, Building2, Mail, Lock, User, Eye, EyeOff, Check, ArrowRight, ArrowLeft, LogOut, ShieldCheck, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +30,7 @@ export default function Auth() {
     } = useAuth();
 
     const navigate = useNavigate();
+    const location = useLocation();
 
     // Tab state
     const [activeTab, setActiveTab] = useState<"signin" | "signup">("signin");
@@ -88,14 +89,18 @@ export default function Auth() {
         else if (activeRole === 'admin') navigate('/admin');
     };
 
-    // Auto-redirect on login
     useEffect(() => {
         if (user && activeRole && !isAddingRole) {
-            if (activeRole === 'customer') navigate('/');
-            else if (activeRole === 'tailor') navigate('/tailor');
-            else if (activeRole === 'admin') navigate('/admin');
+            const destination = location.state?.from;
+            if (destination) {
+                navigate(destination, { replace: true });
+            } else {
+                if (activeRole === 'customer') navigate('/');
+                else if (activeRole === 'tailor') navigate('/tailor');
+                else if (activeRole === 'admin') navigate('/admin');
+            }
         }
-    }, [user, activeRole, isAddingRole, navigate]);
+    }, [user, activeRole, isAddingRole, navigate, location.state]);
 
     // Handle sign in
     const handleSignIn = async (e: React.FormEvent) => {

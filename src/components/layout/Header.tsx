@@ -1,9 +1,8 @@
-import { useState } from "react";
+import { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, Scissors, Phone, Heart, ShoppingBag, ChevronRight, X, Sparkles, ChevronDown, ArrowRight, Bell, List, GraduationCap, Gem, Ruler } from "lucide-react";
+import { Scissors, Phone, Heart, ShoppingBag, ChevronRight, Sparkles, ChevronDown, ArrowRight, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { UserMenu } from "@/components/auth/UserMenu";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
@@ -14,15 +13,8 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { useAuth } from "@/contexts/AuthContext";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
 import { useFirebaseData } from "@/hooks/useFirebaseData";
 
@@ -35,7 +27,6 @@ const navLinks = [
 ];
 
 export function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const { totalItems: cartCount, justAdded } = useCart();
   const { totalItems: wishlistCount } = useWishlist();
@@ -50,157 +41,6 @@ export function Header() {
         <div className="flex items-center justify-between h-16 md:h-18">
           {/* Left: Mobile Menu + Logo */}
           <div className="flex items-center gap-3">
-            {/* Mobile Menu Trigger - Desktop only */}
-            <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-              <SheetTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="hidden lg:flex hover:bg-rose/10"
-                  aria-label="Open menu"
-                >
-                  <Menu className="w-5 h-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-[320px] p-0 bg-card overflow-y-auto">
-                <SheetHeader className="p-6 border-b border-white/10 bg-gradient-to-br from-gray-900 to-black text-white relative overflow-hidden">
-                  <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-                  <div className="absolute -top-10 -right-10 w-32 h-32 bg-orange-500/20 rounded-full blur-3xl"></div>
-
-                  <div className="flex items-center gap-4 relative z-10">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-lg ring-2 ring-white/10">
-                      <Scissors className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="text-left">
-                      <SheetTitle className="font-display font-bold text-xl text-white tracking-wide">Tailo</SheetTitle>
-                      <SheetDescription className="text-xs text-white/60 font-medium uppercase tracking-wider">Premium Tailoring</SheetDescription>
-                    </div>
-                  </div>
-                </SheetHeader>
-
-                <div className="p-0 flex-1 overflow-y-auto">
-                  <nav className="flex flex-col">
-                    <Link
-                      to="/"
-                      onClick={() => setIsMenuOpen(false)}
-                      className={`flex items-center gap-4 px-6 py-4 text-sm font-medium border-b border-border/40 transition-all ${location.pathname === "/"
-                        ? "bg-orange-50/50 text-orange-700"
-                        : "text-foreground hover:bg-muted/30"
-                        }`}
-                    >
-                      <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
-                        location.pathname === "/" ? "bg-orange-100 text-orange-600" : "bg-muted text-muted-foreground")}>
-                        <Sparkles className="w-4 h-4" />
-                      </div>
-                      <span className="text-base font-semibold text-foreground">Home</span>
-                      <ChevronRight className="w-4 h-4 ml-auto text-muted-foreground/50" />
-                    </Link>
-
-                    <Accordion type="single" collapsible className="w-full">
-                      <AccordionItem value="categories" className="border-b border-border/40">
-                        <AccordionTrigger
-                          className={`px-6 py-4 text-sm font-medium hover:no-underline hover:bg-muted/30 data-[state=open]:bg-muted/30 ${location.pathname === '/categories' || location.pathname.includes('/category/')
-                            ? "text-black font-extrabold bg-orange-50/50"
-                            : "text-foreground"
-                            }`}
-                        >
-                          <div className="flex items-center gap-4">
-                            <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
-                              location.pathname.includes('category') ? "bg-orange-100 text-orange-600" : "bg-muted text-muted-foreground")}>
-                              <Gem className="w-4 h-4" />
-                            </div>
-                            <span className="text-base font-semibold">Catalog</span>
-                          </div>
-                        </AccordionTrigger>
-                        <AccordionContent className="pb-0 bg-muted/20">
-                          <div className="flex flex-col">
-                            <Link
-                              to="/categories"
-                              onClick={() => setIsMenuOpen(false)}
-                              className="px-8 py-3 text-sm font-bold text-orange-600 hover:bg-orange-100/30 flex items-center justify-between border-b border-border/20"
-                            >
-                              <span>View All Collections</span>
-                              <ArrowRight className="w-4 h-4" />
-                            </Link>
-
-                            <div className="px-8 py-4">
-                              <p className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-[0.2em] mb-3">Shop Women</p>
-                              <div className="grid grid-cols-1 gap-1">
-                                {categories.map((cat) => (
-                                  <Link
-                                    key={cat.id}
-                                    to={`/category/${cat.id}`}
-                                    onClick={() => setIsMenuOpen(false)}
-                                    className="flex items-center justify-between py-2 text-sm text-foreground/80 hover:text-orange-600 font-medium transition-colors"
-                                  >
-                                    {cat.name}
-                                    <ChevronRight className="w-3 h-3 opacity-30" />
-                                  </Link>
-                                ))}
-                              </div>
-                            </div>
-
-                            <div className="px-8 py-4 bg-muted/5 border-t border-border/10">
-                              <p className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-[0.2em] mb-3">Shop Men</p>
-                              <div className="grid grid-cols-1 gap-1">
-                                {menCategories.map((cat) => (
-                                  <Link
-                                    key={cat.id}
-                                    to={`/category/${cat.id}`}
-                                    onClick={() => setIsMenuOpen(false)}
-                                    className="flex items-center justify-between py-2 text-sm text-foreground/80 hover:text-orange-600 font-medium transition-colors"
-                                  >
-                                    {cat.name}
-                                    <ChevronRight className="w-3 h-3 opacity-30" />
-                                  </Link>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    </Accordion>
-
-                    {[
-                      { name: "Materials", path: "/materials", icon: List },
-                      { name: "Uniforms", path: "/uniforms", icon: GraduationCap },
-                      { name: "Measurements", path: "/measurements", icon: Ruler },
-                    ].map((link) => (
-                      <Link
-                        key={link.path}
-                        to={link.path}
-                        onClick={() => setIsMenuOpen(false)}
-                        className={`flex items-center gap-4 px-6 py-4 text-sm font-medium border-b border-border/40 transition-all ${location.pathname === link.path
-                          ? "bg-orange-50/50 text-orange-700"
-                          : "text-foreground hover:bg-muted/30"
-                          }`}
-                      >
-                        <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
-                          location.pathname === link.path ? "bg-orange-100 text-orange-600" : "bg-muted text-muted-foreground")}>
-                          <link.icon className="w-4 h-4" />
-                        </div>
-                        <span className="text-base font-semibold text-foreground">{link.name}</span>
-                        <ChevronRight className="w-4 h-4 ml-auto text-muted-foreground/50" />
-                      </Link>
-                    ))}
-                  </nav>
-                </div>
-
-                <div className="p-6 border-t border-border bg-muted/10">
-                  <div className="flex flex-col gap-3">
-                    <Button variant="outline" size="lg" className="w-full justify-center border-orange-200 hover:bg-orange-50 hover:text-orange-700 text-orange-900">
-                      <Phone className="w-4 h-4 mr-2" /> Call Support
-                    </Button>
-                    <Button size="lg" className="w-full bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white shadow-lg" asChild>
-                      <Link to="/booking">
-                        <Sparkles className="w-4 h-4 mr-2" />
-                        Book Appointment
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
 
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3 group">
@@ -243,7 +83,6 @@ export function Header() {
                       ? "!text-orange-600 hover:!text-orange-600 data-[state=open]:!text-orange-600"
                       : "!text-foreground/80 hover:!text-foreground/80 data-[state=open]:!text-foreground/80"
                       }`}
-                    onClick={() => window.location.href = '/categories'}
                   >
                     <Link to="/categories" className="mr-1">Categories</Link>
                   </NavigationMenuTrigger>

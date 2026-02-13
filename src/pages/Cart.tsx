@@ -8,9 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { MeasurementSelector } from "@/components/measurements/MeasurementSelector";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 export default function Cart() {
-  const { items, removeFromCart, updateQuantity, updateItemDetails, clearCart, totalItems, totalPrice } = useCart();
+  const { items, removeFromCart, updateQuantity, updateItemDetails, clearCart, totalItems, totalPrice, isLoading } = useCart();
   const navigate = useNavigate();
   const [showMeasurementSelector, setShowMeasurementSelector] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
@@ -31,6 +32,16 @@ export default function Cart() {
       return false;
     });
   }, [items]);
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="container px-4 py-32 flex items-center justify-center">
+          <LoadingSpinner size="lg" />
+        </div>
+      </Layout>
+    );
+  }
 
   if (items.length === 0) {
     return (
@@ -67,62 +78,52 @@ export default function Cart() {
           </Button>
         </div>
 
+        {isCheckoutDisabled && (
+          <div className="mb-6 p-4 rounded-xl bg-orange-50 border border-orange-200 flex items-center gap-4 animate-in fade-in slide-in-from-top-2 duration-500">
+            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
+              <AlertTriangle className="w-5 h-5 text-orange-600" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-orange-900">Please finish tailoring details</p>
+              <p className="text-xs text-orange-700/80">Select stitching type and sizes for each item to proceed with your order.</p>
+            </div>
+          </div>
+        )}
+
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
             {items.map((item) => (
               <div key={item.id} className="bg-card rounded-2xl p-3 sm:p-4 shadow-soft hover:shadow-lg transition-all border border-border/50 group">
-                <div className="flex flex-col gap-3">
-                  {/* Top Row: Image & Basic Info */}
-                  <div className="flex gap-3 items-start">
+                <div className="flex flex-col md:flex-row md:items-center gap-4 lg:gap-6">
+                  {/* Image & Basic Info - ~25% width on desktop */}
+                  <div className="flex gap-3 md:w-[25%] lg:w-[22%] shrink-0">
                     <Link to={item.designId.startsWith('m') ? `/material/${item.designId}` : `/design/${item.designId}`} className="flex-shrink-0">
                       <img
                         src={item.image}
                         alt={item.name}
-                        className="w-20 h-20 xs:w-24 xs:h-24 md:w-28 md:h-28 object-cover rounded-xl group-hover:opacity-90 transition-opacity border border-border/10"
+                        className="w-20 h-20 xs:w-24 xs:h-24 md:w-24 md:h-28 object-cover rounded-xl group-hover:opacity-90 transition-opacity border border-border/10"
                       />
                     </Link>
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start gap-2">
-                        <Link to={item.designId.startsWith('m') ? `/material/${item.designId}` : `/design/${item.designId}`} className="block truncate">
-                          <h3 className="font-bold text-sm group-hover:text-primary transition-colors truncate leading-tight">{item.name}</h3>
+                        <Link to={item.designId.startsWith('m') ? `/material/${item.designId}` : `/design/${item.designId}`} className="block">
+                          <h3 className="font-bold text-sm group-hover:text-primary transition-colors leading-tight">{item.name}</h3>
                         </Link>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-muted-foreground hover:text-destructive h-7 w-7 -mt-1 flex-shrink-0"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            removeFromCart(item.id);
-                          }}
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </Button>
                       </div>
-
-                      <p className="text-[10px] text-muted-foreground mb-1.5 font-medium tracking-tight">by {item.shopName || 'Premium Tailor'}</p>
-
-                      {/* Summary Badges (Compact) */}
-                      <div className="flex flex-wrap gap-1 mt-0.5">
-                        <Badge variant="secondary" className="text-[9px] h-4 py-0 bg-orange-50/80 text-orange-700 hover:bg-orange-50 border-none px-1.5 font-bold">
-                          {item.orderType === 'stitching_and_fabric' ? 'Fabric+Stitching' : 'Stitching Only'}
-                        </Badge>
-                        <Badge variant="outline" className="text-[9px] h-4 py-0 capitalize border-slate-100/50 text-slate-500 px-1.5 font-bold">
-                          {item.measurementType === 'pickup' ? 'Home Pickup' : 'Manual Sizes'}
-                        </Badge>
-                      </div>
+                      <p className="text-[10px] text-muted-foreground mb-1 font-medium tracking-tight">by {item.shopName || 'Premium Tailor'}</p>
                     </div>
                   </div>
 
-                  {/* Tailoring Details Selection - CHIP BASED & COMPACT */}
-                  <div className="space-y-3 pt-3 border-t border-border/5 mb-[-4px]">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {/* Order Type Selection - Chips */}
-                      <div className="flex items-center justify-between gap-2 bg-muted/20 p-1 rounded-full border border-border/30 w-full">
+                  {/* Tailoring Details Selection - ~60% width on desktop */}
+                  <div className="flex-1 space-y-3 md:border-l md:border-r border-border/10 md:px-6 lg:px-10">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 lg:gap-6">
+                      {/* Order Type Selection */}
+                      <div className="flex items-center justify-between gap-1 bg-muted/20 p-1 rounded-full border border-border/30">
                         <button
                           onClick={() => updateItemDetails(item.id, { orderType: 'stitching', withMaterial: false })}
                           className={cn(
-                            "flex-1 h-7 text-[10px] font-black rounded-full transition-all flex items-center justify-center tracking-tight",
+                            "flex-1 h-8 text-[10px] font-black rounded-full transition-all flex items-center justify-center tracking-tight",
                             item.orderType === 'stitching'
                               ? "bg-white text-orange-600 shadow-sm border border-orange-100"
                               : "text-muted-foreground hover:bg-white/40"
@@ -130,28 +131,30 @@ export default function Cart() {
                         >
                           Stitching Only
                         </button>
-                        <button
-                          onClick={() => updateItemDetails(item.id, { orderType: 'stitching_and_fabric', withMaterial: true })}
-                          className={cn(
-                            "flex-1 h-7 text-[10px] font-black rounded-full transition-all flex items-center justify-center tracking-tight",
-                            item.orderType === 'stitching_and_fabric'
-                              ? "bg-white text-orange-600 shadow-sm border border-orange-100"
-                              : "text-muted-foreground hover:bg-white/40"
-                          )}
-                        >
-                          + Fabric
-                        </button>
+                        {item.hasFabricOption !== false && (
+                          <button
+                            onClick={() => updateItemDetails(item.id, { orderType: 'stitching_and_fabric', withMaterial: true })}
+                            className={cn(
+                              "flex-1 h-8 text-[10px] font-black rounded-full transition-all flex items-center justify-center tracking-tight",
+                              item.orderType === 'stitching_and_fabric'
+                                ? "bg-white text-orange-600 shadow-sm border border-orange-100"
+                                : "text-muted-foreground hover:bg-white/40"
+                            )}
+                          >
+                            Stitching + Fabric
+                          </button>
+                        )}
                       </div>
 
-                      {/* Measurement Mode Selection - Chips */}
-                      <div className="flex items-center justify-between gap-2 bg-muted/20 p-1 rounded-full border border-border/30 w-full">
+                      {/* Measurement Mode Selection */}
+                      <div className="flex items-center justify-between gap-1 bg-muted/20 p-1 rounded-full border border-border/30">
                         <button
                           onClick={() => {
                             setSelectedItemId(item.id);
                             setShowMeasurementSelector(true);
                           }}
                           className={cn(
-                            "flex-1 h-7 text-[10px] font-black rounded-full transition-all flex items-center justify-center tracking-tight",
+                            "flex-1 h-8 text-[10px] font-black rounded-full transition-all flex items-center justify-center tracking-tight",
                             item.measurementType === 'manual'
                               ? "bg-white text-orange-600 shadow-sm border border-orange-100"
                               : "text-muted-foreground hover:bg-white/40"
@@ -163,7 +166,7 @@ export default function Cart() {
                         <button
                           onClick={() => updateItemDetails(item.id, { measurementType: 'pickup', measurements: null })}
                           className={cn(
-                            "flex-1 h-7 text-[10px] font-black rounded-full transition-all flex items-center justify-center tracking-tight",
+                            "flex-1 h-8 text-[10px] font-black rounded-full transition-all flex items-center justify-center tracking-tight",
                             item.measurementType === 'pickup'
                               ? "bg-white text-orange-600 shadow-sm border border-orange-100"
                               : "text-muted-foreground hover:bg-white/40"
@@ -174,70 +177,81 @@ export default function Cart() {
                       </div>
                     </div>
 
-                    {/* Pickup Slot Selection - REDUCED HEIGHT */}
+                    {/* Pickup Slot Selection - INLINE */}
                     {item.measurementType === 'pickup' && (
-                      <div className="bg-orange-50/30 p-2.5 rounded-2xl border border-orange-100 flex flex-col gap-2">
-                        <p className="text-[9px] font-black text-orange-800 flex items-center gap-1.5 uppercase tracking-widest pl-1">
-                          <Clock className="w-3 h-3" /> Pickup Slot
+                      <div className="bg-orange-50/40 p-1 rounded-full border border-orange-100/50 flex items-center gap-2 max-w-sm">
+                        <p className="text-[9px] font-black text-orange-800 uppercase tracking-widest shrink-0 flex items-center gap-1 pl-3">
+                          <Clock className="w-2.5 h-2.5" /> Slot:
                         </p>
-                        <div className="grid grid-cols-3 gap-1.5">
-                          {["Morning (9-12)", "Afternoon (12-4)", "Evening (4-7)"].map((slot) => (
-                            <button
-                              key={slot}
-                              onClick={() => updateItemDetails(item.id, {
-                                pickupSlot: { date: new Date().toISOString().split('T')[0], time: slot }
-                              })}
-                              className={cn(
-                                "text-[10px] py-1.5 rounded-lg border transition-all font-black",
-                                item.pickupSlot?.time === slot
-                                  ? "bg-white border-orange-500 text-orange-600 shadow-sm scale-[1.02]"
-                                  : "bg-transparent border-orange-200/30 text-orange-800/40 hover:border-orange-300"
-                              )}
-                            >
-                              {slot.split(" ")[0]}
-                            </button>
-                          ))}
+                        <div className="flex gap-1 flex-1 pr-1">
+                          {["Morning", "Afternoon", "Evening"].map((slot) => {
+                            const fullSlot = slot === "Morning" ? "Morning (9-12)" : slot === "Afternoon" ? "Afternoon (12-4)" : "Evening (4-7)";
+                            return (
+                              <button
+                                key={slot}
+                                onClick={() => updateItemDetails(item.id, {
+                                  pickupSlot: { date: new Date().toISOString().split('T')[0], time: fullSlot }
+                                })}
+                                className={cn(
+                                  "flex-1 text-[9px] h-6 rounded-full border transition-all font-bold",
+                                  item.pickupSlot?.time === fullSlot
+                                    ? "bg-white border-orange-500 text-orange-600 shadow-sm"
+                                    : "bg-transparent border-transparent text-orange-800/40 hover:bg-white/40"
+                                )}
+                              >
+                                {slot}
+                              </button>
+                            );
+                          })}
                         </div>
                       </div>
                     )}
 
-                    {/* Validation Warnings (Compact) */}
+                    {/* Validation Warnings (Inline) */}
                     {(!item.measurementType || (item.measurementType === 'pickup' && !item.pickupSlot)) && (
-                      <div className="flex items-center gap-2.5 p-2 rounded-xl bg-orange-50 border border-orange-100/50">
-                        <div className="w-6 h-6 rounded-lg bg-white flex items-center justify-center shadow-sm shrink-0">
-                          <AlertTriangle className="w-3 h-3 text-orange-600" />
-                        </div>
-                        <p className="text-[9px] font-bold text-orange-800/70 leading-none">
-                          Missing: {!item.measurementType ? 'measurement mode' : 'pickup slot selection'}
+                      <div className="flex items-center gap-2 p-1.5 rounded-lg bg-orange-50/50 border border-orange-100/30">
+                        <AlertTriangle className="w-2.5 h-2.5 text-orange-600" />
+                        <p className="text-[8px] font-bold text-orange-800/70">
+                          Missing: {!item.measurementType ? 'measurement mode' : 'pickup slot'}
                         </p>
                       </div>
                     )}
                   </div>
 
-                  {/* Quantity & Price Row (Tighter) */}
-                  <div className="pt-3 border-t border-border/10 flex items-center justify-between">
-                    <div className="flex items-center gap-3 bg-muted/40 rounded-xl p-1 border border-border/30">
+                  {/* Quantity & Price Section - ~15% width on desktop */}
+                  <div className="flex md:flex-col items-center md:items-end justify-between md:justify-center gap-3 md:w-[15%] shrink-0">
+                    <div className="flex items-center gap-2 bg-muted/40 rounded-xl p-0.5 border border-border/30">
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 hover:bg-white rounded-lg shadow-sm"
+                        className="h-6 w-6 hover:bg-white rounded-lg"
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
                       >
-                        <Minus className="w-3 h-3" />
+                        <Minus className="w-2.5 h-2.5" />
                       </Button>
-                      <span className="w-8 text-center font-bold text-xs">{item.quantity}</span>
+                      <span className="w-6 text-center font-bold text-[10px]">{item.quantity}</span>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 hover:bg-white"
+                        className="h-6 w-6 hover:bg-white rounded-lg"
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
                       >
-                        <Plus className="w-3 h-3" />
+                        <Plus className="w-2.5 h-2.5" />
                       </Button>
                     </div>
-                    <div className="text-right">
-                      <p className="font-bold text-primary text-base">₹{(item.price * item.quantity).toLocaleString()}</p>
-                      <p className="text-[9px] text-muted-foreground line-height-1 mt-[-2px]">₹{item.price.toLocaleString()} each</p>
+                    <div className="text-right flex flex-col items-end">
+                      <div className="flex items-center gap-1">
+                        <p className="font-bold text-primary text-base">₹{(item.price * item.quantity).toLocaleString()}</p>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-muted-foreground hover:text-destructive hidden md:flex"
+                          onClick={() => removeFromCart(item.id)}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
+                      <p className="text-[8px] text-muted-foreground leading-none">₹{item.price.toLocaleString()} each</p>
                     </div>
                   </div>
                 </div>
@@ -272,17 +286,6 @@ export default function Cart() {
                 <span className="text-primary text-2xl">₹{Math.round(totalPrice * 1.18).toLocaleString()}</span>
               </div>
 
-              {/* Promo Code */}
-              <div className="mb-6">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Promo Code"
-                    className="flex-1 px-3 py-2 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                  <Button variant="outline" size="sm" className="font-bold">Apply</Button>
-                </div>
-              </div>
 
               <div className="space-y-3">
                 <Button

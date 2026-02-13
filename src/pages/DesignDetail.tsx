@@ -34,8 +34,14 @@ export default function DesignDetail() {
   useEffect(() => {
     if (design) {
       setActiveImage(design.image);
+      // RESET ALL SELECTIONS ON ID CHANGE (e.g. from Similar Products)
+      setWithMaterial(false);
+      setShowMeasurementSelector(false);
+      setSelectedMeasurements(null);
+      setMeasurementMode(null);
+      setPickupTimeSlot("");
     }
-  }, [design]);
+  }, [id, design?.image]); // Track ID to ensure full reset
 
   const allImages = useMemo(() => {
     if (!design) return [];
@@ -121,7 +127,8 @@ export default function DesignDetail() {
       estimatedDays: design.timeInDays || 7,
       size: "custom",
       quantity: 1,
-      withMaterial
+      withMaterial,
+      hasFabricOption: design.priceWithMaterial > design.price && design.priceWithMaterial > 0
     };
 
     addToCart(cartItem);
@@ -134,7 +141,7 @@ export default function DesignDetail() {
     if (!design) return;
 
     handleAddToCart();
-    navigate("/checkout");
+    navigate("/cart");
   };
 
   const handleWishlist = () => {
@@ -291,7 +298,7 @@ export default function DesignDetail() {
                   {!withMaterial && <Check className="w-3.5 h-3.5 text-orange-600" />}
                 </button>
 
-                {design.priceWithMaterial > 0 && (
+                {design.priceWithMaterial > design.price && (
                   <button
                     type="button"
                     onClick={() => setWithMaterial(true)}

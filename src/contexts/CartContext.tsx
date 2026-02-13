@@ -1,7 +1,7 @@
-import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from "react";
+import { createContext, useContext, useState, useCallback, ReactNode, useEffect, useRef } from "react";
 import { useAuth } from "./AuthContext";
 import { db } from "@/lib/firebase";
-import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 export interface CartItem {
   id: string;
@@ -22,6 +22,7 @@ export interface CartItem {
   tailorId?: string;
   shopName?: string;
   estimatedDays?: number;
+  hasFabricOption?: boolean;
 }
 
 interface CartContextType {
@@ -34,50 +35,91 @@ interface CartContextType {
   totalItems: number;
   totalPrice: number;
   justAdded: boolean;
+  isLoading: boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [items, setItems] = useState<CartItem[]>(() => {
     // Initial load from local storage (for guest or before auth loads)
     const stored = localStorage.getItem("tailo_cart");
     return stored ? JSON.parse(stored) : [];
   });
+  const [isLoading, setIsLoading] = useState(true);
+  const [syncedUid, setSyncedUid] = useState<string | null>(null);
   const [justAdded, setJustAdded] = useState(false);
+  const initialSyncDone = useRef(false);
 
-  // Sync from Firestore when user logs in
+  // Initial sync on mount/login
   useEffect(() => {
-    if (!user) return;
-
-    const userCartRef = doc(db, "users", user.uid);
-    const unsubscribe = onSnapshot(userCartRef, (docSnap) => {
-      if (docSnap.exists() && docSnap.data().cart) {
-        // Determine if we should replace local items. 
-        // For simplicity here, we prioritize Firestore if it exists.
-        // A more complex strategy might merge.
-        setItems(docSnap.data().cart as CartItem[]);
-      } else if (items.length > 0) {
-        // If remote is empty but we have local items (just signed up or first login), sync local -> remote
-        setDoc(userCartRef, { cart: items }, { merge: true });
+    const handleInitialSync = async () => {
+      // 0. WAIT FOR AUTH TO LOAD
+      if (authLoading) {
+        // Keep loading until we know if user is logged in or not
+        return;
       }
-    });
 
-    return () => unsubscribe();
-  }, [user]);
+      // 1. LOGOUT HANDLING
+      if (!user) {
+        if (syncedUid) {
+          setSyncedUid(null);
+          initialSyncDone.current = false;
+        }
+        localStorage.setItem("tailo_cart", JSON.stringify(items));
+        setIsLoading(false);
+        return;
+      }
 
-  // Sync to Storage (Local or Firestore) when items change
+      // 2. ALREADY SYNCED THIS SESSION
+      if (user.uid === syncedUid && initialSyncDone.current) {
+        setIsLoading(false);
+        return;
+      }
+
+      // 3. LOGIN / REFRESH SYNC
+      try {
+        setIsLoading(true);
+        const userCartRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(userCartRef);
+
+        if (docSnap.exists() && docSnap.data().cart) {
+          const remoteItems = docSnap.data().cart as CartItem[];
+          setItems(remoteItems); // Use remote as source of truth on login
+        } else if (items.length > 0) {
+          await setDoc(userCartRef, { cart: items }, { merge: true });
+        }
+
+        localStorage.removeItem("tailo_cart");
+        setSyncedUid(user.uid);
+        initialSyncDone.current = true;
+      } catch (err) {
+        console.error("Cart sync failed:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    handleInitialSync();
+  }, [user?.uid, authLoading]);
+
+  // Sync changes to DB when items change (only after initial sync)
   useEffect(() => {
-    if (user) {
-      const userCartRef = doc(db, "users", user.uid);
-      // We wrap this in a timeout or check to avoid rapid writes? 
-      // Firestore writes are cheap enough for this scale.
-      setDoc(userCartRef, { cart: items }, { merge: true }).catch(console.error);
-    } else {
-      localStorage.setItem("tailo_cart", JSON.stringify(items));
-    }
+    if (!user || !initialSyncDone.current) return;
+
+    const syncToDb = async () => {
+      try {
+        const userCartRef = doc(db, "users", user.uid);
+        await setDoc(userCartRef, { cart: items }, { merge: true });
+      } catch (err) {
+        console.error("Cart update failed:", err);
+      }
+    };
+
+    syncToDb();
   }, [items, user]);
+
 
   const triggerAddAnimation = useCallback(() => {
     setJustAdded(true);
@@ -144,7 +186,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   return (
     <CartContext.Provider
-      value={{ items, addToCart, removeFromCart, updateQuantity, updateItemDetails, clearCart, totalItems, totalPrice, justAdded }}
+      value={{ items, addToCart, removeFromCart, updateQuantity, updateItemDetails, clearCart, totalItems, totalPrice, justAdded, isLoading }}
     >
       {children}
     </CartContext.Provider>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { Scissors, Lock, User, ArrowRight, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,15 +13,20 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const { loginWithEmail, activeRole, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // Redirect based on role when user login state changes
   useEffect(() => {
     if (user && activeRole) {
-      if (activeRole === 'admin') navigate('/admin');
-      else if (activeRole === 'tailor') navigate('/tailor');
-      else navigate('/'); // Customers shouldn't use this portal ideally, but fallback
+      const destination = location.state?.from;
+      if (destination) {
+        navigate(destination, { replace: true });
+      } else {
+        if (activeRole === 'admin') navigate('/admin');
+        else if (activeRole === 'tailor') navigate('/tailor');
+        else navigate('/'); // Customers shouldn't use this portal ideally, but fallback
+      }
     }
-  }, [user, activeRole, navigate]);
+  }, [user, activeRole, navigate, location.state]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -69,37 +69,34 @@ export default function Materials() {
   return (
     <Layout>
       <div className="min-h-screen bg-background">
-        {/* Hero Section */}
-        <section className="relative py-20 md:py-24 overflow-hidden bg-gradient-to-br from-rose-900 via-rose-950 to-orange-950 text-white">
+        {/* Compact Hero Section */}
+        <section className="relative py-12 md:py-16 overflow-hidden bg-gradient-to-br from-rose-900 via-rose-950 to-orange-950 text-white">
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-          <div className="absolute top-0 right-0 w-96 h-96 bg-rose-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-rose-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
 
           <div className="container px-4 relative z-10">
             <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-orange-200 text-xs font-semibold tracking-wider mb-4 uppercase">
+              <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-orange-200 text-[10px] font-bold tracking-widest mb-3 uppercase">
                 <Sparkles className="w-3 h-3" />
-                <span>Premium Collection</span>
+                <span>Fabric Materials</span>
               </div>
-              <h1 className="text-4xl md:text-5xl font-display font-bold mb-4 leading-tight">
-                Exquisite <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-200 to-amber-100">Fabrics</span> & <br />
-                Fine Materials
+              <h1 className="text-3xl md:text-5xl font-display font-bold mb-3 leading-tight">
+                Exquisite <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-200 to-amber-100">Fabrics</span>
               </h1>
-              <p className="text-lg text-orange-100/80 mb-8 max-w-xl leading-relaxed">
-                Explore our curated catalog of the finest textiles, from Italian silks to Egyptian cottons.
-                Sourced globally for your bespoke creations.
+              <p className="text-sm md:text-base text-orange-100/60 mb-6 max-w-lg leading-relaxed">
+                Curated textiles sourced globally for your bespoke creations.
               </p>
 
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-3">
                 <Button
-                  size="lg"
-                  className="bg-white text-orange-950 hover:bg-orange-50 font-semibold shadow-lg shadow-orange-900/20"
+                  size="sm"
+                  className="bg-white text-orange-950 hover:bg-orange-50 font-semibold h-9"
                   onClick={() => document.getElementById('materials-grid')?.scrollIntoView({ behavior: 'smooth' })}
                 >
-                  Browse Collection <ArrowRight className="w-4 h-4 ml-2" />
+                  Browse <ArrowRight className="w-4 h-4 ml-1.5" />
                 </Button>
-                <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 hover:text-white backdrop-blur-sm">
-                  Material Guide
+                <Button size="sm" variant="outline" className="border-white/30 text-white hover:bg-white/10 hover:text-white backdrop-blur-sm h-9">
+                  Guide
                 </Button>
               </div>
             </div>

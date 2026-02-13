@@ -283,21 +283,21 @@ export default function Categories() {
   return (
     <Layout>
       <div className="min-h-screen bg-background">
-        {/* Hero Section */}
-        <section className="relative py-20 md:py-32 overflow-hidden bg-gradient-to-br from-rose-900 via-rose-950 to-black text-white">
+        {/* Compact Hero Section */}
+        <section className="relative py-12 md:py-16 overflow-hidden bg-gradient-to-br from-rose-900 via-rose-950 to-black text-white">
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-          <div className="absolute top-0 right-0 w-96 h-96 bg-rose-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-rose-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
 
           <div className="container px-4 relative z-10 text-center">
-            <span className="inline-block py-1 px-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-gold text-xs font-semibold tracking-wider mb-4 uppercase">
-              Premium Collection
+            <span className="inline-block py-0.5 px-2.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-gold text-[10px] font-bold tracking-widest mb-3 uppercase">
+              Premium Catalog
             </span>
-            <h1 className="text-4xl md:text-6xl font-display font-bold mb-6">
+            <h1 className="text-3xl md:text-5xl font-display font-bold mb-3">
               Explore Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-200 to-amber-200">Catalog</span>
             </h1>
-            <p className="text-white/70 max-w-2xl mx-auto text-lg leading-relaxed">
-              From traditional craftsmanship to contemporary elegance. Discover designs tailored to perfection for every occasion.
+            <p className="text-white/60 max-w-xl mx-auto text-sm md:text-base leading-relaxed">
+              Traditional craftsmanship meets contemporary elegance.
+              Discover designs tailored to perfection.
             </p>
           </div>
         </section>

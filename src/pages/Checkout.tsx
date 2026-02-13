@@ -108,6 +108,8 @@ export default function Checkout() {
     const [isPlacingOrder, setIsPlacingOrder] = useState(false);
     const [loading, setLoading] = useState(true);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [availablePromos, setAvailablePromos] = useState<PromoCode[]>([]);
+    const [showPromoDropdown, setShowPromoDropdown] = useState(false);
 
     const DELIVERY_FEE = 99;
 
@@ -125,10 +127,20 @@ export default function Checkout() {
 
         if (user) {
             loadAddresses();
+            loadPromos();
         } else {
             setLoading(false);
         }
     }, [user, authLoading, navigate, cartItems.length]);
+
+    async function loadPromos() {
+        try {
+            const promos = await promoCodeService.getActivePromos();
+            setAvailablePromos(promos);
+        } catch (error) {
+            console.error("Failed to load promos:", error);
+        }
+    }
 
     async function loadAddresses() {
         if (!user) return;
@@ -207,7 +219,46 @@ export default function Checkout() {
         }
     };
 
+    const selectPromo = (code: string) => {
+        setPromoCode(code);
+        setShowPromoDropdown(false);
+        // We need to use the code directly because state update is async
+        handleApplySelectedPromo(code);
+    };
+
+    const handleApplySelectedPromo = async (code: string) => {
+        const subtotal = calculateSubtotal();
+        try {
+            const result = await promoCodeService.validatePromo(code, subtotal);
+            if (result.valid && result.promo) {
+                setAppliedPromo(result.promo);
+                showSuccess("Promo code applied successfully!");
+            } else {
+                handleCustomError({ code: "invalid-promo", message: result.message }, "Invalid promo code");
+            }
+        } catch (error) {
+            handleCustomError(error, "Failed to apply promo code.");
+        }
+    };
+
     const handlePlaceOrder = async () => {
+        const incompleteItems = cartItems.filter(item =>
+            !item.measurementType ||
+            (item.measurementType === 'pickup' && !item.pickupSlot) ||
+            (item.measurementType === 'manual' && (!item.measurements || Object.keys(item.measurements).length === 0))
+        );
+
+        if (incompleteItems.length > 0) {
+            handleCustomError(
+                { code: "missing-details", message: "Some items are missing tailoring details." },
+                "Please complete all items before placing order."
+            );
+            // Scroll to items section
+            const itemsElement = document.getElementById('review-items-section');
+            if (itemsElement) itemsElement.scrollIntoView({ behavior: 'smooth' });
+            return;
+        }
+
         if (!user || cartItems.length === 0 || !selectedAddressId) {
             if (!selectedAddressId) showInfo("Please select a delivery address.");
             return;
@@ -323,7 +374,11 @@ export default function Checkout() {
                     </Button>
                     <div>
                         <h1 className="text-3xl font-display font-bold">Secure Checkout</h1>
-                        <p className="text-muted-foreground">Complete your order to start the magic</p>
+                        <p className="text-muted-foreground flex items-center gap-2">
+                            Complete your order to start the magic
+                            <span className="text-xs text-muted-foreground/40">•</span>
+                            <Link to="/cart" className="text-orange-600 hover:text-orange-700 font-bold hover:underline">Edit Cart</Link>
+                        </p>
                     </div>
                 </div>
 
@@ -393,7 +448,7 @@ export default function Checkout() {
 
                         {/* Order Details Section */}
                         <section className="bg-card rounded-2xl border border-border overflow-hidden p-6 shadow-sm">
-                            <div className="flex items-center gap-2 mb-6">
+                            <div className="flex items-center gap-2 mb-6" id="review-items-section">
                                 <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center">
                                     <Check className="w-4 h-4 text-orange-600" />
                                 </div>
@@ -401,35 +456,64 @@ export default function Checkout() {
                             </div>
 
                             <div className="space-y-4">
-                                {cartItems.map((item, idx) => (
-                                    <div key={item.id} className="flex gap-4 p-4 rounded-xl bg-muted/20 border border-border/40">
-                                        <div className="w-20 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
-                                            <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                                        </div>
-                                        <div className="flex-1">
-                                            <div className="flex justify-between">
-                                                <div>
-                                                    <h3 className="font-bold text-base">{item.name}</h3>
-                                                    {item.shopName && <p className="text-xs text-muted-foreground">Tailored by: {item.shopName}</p>}
-                                                </div>
-                                                <p className="font-bold text-base">₹{item.price.toLocaleString()}</p>
+                                {cartItems.map((item, idx) => {
+                                    const isComplete = item.measurementType && (
+                                        (item.measurementType === 'pickup' && item.pickupSlot) ||
+                                        (item.measurementType === 'manual' && item.measurements && Object.keys(item.measurements).length > 0)
+                                    );
+
+                                    return (
+                                        <div key={item.id} className={`flex gap-4 p-4 rounded-xl border transition-all ${isComplete ? "bg-muted/20 border-border/40" : "bg-red-50/50 border-red-200 ring-1 ring-red-100"
+                                            }`}>
+                                            <div className="w-20 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-muted relative">
+                                                <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                                                {!isComplete && (
+                                                    <div className="absolute inset-x-0 bottom-0 bg-red-600 text-white text-[8px] font-black py-0.5 text-center uppercase">Incomplete</div>
+                                                )}
                                             </div>
-                                            <div className="flex flex-wrap gap-2 mt-2">
-                                                <Badge variant="outline" className="text-[10px] bg-muted/30">
-                                                    {item.orderType === 'stitching_and_fabric' ? 'Stitching + Fabric' : 'Stitching Only'}
-                                                </Badge>
-                                                <Badge variant="outline" className="text-[10px] bg-muted/30 capitalize">
-                                                    {item.measurementType === 'pickup' ? 'Measure at Pickup' : 'Custom Measurements'}
-                                                </Badge>
-                                                {item.pickupSlot && (
-                                                    <Badge variant="outline" className="text-[10px] bg-orange-50 text-orange-700 border-orange-200">
-                                                        Slot: {item.pickupSlot.time}
+                                            <div className="flex-1">
+                                                <div className="flex justify-between">
+                                                    <div>
+                                                        <h3 className="font-bold text-base">{item.name}</h3>
+                                                        {item.shopName && <p className="text-xs text-muted-foreground">Tailored by: {item.shopName}</p>}
+                                                    </div>
+                                                    <p className="font-bold text-base">₹{item.price.toLocaleString()}</p>
+                                                </div>
+                                                <div className="flex flex-wrap gap-2 mt-2">
+                                                    <Badge variant="outline" className={`text-[10px] ${!item.orderType ? "text-red-600 border-red-200" : "bg-muted/30"}`}>
+                                                        {item.orderType === 'stitching_and_fabric' ? 'Stitching + Fabric' : 'Stitching Only'}
                                                     </Badge>
+                                                    <Badge variant="outline" className={`text-[10px] capitalize ${!item.measurementType ? "text-red-600 border-red-200 bg-red-50" : "bg-muted/30"}`}>
+                                                        {!item.measurementType ? "Missing Details" :
+                                                            item.measurementType === 'pickup' ? 'Measure at Pickup' : 'Custom Measurements'}
+                                                    </Badge>
+                                                    {item.pickupSlot && (
+                                                        <Badge variant="outline" className="text-[10px] bg-orange-50 text-orange-700 border-orange-200">
+                                                            Slot: {item.pickupSlot.time}
+                                                        </Badge>
+                                                    )}
+                                                    {item.measurementType === 'pickup' && !item.pickupSlot && (
+                                                        <Badge variant="outline" className="text-[10px] text-red-600 border-red-200 bg-red-50">Missing Time Slot</Badge>
+                                                    )}
+                                                </div>
+
+                                                {!isComplete && (
+                                                    <div className="mt-3 flex justify-end">
+                                                        <Button
+                                                            variant="link"
+                                                            className="text-orange-600 h-auto p-0 text-xs font-bold font-display"
+                                                            asChild
+                                                        >
+                                                            <Link to="/cart">
+                                                                Fix Details <ArrowRight className="w-3 h-3 ml-1" />
+                                                            </Link>
+                                                        </Button>
+                                                    </div>
                                                 )}
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </section>
                     </div>
@@ -476,21 +560,25 @@ export default function Checkout() {
                             </div>
 
                             {/* Promo Code Input */}
-                            <div className="mb-8">
-                                <div className="flex gap-2 relative">
-                                    <Ticket className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <div className="mb-8 relative promo-container">
+                                <div className="flex gap-2 relative items-center">
+                                    <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none transition-transform duration-200">
+                                        <Ticket className="w-4 h-4 text-muted-foreground" />
+                                    </div>
                                     <input
                                         type="text"
                                         placeholder="Promo Code"
                                         value={promoCode}
                                         onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                                        onFocus={() => setShowPromoDropdown(true)}
+                                        onBlur={() => setTimeout(() => setShowPromoDropdown(false), 200)}
                                         disabled={!!appliedPromo}
-                                        className="pl-9 pr-3 py-2 w-full text-sm border-2 border-border rounded-xl bg-background outline-none focus:border-orange-400 transition-colors uppercase font-medium"
+                                        className="pl-9 pr-3 py-2.5 w-full text-xs sm:text-sm border-2 border-border rounded-xl bg-background outline-none focus:border-orange-400 transition-all uppercase font-semibold placeholder:text-muted-foreground/50"
                                     />
                                     {appliedPromo ? (
                                         <button
                                             onClick={() => { setAppliedPromo(null); setPromoCode(""); }}
-                                            className="text-destructive font-bold text-xs px-2"
+                                            className="text-destructive font-black text-[10px] uppercase px-2 hover:opacity-80 transition-opacity"
                                         >
                                             Remove
                                         </button>
@@ -500,15 +588,50 @@ export default function Checkout() {
                                             size="sm"
                                             onClick={handleApplyPromo}
                                             disabled={!promoCode}
-                                            className="rounded-lg font-bold"
+                                            className="rounded-lg font-bold text-xs h-9 px-4 shadow-sm"
                                         >
                                             Apply
                                         </Button>
                                     )}
                                 </div>
-                                {!appliedPromo && (
+
+                                <AnimatePresence>
+                                    {showPromoDropdown && !appliedPromo && availablePromos.length > 0 && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: -5, scale: 0.98 }}
+                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                            exit={{ opacity: 0, y: -5, scale: 0.98 }}
+                                            className="absolute left-0 right-0 top-full mt-2 bg-white border border-border rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] z-50 overflow-hidden max-h-56 overflow-y-auto"
+                                        >
+                                            <div className="px-3 py-1.5 border-b border-border bg-orange-50/30">
+                                                <p className="text-[9px] uppercase font-black text-orange-800/60 tracking-widest">Available Offers</p>
+                                            </div>
+                                            {availablePromos.map((promo) => (
+                                                <button
+                                                    key={promo.id}
+                                                    onClick={() => selectPromo(promo.code)}
+                                                    className="w-full text-left p-2.5 hover:bg-orange-50 transition-colors border-b border-border/50 last:border-0 group"
+                                                >
+                                                    <div className="flex justify-between items-center mb-0.5">
+                                                        <span className="font-black text-sm text-orange-600 group-hover:scale-[1.02] transition-transform origin-left">{promo.code}</span>
+                                                        <Badge variant="secondary" className="bg-green-50 text-green-700 text-[9px] border-none font-black h-4 px-1.5">
+                                                            {promo.discountType === 'percentage' ? `${promo.value}% OFF` :
+                                                                promo.discountType === 'fixed' ? `₹${promo.value} OFF` : 'FREE DELIVERY'}
+                                                        </Badge>
+                                                    </div>
+                                                    <p className="text-[9px] text-muted-foreground/80 font-medium leading-tight line-clamp-1">{promo.description}</p>
+                                                    {promo.minOrderAmount > 0 && (
+                                                        <p className="text-[8px] text-orange-500/70 mt-1 font-bold uppercase tracking-tight">Orders above ₹{promo.minOrderAmount}</p>
+                                                    )}
+                                                </button>
+                                            ))}
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+
+                                {!appliedPromo && !showPromoDropdown && (
                                     <p className="text-[10px] text-muted-foreground mt-2 pl-1">
-                                        Try <span className="font-bold text-orange-600 cursor-pointer" onClick={() => setPromoCode("FREEDEL")}>FREEDEL</span> for free pickup & delivery
+                                        Try <span className="font-bold text-orange-600 cursor-pointer" onClick={() => selectPromo("FREEDEL")}>FREEDEL</span> for free pickup & delivery
                                     </p>
                                 )}
                             </div>
@@ -545,6 +668,6 @@ export default function Checkout() {
                 onConfirm={handlePlaceOrder}
                 amount={calculateTotal()}
             />
-        </Layout>
+        </Layout >
     );
 }
