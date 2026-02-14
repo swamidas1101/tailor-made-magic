@@ -4,21 +4,23 @@ import { toast } from 'sonner';
 // Declare the global build time variable injected by Vite
 declare const __BUILD_TIME__: string;
 
-const CHECK_INTERVAL = 3 * 60 * 1000; // Check every 3 minutes
+const CHECK_INTERVAL = 5 * 60 * 1000; // Check every 5 minutes
+const IS_DEV = import.meta.env.DEV;
 
 export function useVersionCheck() {
     const notifiedRef = useRef(false);
 
     useEffect(() => {
+        // Skip version checks in development mode to avoid infinite loops
+        if (IS_DEV) return;
+
         const checkVersion = async () => {
             try {
                 // Fetch version.json with cache busting
                 const response = await fetch(`/version.json?t=${Date.now()}`, {
                     cache: 'no-cache',
                     headers: {
-                        'Cache-Control': 'no-cache, no-store, must-revalidate',
-                        'Pragma': 'no-cache',
-                        'Expires': '0'
+                        'Cache-Control': 'no-cache, no-store, must-revalidate'
                     }
                 });
 
@@ -28,16 +30,24 @@ export function useVersionCheck() {
                 const deployedTimestamp = data.timestamp;
                 const currentBuildTime = __BUILD_TIME__;
 
+                // Check if we already notified/handled this specific version in this session
+                const lastNotified = sessionStorage.getItem('last_version_notified');
+
                 // Compare timestamps to detect a newer deployment
-                if (deployedTimestamp && deployedTimestamp !== currentBuildTime && !notifiedRef.current) {
+                if (deployedTimestamp &&
+                    deployedTimestamp !== currentBuildTime &&
+                    deployedTimestamp !== lastNotified &&
+                    !notifiedRef.current) {
+
                     notifiedRef.current = true;
+                    sessionStorage.setItem('last_version_notified', deployedTimestamp);
 
                     toast.info("Update Available", {
                         description: "A new version of Tailo is ready with latest updates.",
                         action: {
                             label: "Update Now",
                             onClick: async () => {
-                                // Clear all caches before reload for a clean start
+                                // Clear all caches before reload
                                 if ('caches' in window) {
                                     const cacheNames = await caches.keys();
                                     await Promise.all(cacheNames.map(name => caches.delete(name)));
@@ -45,11 +55,11 @@ export function useVersionCheck() {
                                 window.location.reload();
                             }
                         },
-                        duration: Infinity, // Keep until user acts or dismisses
+                        duration: Infinity,
                     });
                 }
             } catch (error) {
-                console.log('Version check failed:', error);
+                console.warn('Version check failed:', error);
             }
         };
 
