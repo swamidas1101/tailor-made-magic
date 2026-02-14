@@ -6,11 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth, UserRole } from "@/contexts/AuthContext";
 import { Layout } from "@/components/layout/Layout";
 
 export default function CustomerAuth() {
-  const { loginWithEmail, signupWithEmail, loginWithGoogle, user, activeRole: userRole } = useAuth();
+  const { loginWithEmail, signupWithEmail, loginWithGoogle, completeProfile, user, activeRole: userRole } = useAuth();
   const navigate = useNavigate();
 
   const [loginEmail, setLoginEmail] = useState("");
@@ -58,7 +58,13 @@ export default function CustomerAuth() {
     setIsLoading(true);
 
     try {
-      await signupWithEmail(signupEmail, signupPassword, signupName, "customer");
+      const userResult = await signupWithEmail(signupEmail, signupPassword);
+      await completeProfile(userResult.uid, {
+        name: signupName,
+        dob: '',
+        role: 'customer' as UserRole,
+        email: signupEmail
+      });
       toast.success("Account created successfully!");
       navigate("/");
     } catch (error: any) {
