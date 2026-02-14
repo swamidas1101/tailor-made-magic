@@ -377,7 +377,7 @@ export default function Auth() {
                                                     </div>
                                                     <div className="relative">
                                                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                                                        <Input id="signin-password" type={showSignInPassword ? "text" : "password"} value={signInPassword} onChange={(e) => setSignInPassword(e.target.value)} className="pl-10 pr-10" required />
+                                                        <Input id="signin-password" type={showSignInPassword ? "text" : "password"} placeholder="Enter password" value={signInPassword} onChange={(e) => setSignInPassword(e.target.value)} className="pl-10 pr-10" required />
                                                         <button type="button" onClick={() => setShowSignInPassword(!showSignInPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                                                             {showSignInPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                                         </button>

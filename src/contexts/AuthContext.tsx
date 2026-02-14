@@ -34,7 +34,14 @@ export interface AuthContextType {
   signupWithEmail: (email: string, password: string) => Promise<User>;
   signupWithPhone: (phoneNumber: string, recaptchaVerifier: RecaptchaVerifier) => Promise<ConfirmationResult>;
   verifyPhoneOTP: (confirmationResult: ConfirmationResult, otp: string) => Promise<User>;
-  completeProfile: (uid: string, data: { name: string; dob: string; role: UserRole; businessDetails?: BusinessDetails }) => Promise<void>;
+  completeProfile: (uid: string, data: {
+    name: string;
+    dob: string;
+    role: UserRole;
+    email?: string;
+    phone?: string;
+    businessDetails?: BusinessDetails
+  }) => Promise<void>;
   switchRole: (role: UserRole) => Promise<void>;
   addRole: (role: UserRole, businessDetails?: BusinessDetails) => Promise<void>;
   checkExistingAccount: (email: string) => Promise<{ exists: boolean; roles?: UserRole[] }>;

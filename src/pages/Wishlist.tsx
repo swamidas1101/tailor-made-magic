@@ -1,16 +1,18 @@
 import { Link } from "react-router-dom";
-import { Heart, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
+import { ArrowRight, Bookmark, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/layout/Layout";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
+import { WishlistCard } from "@/components/wishlist/WishlistCard";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Wishlist() {
   const { items, removeFromWishlist, totalItems } = useWishlist();
   const { addToCart } = useCart();
 
-  const handleMoveToCart = (item: typeof items[0]) => {
+  const handleMoveToCart = (item: any) => {
     const isMaterial = item.id.startsWith('m');
 
     addToCart({
@@ -26,25 +28,35 @@ export default function Wishlist() {
       shopName: item.shopName || "Tailo Premium",
       category: item.category,
     });
-    toast.success("Added to cart!", { description: item.name });
+    toast.success("Added to cart!", {
+      description: `${item.name} has been added.`
+    });
   };
 
   if (items.length === 0) {
     return (
       <Layout>
-        <div className="container px-4 py-16">
-          <div className="text-center max-w-md mx-auto">
-            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
-              <Heart className="w-10 h-10 text-muted-foreground" />
+        <div className="container px-4 min-h-[60vh] flex flex-col items-center justify-center text-center py-12">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="space-y-6 max-w-sm"
+          >
+            <div className="w-20 h-20 bg-secondary rounded-full flex items-center justify-center mx-auto">
+              <Bookmark className="w-10 h-10 text-muted-foreground" />
             </div>
-            <h1 className="text-2xl font-display font-bold mb-3">Your Wishlist is Empty</h1>
-            <p className="text-muted-foreground mb-6">
-              Save your favorite designs here! Tap the heart icon on any design to add it to your wishlist.
-            </p>
-            <Button variant="gold" size="lg" asChild>
-              <Link to="/categories">Explore Designs <ArrowRight className="w-4 h-4 ml-2" /></Link>
+            <div className="space-y-2">
+              <h1 className="text-2xl font-bold tracking-tight">Your wishlist is empty</h1>
+              <p className="text-muted-foreground text-sm font-body">
+                Save your favorite items here to keep track of them and easily add them to your cart.
+              </p>
+            </div>
+            <Button asChild size="lg" className="w-full rounded-full font-bold shadow-soft">
+              <Link to="/categories">
+                Discover Designs <ArrowRight className="w-4 h-4 ml-2" />
+              </Link>
             </Button>
-          </div>
+          </motion.div>
         </div>
       </Layout>
     );
@@ -52,66 +64,57 @@ export default function Wishlist() {
 
   return (
     <Layout>
-      <div className="container px-4 py-8">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-xl md:text-2xl font-display font-bold">My Wishlist</h1>
-          <p className="text-sm text-muted-foreground">{totalItems} saved design{totalItems !== 1 ? 's' : ''}</p>
+      <div className="container px-4 py-8 md:py-12 max-w-7xl">
+        {/* Tightened Header */}
+        <div className="flex flex-col gap-4 mb-8">
+          <Link to="/categories">
+            <Button
+              variant="secondary"
+              size="sm"
+              className="h-8 rounded-full bg-secondary/50 hover:bg-secondary text-muted-foreground hover:text-foreground border-none font-bold text-[10px] uppercase tracking-widest px-3 transition-all"
+            >
+              <ChevronLeft className="w-3.5 h-3.5 mr-1" /> Continue Shopping
+            </Button>
+          </Link>
+
+          <div className="space-y-1">
+            <h1 className="text-2xl md:text-4xl font-bold tracking-tight text-foreground font-body">
+              Your Wishlist
+            </h1>
+            <p className="text-muted-foreground text-xs md:text-sm font-body max-w-md">
+              Collection of designs you've saved for later.
+            </p>
+          </div>
         </div>
 
-        {/* Wishlist Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
-          {items.map((item) => (
-            <div key={item.id} className="bg-card rounded-lg shadow-soft overflow-hidden group border border-border/50">
-              <div className="relative aspect-square">
-                <Link to={item.id.startsWith('m') ? `/material/${item.id}` : `/design/${item.id}`}>
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                </Link>
-              </div>
-              <div className="p-2">
-                <Link to={item.id.startsWith('m') ? `/material/${item.id}` : `/design/${item.id}`} className="hover:text-primary transition-colors">
-                  <h3 className="font-bold text-[11px] truncate leading-tight mb-0.5">{item.name}</h3>
-                </Link>
-                <div className="flex justify-between items-center">
-                  <p className="font-bold text-primary text-[11px]">₹{item.price.toLocaleString()}</p>
-                  <p className="text-[9px] text-muted-foreground truncate max-w-[40px]">{item.category}</p>
-                </div>
+        {/* Optimised Responsive Grid */}
+        <div className="space-y-12">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 lg:gap-8">
+            <AnimatePresence mode="popLayout">
+              {items.map((item) => (
+                <WishlistCard
+                  key={item.id}
+                  item={item}
+                  onMoveToCart={handleMoveToCart}
+                  onRemove={removeFromWishlist}
+                />
+              ))}
+            </AnimatePresence>
+          </div>
 
-                {/* Fixed bottom actions */}
-                <div className="flex gap-2 mt-2.5 pt-2 border-t border-border/50">
-                  <Button
-                    variant="gold"
-                    size="icon"
-                    className="h-8 w-8 rounded-lg shadow-sm"
-                    onClick={() => handleMoveToCart(item)}
-                    title="Add to Cart"
-                  >
-                    <ShoppingBag className="w-3.5 h-3.5" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-8 w-8 text-destructive border-2 border-destructive/10 hover:bg-destructive/5 rounded-lg shrink-0"
-                    onClick={() => removeFromWishlist(item.id)}
-                    title="Remove"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Continue Shopping */}
-        <div className="text-center mt-10">
-          <Button variant="outline" size="lg" asChild>
-            <Link to="/categories">Continue Browsing <ArrowRight className="w-4 h-4 ml-2" /></Link>
-          </Button>
+          {/* Explore More Button */}
+          <div className="flex justify-center pt-8 border-t border-border/40">
+            <Button
+              variant="outline"
+              size="lg"
+              className="rounded-full px-10 border-2 font-bold hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 shadow-sm"
+              asChild
+            >
+              <Link to="/categories">
+                Explore More Designs <ArrowRight className="w-4 h-4 ml-2" />
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
     </Layout>

@@ -28,12 +28,18 @@ export function CategoryCard({ id, name, description, image, designCount, firstD
 
       {/* Content */}
       <div className="absolute inset-0 p-4 flex flex-col justify-end">
-        {/* Coming Soon Badge (Mock logic, can be real prop) */}
-        {designCount === 0 && (
-          <div className="absolute top-2 right-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide shadow-sm">
-            Coming Soon
-          </div>
-        )}
+        {/* Status Badges */}
+        <div className="mb-2">
+          {designCount === 0 ? (
+            <span className="inline-block bg-white/20 backdrop-blur-sm border border-white/30 text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">
+              Coming Soon
+            </span>
+          ) : (
+            <span className="inline-block bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide shadow-sm">
+              {designCount} Designs
+            </span>
+          )}
+        </div>
 
         <h3 className="text-xl font-display font-bold text-white mb-1 group-hover:text-orange-400 transition-colors">{name}</h3>
         <p className="text-white/70 text-xs line-clamp-2 mb-2">{description}</p>

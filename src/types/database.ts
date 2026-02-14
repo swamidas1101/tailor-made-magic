@@ -80,6 +80,7 @@ export interface DesignWithFilters {
     images?: string[];
     rating: number;
     reviewCount: number;
+    likesCount?: number;
     isPopular?: boolean;
     features?: string[];
     status: 'pending' | 'approved' | 'rejected' | 'correction_requested';

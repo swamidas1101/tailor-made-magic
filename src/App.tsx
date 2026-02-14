@@ -8,6 +8,7 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { CartProvider } from "@/contexts/CartContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
 import { ScrollToTop } from "@/components/utils/ScrollToTop";
+import { LikesProvider } from "@/contexts/LikesContext";
 import { useVersionCheck } from "@/hooks/useVersionCheck";
 
 // Declare global build time variable
@@ -161,9 +162,11 @@ const App = () => (
     <AuthProvider>
       <CartProvider>
         <WishlistProvider>
-          <TooltipProvider>
-            <AppContent />
-          </TooltipProvider>
+          <LikesProvider>
+            <TooltipProvider>
+              <AppContent />
+            </TooltipProvider>
+          </LikesProvider>
         </WishlistProvider>
       </CartProvider>
     </AuthProvider>

@@ -108,9 +108,9 @@ const Index = () => {
             transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
           />
 
-          <div className="w-full relative z-10 px-4 md:px-8 lg:px-16 py-16">
+          <div className="w-full relative z-10 px-4 md:px-8 lg:px-16 pt-24 pb-16 md:py-20">
             <motion.div
-              className="max-w-3xl"
+              className="max-w-3xl text-center md:text-left mx-auto md:mx-0"
               variants={containerVariants}
               initial="hidden"
               animate="visible"
@@ -118,17 +118,17 @@ const Index = () => {
               {/* Premium Badge */}
               <motion.div
                 variants={itemVariants}
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-rose/20 to-gold/20 backdrop-blur-md border border-rose/30 rounded-full px-5 py-2 mb-6"
+                className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-1.5 mb-6 shadow-xl"
               >
-                <Crown className="w-4 h-4 text-gold" />
-                <span className="text-rose-light font-medium text-sm">Premium Online Tailoring</span>
-                <Sparkles className="w-4 h-4 text-gold" />
+                <Crown className="w-3.5 h-3.5 text-gold" />
+                <span className="text-white font-medium text-[11px] md:text-xs uppercase tracking-[0.15em]">Premium Online Tailoring</span>
+                <Sparkles className="w-3.5 h-3.5 text-gold" />
               </motion.div>
 
               {/* Hero Title */}
               <motion.h1
                 variants={itemVariants}
-                className="text-5xl md:text-7xl font-display font-bold text-white mb-6 leading-[1.1]"
+                className="text-4xl sm:text-5xl md:text-7xl font-display font-bold text-white mb-6 leading-[1.1]"
               >
                 Crafting Elegance,<br />
                 <span className="text-gradient-luxury">Stitch by Stitch</span>
@@ -137,21 +137,21 @@ const Index = () => {
               {/* Hero Description */}
               <motion.p
                 variants={itemVariants}
-                className="text-white/80 text-[15px] sm:text-base md:text-xl mb-8 max-w-xl leading-relaxed"
+                className="text-white/80 text-sm md:text-lg mb-8 max-w-xl mx-auto md:mx-0 leading-relaxed"
               >
                 Experience bespoke tailoring from the comfort of your home. Choose from {allDesigns.length > 0 ? `${allDesigns.length}+` : "curated"} professional designs
                 and receive perfectly fitted garments at your doorstep.
               </motion.p>
 
               {/* CTA Buttons */}
-              <motion.div variants={itemVariants} className="flex flex-wrap gap-4 mb-12">
-                <Button variant="hero" size="xl" asChild className="group">
+              <motion.div variants={itemVariants} className="flex flex-wrap justify-center md:justify-start gap-4 mb-12">
+                <Button variant="hero" size="xl" asChild className="group h-12 md:h-14 px-8">
                   <Link to="/categories">
                     Explore Designs
                     <ArrowRight className="w-5 h-5 ml-1 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </Button>
-                <Button variant="heroOutline" size="xl" asChild>
+                <Button variant="heroOutline" size="xl" asChild className="h-12 md:h-14 px-8">
                   <Link to="/measurements">
                     <Play className="w-5 h-5 mr-1" />
                     How It Works
@@ -250,7 +250,7 @@ const Index = () => {
               </h2>
             </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
               {[
                 {
                   to: "/categories",
@@ -286,7 +286,7 @@ const Index = () => {
                   className="w-full"
                 >
                   <Link to={card.to} className="group block h-full">
-                    <div className="relative h-64 md:h-80 w-full rounded-3xl overflow-hidden shadow-card hover:shadow-luxury transition-all duration-500">
+                    <div className="relative h-48 sm:h-64 md:h-80 w-full rounded-2xl md:rounded-3xl overflow-hidden shadow-card hover:shadow-luxury transition-all duration-500">
                       <motion.img
                         src={card.image}
                         alt={card.title}
@@ -294,24 +294,17 @@ const Index = () => {
                         whileHover={{ scale: 1.05 }}
                         transition={{ duration: 0.6 }}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-noir/90 via-noir/40 to-transparent" />
-                      <motion.div
-                        className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                      />
-                      <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-                        <div>
-                          <div className="flex items-center gap-2 mb-2 md:mb-3">
-                            <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                              <card.icon className="w-4 h-4 text-white" />
-                            </div>
-                            <span className="text-white/80 text-sm font-medium">{card.badge}</span>
+                      <div className="absolute inset-0 bg-gradient-to-t from-noir/95 via-noir/40 to-transparent" />
+
+                      <div className="absolute bottom-0 left-0 right-0 p-3 md:p-8 flex flex-col gap-1 md:gap-3">
+                        <div className="flex items-center gap-1.5 md:gap-2">
+                          <div className="w-5 h-5 md:w-8 md:h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                            <card.icon className="w-2.5 h-2.5 md:w-4 md:h-4 text-white" />
                           </div>
-                          <h3 className="text-3xl font-display font-bold text-white mb-1">{card.title}</h3>
-                          <p className="text-white/70 text-base">{card.desc}</p>
+                          <span className="text-white/80 text-[10px] md:text-sm font-medium truncate">{card.badge}</span>
                         </div>
-                        <div className="hidden md:block">
-                          <Button variant="white" size="sm" className="rounded-full px-6">Explore</Button>
-                        </div>
+                        <h3 className="text-base sm:text-xl md:text-3xl font-display font-bold text-white leading-tight">{card.title}</h3>
+                        <p className="hidden md:block text-white/70 text-sm">{card.desc}</p>
                       </div>
                     </div>
                   </Link>
@@ -324,30 +317,47 @@ const Index = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.3 }}
-                className="w-full"
+                className="w-full h-full"
               >
-                <Link to="/measurements" className="group block">
-                  <div className="relative h-64 md:h-80 w-full rounded-3xl overflow-hidden bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500 shadow-xl hover:shadow-2xl transition-all duration-500">
-                    <div className="absolute inset-0 pattern-luxury opacity-20" />
-                    <motion.div
-                      className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-white/20 blur-3xl"
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{ duration: 4, repeat: Infinity }}
-                    />
-                    <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
-                      <motion.div
-                        className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-white/30 backdrop-blur-sm flex items-center justify-center mb-4 md:mb-6 shadow-lg"
-                        whileHover={{ scale: 1.1, rotate: 5 }}
+                <Link to="/measurements" className="group block h-full">
+                  <div className="relative h-48 sm:h-64 md:h-80 w-full rounded-2xl md:rounded-3xl overflow-hidden bg-slate-950 border border-white/10 shadow-luxury group/m-card transition-all duration-500 hover:border-gold/50">
+                    {/* Rich Background Effects */}
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,_rgba(120,0,0,0.15),_transparent_70%)]" />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(251,191,36,0.05),_transparent_70%)] group-hover/m-card:scale-150 transition-transform duration-1000" />
+
+                    {/* Animated Shimmer */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover/m-card:translate-x-full transition-transform duration-1000 ease-in-out" />
+
+                    <div className="absolute inset-0 flex flex-col items-center justify-center p-4 md:p-8 text-center z-10">
+                      <div className="relative mb-3 md:mb-6">
+                        <div className="absolute inset-0 bg-gold/40 blur-2xl rounded-full scale-150 opacity-40 group-hover/m-card:opacity-70 transition-opacity" />
+                        <motion.div
+                          className="relative w-12 h-12 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-gold via-amber-600 to-orange-700 flex items-center justify-center shadow-[0_0_20px_rgba(251,191,36,0.3)] border border-white/20"
+                          whileHover={{ scale: 1.1, rotate: 5 }}
+                        >
+                          <Ruler className="w-6 h-6 md:w-10 md:h-10 text-white drop-shadow-md" />
+                        </motion.div>
+                      </div>
+
+                      <h3 className="text-sm md:text-3xl font-display font-light text-white mb-1 md:mb-4 uppercase tracking-[0.2em] leading-none drop-shadow-lg">
+                        Digital Fitting <span className="font-bold text-gold">Profile</span>
+                      </h3>
+
+                      <p className="text-white/70 text-[9px] md:text-xs max-w-[200px] md:max-w-xs mb-5 md:mb-10 leading-relaxed font-medium uppercase tracking-[0.1em]">
+                        Precision Engineering for the <br className="hidden md:block" /> Perfect Bespoke Garment
+                      </p>
+
+                      <Button
+                        variant="hero"
+                        size="sm"
+                        className="rounded-full bg-white text-noir hover:bg-gold hover:text-white transition-all duration-300 font-black px-6 md:px-12 h-8 md:h-14 text-[9px] md:text-[11px] uppercase tracking-[0.2em] border-none shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
                       >
-                        <Ruler className="w-8 h-8 md:w-10 md:h-10 text-white" />
-                      </motion.div>
-                      <h3 className="text-xl md:text-2xl font-display font-bold text-white mb-2">Save Measurements</h3>
-                      <p className="text-white/90 text-sm mb-6">Enter once, use for all orders</p>
-                      <Button variant="heroOutline" size="lg" className="group">
-                        Get Started
-                        <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                        Start Configuration
                       </Button>
                     </div>
+
+                    {/* Corner Accent */}
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-gold/10 to-transparent opacity-50" />
                   </div>
                 </Link>
               </motion.div>
@@ -500,15 +510,15 @@ const Index = () => {
               <h2 className="text-4xl md:text-5xl font-display font-bold">Your Journey to <span className="text-gradient-rose">Elegance</span></h2>
             </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 relative">
               {/* Connecting Line - Desktop */}
-              <div className="hidden lg:block absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-rose/30 to-transparent -translate-y-1/2 z-0" />
+              <div className="hidden lg:block absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-rose/20 to-transparent -translate-y-1/2 z-0" />
 
               {[
-                { step: "01", title: "Discover", desc: "Explore our curated collection or upload your dream design.", icon: Heart, startColor: "from-rose-500", endColor: "to-pink-600" },
-                { step: "02", title: "Measure", desc: "Follow our simple guide or book a home visit for perfect fitting.", icon: Ruler, startColor: "from-amber-500", endColor: "to-orange-600" },
-                { step: "03", title: "Stitch", desc: "Expert tailors bring your vision to life with premium materials.", icon: Scissors, startColor: "from-emerald-500", endColor: "to-teal-600" },
-                { step: "04", title: "Style", desc: "Receive your bespoke outfit at your doorstep, ready to wear.", icon: Sparkles, startColor: "from-blue-500", endColor: "to-indigo-600" },
+                { step: "01", title: "Discover", desc: "Explore designs.", icon: Heart, startColor: "from-rose-500", endColor: "to-pink-600" },
+                { step: "02", title: "Measure", desc: "Digital precise guide.", icon: Ruler, startColor: "from-amber-500", endColor: "to-orange-600" },
+                { step: "03", title: "Stitch", desc: "Export craftsmanship.", icon: Scissors, startColor: "from-emerald-500", endColor: "to-teal-600" },
+                { step: "04", title: "Style", desc: "Ready to wear.", icon: Sparkles, startColor: "from-blue-500", endColor: "to-indigo-600" },
               ].map((item, i) => (
                 <motion.div
                   key={i}
@@ -518,21 +528,21 @@ const Index = () => {
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
                 >
-                  <div className="bg-card h-full rounded-[2rem] p-8 border border-border/50 shadow-soft hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 relative overflow-hidden">
+                  <div className="bg-card h-full rounded-2xl md:rounded-[2rem] p-4 md:p-8 border border-border/50 shadow-soft hover:shadow-xl transition-all duration-500 hover:-translate-y-1 relative overflow-hidden flex flex-col items-center md:items-start text-center md:text-left">
                     {/* Hover Gradient Background */}
                     <div className={`absolute inset-0 bg-gradient-to-br ${item.startColor} ${item.endColor} opacity-5 group-hover:opacity-10 transition-opacity duration-500`} />
 
                     {/* Step Number */}
-                    <div className="absolute top-4 right-6 text-6xl font-display font-bold text-foreground/5 transition-colors duration-500 select-none">
+                    <div className="absolute top-2 right-4 text-3xl md:text-6xl font-display font-bold text-foreground/5 transition-colors duration-500 select-none">
                       {item.step}
                     </div>
 
-                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${item.startColor} ${item.endColor} flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-500`}>
-                      <item.icon className="w-7 h-7 text-white" />
+                    <div className={`w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-gradient-to-br ${item.startColor} ${item.endColor} flex items-center justify-center mb-3 md:mb-6 shadow-lg group-hover:scale-110 transition-transform duration-500`}>
+                      <item.icon className="w-5 h-5 md:w-7 md:h-7 text-white" />
                     </div>
 
-                    <h3 className="text-xl font-display font-bold mb-3">{item.title}</h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
+                    <h3 className="text-sm md:text-xl font-display font-bold mb-1 md:mb-3">{item.title}</h3>
+                    <p className="text-muted-foreground text-[10px] md:text-sm leading-tight md:leading-relaxed">
                       {item.desc}
                     </p>
                   </div>

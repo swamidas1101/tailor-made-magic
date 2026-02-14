@@ -11,12 +11,16 @@ import {
   deleteDoc,
   serverTimestamp,
   orderBy,
-  limit
+  limit,
+  runTransaction,
+  increment,
+  setDoc
 } from "firebase/firestore";
 import { Design, Category } from "@/types/database";
 
 export const COLLECTION_DESIGNS = "designs";
 export const COLLECTION_CATEGORIES = "categories";
+export const COLLECTION_LIKES = "likes";
 
 // Designs
 export const designService = {
@@ -29,7 +33,8 @@ export const designService = {
         ...data,
         tailorId: data.tailorId || "platform_admin",
         shopName: data.shopName || "Tailo Premium",
-        status: data.status || "approved"
+        status: data.status || "approved",
+        likesCount: data.likesCount || 0
       } as Design;
     });
   },
@@ -44,7 +49,8 @@ export const designService = {
         ...data,
         tailorId: data.tailorId || "platform_admin",
         shopName: data.shopName || "Tailo Premium",
-        status: data.status || "approved"
+        status: data.status || "approved",
+        likesCount: data.likesCount || 0
       } as Design;
     }
     return null;
@@ -107,6 +113,62 @@ export const designService = {
 
     } catch (error) {
       console.error("Error fetching tailor designs:", error);
+      return [];
+    }
+  },
+
+  // Likes implementation
+  toggleLike: async (designId: string, userId: string): Promise<{ liked: boolean; newCount: number }> => {
+    const likeDocId = `${userId}_${designId}`;
+    const likeDocRef = doc(db, COLLECTION_LIKES, likeDocId);
+    const designDocRef = doc(db, COLLECTION_DESIGNS, designId);
+
+    try {
+      return await runTransaction(db, async (transaction) => {
+        const likeDocSnap = await transaction.get(likeDocRef);
+        const designDocSnap = await transaction.get(designDocRef);
+
+        if (!designDocSnap.exists()) {
+          throw new Error("Design does not exist");
+        }
+
+        const currentlyLiked = likeDocSnap.exists();
+        const currentLikes = designDocSnap.data().likesCount || 0;
+        const newCount = currentlyLiked ? Math.max(0, currentLikes - 1) : currentLikes + 1;
+
+        if (currentlyLiked) {
+          transaction.delete(likeDocRef);
+        } else {
+          transaction.set(likeDocRef, {
+            userId,
+            designId,
+            createdAt: serverTimestamp()
+          });
+        }
+
+        transaction.update(designDocRef, {
+          likesCount: newCount,
+          updatedAt: serverTimestamp()
+        });
+
+        return { liked: !currentlyLiked, newCount };
+      });
+    } catch (error) {
+      console.error("Error toggling like:", error);
+      throw error;
+    }
+  },
+
+  getUserLikes: async (userId: string): Promise<string[]> => {
+    try {
+      const q = query(
+        collection(db, COLLECTION_LIKES),
+        where("userId", "==", userId)
+      );
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map(doc => doc.data().designId);
+    } catch (error) {
+      console.error("Error fetching user likes:", error);
       return [];
     }
   }

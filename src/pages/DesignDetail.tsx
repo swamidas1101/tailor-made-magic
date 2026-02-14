@@ -1,5 +1,5 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Star, Clock, IndianRupee, Check, Heart, Share2, Ruler, ChevronRight, Loader2, Settings2, ShoppingBag, Truck, ShieldCheck, AlertTriangle, ArrowLeft as BackIcon } from "lucide-react";
+import { ArrowLeft, Star, Clock, IndianRupee, Check, Heart, Bookmark, Share2, Ruler, ChevronRight, Loader2, Settings2, ShoppingBag, Truck, ShieldCheck, AlertTriangle, ArrowLeft as BackIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Layout } from "@/components/layout/Layout";
@@ -16,7 +16,8 @@ import { useFirebaseData } from "@/hooks/useFirebaseData";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useCart } from "@/contexts/CartContext";
 import { cn } from "@/lib/utils";
-import { handleCustomError, showSuccess, showInfo } from "@/lib/toastUtils";
+import { LikeButton } from "@/components/designs/LikeButton";
+import { useLikes } from "@/contexts/LikesContext";
 
 export default function DesignDetail() {
   const { id } = useParams();
@@ -155,7 +156,7 @@ export default function DesignDetail() {
         tailorId: design.tailorId || "platform_admin",
         shopName: design.shopName || "Tailo Premium",
       });
-      toast.success("Added to wishlist!");
+      toast.success("Saved to wishlist!");
     }
   };
 
@@ -231,7 +232,7 @@ export default function DesignDetail() {
                   className="rounded-full bg-background/80 backdrop-blur-sm"
                   onClick={handleWishlist}
                 >
-                  <Heart className={`w-4 h-4 ${wishlisted ? "fill-rose-500 text-rose-500" : ""}`} />
+                  <Bookmark className={`w-4 h-4 ${wishlisted ? "fill-amber-500 text-amber-500" : ""}`} />
                 </Button>
                 <Button
                   variant="secondary"
@@ -273,6 +274,16 @@ export default function DesignDetail() {
                 <span className="text-muted-foreground">({design.reviewCount} reviews)</span>
               </div>
 
+              <Separator orientation="vertical" className="h-4" />
+
+              {design && (
+                <LikeButton
+                  designId={design.id}
+                  initialLikesCount={design.likesCount || 0}
+                  size="md"
+                  variant="outline"
+                />
+              )}
             </div>
 
             <p className="text-foreground/80 mb-6">{design.description}</p>

@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Star, Clock, IndianRupee, Heart, ShoppingCart, ShoppingBag, Check, Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, Clock, IndianRupee, Heart, Bookmark, ShoppingCart, ShoppingBag, Check, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
+import { LikeButton } from "./LikeButton";
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
@@ -27,6 +28,7 @@ export interface DesignCardProps {
   variant?: "default" | "compact";
   tailorId?: string;
   shopName?: string;
+  likesCount?: number;
 }
 
 export function DesignCard({
@@ -45,6 +47,7 @@ export function DesignCard({
   variant = "default",
   tailorId,
   shopName,
+  likesCount: initialLikesCount = 0,
 }: DesignCardProps) {
   const isCompact = variant === "compact";
   const { addToCart, items: cartItems } = useCart();
@@ -107,7 +110,7 @@ export function DesignCard({
       toast.info("Removed from wishlist");
     } else {
       addToWishlist({ id, name, image, price, category });
-      toast.success("Added to wishlist!");
+      toast.success("Saved to wishlist!");
     }
   };
 
@@ -195,15 +198,15 @@ export function DesignCard({
           </Badge>
         )}
 
-        {/* Wishlist Button */}
+        {/* Wishlist Button (Changed to Bookmark) */}
         <button
           onClick={handleWishlist}
           className={`absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-all ${wishlisted
-            ? "bg-rose-500 text-white"
+            ? "bg-amber-500 text-white"
             : "bg-white/90 text-foreground hover:bg-white"
             }`}
         >
-          <Heart className={`w-4 h-4 ${wishlisted ? "fill-current" : ""}`} />
+          <Bookmark className={`w-4 h-4 ${wishlisted ? "fill-current" : ""}`} />
         </button>
 
         {/* Image Navigation - Desktop arrows */}
@@ -288,43 +291,51 @@ export function DesignCard({
           </div>
         </div>
 
-        {/* Action Buttons Row (Right Aligned) */}
-        <div className="flex items-center justify-end pt-1.5 border-t border-border/50 gap-2">
-          <Button
-            variant="default"
+        {/* Action Buttons Row (Justified) */}
+        <div className="flex items-center justify-between pt-1.5 border-t border-border/50 gap-2">
+          <LikeButton
+            designId={id}
+            initialLikesCount={initialLikesCount}
             size="sm"
-            className="h-7 px-3 text-[10px] font-medium bg-orange-500 hover:bg-orange-600 text-white shadow-sm"
-            asChild
-          >
-            <Link to={`/design/${id}`}>Book</Link>
-          </Button>
+          />
 
-          <Button
-            variant={justAddedToCart || cartItemCount > 0 ? "default" : "outline"}
-            size="sm"
-            className={cn("h-7 w-7 p-0 rounded-lg border-orange-200 relative overflow-visible", !isCompact && "sm:h-8 sm:w-8", justAddedToCart
-              ? "bg-green-600 hover:bg-green-700 border-green-600 text-white"
-              : cartItemCount > 0
-                ? "bg-orange-600 text-white hover:bg-orange-700 border-orange-600"
-                : "text-orange-600 hover:bg-orange-50"
-            )}
-            onClick={handleAddToCart}
-          >
-            <div className="flex items-center justify-center w-full h-full">
-              {justAddedToCart ? (
-                <Check className="w-3.5 h-3.5" />
-              ) : cartItemCount > 0 ? (
-                <ShoppingBag className="w-3.5 h-3.5" />
-              ) : (
-                <ShoppingCart className="w-3.5 h-3.5" />
+          <div className="flex items-center gap-2">
+            <Button
+              variant="default"
+              size="sm"
+              className="h-7 px-3 text-[10px] font-medium bg-orange-500 hover:bg-orange-600 text-white shadow-sm"
+              asChild
+            >
+              <Link to={`/design/${id}`}>Book</Link>
+            </Button>
+
+            <Button
+              variant={justAddedToCart || cartItemCount > 0 ? "default" : "outline"}
+              size="sm"
+              className={cn("h-7 w-7 p-0 rounded-lg border-orange-200 relative overflow-visible", !isCompact && "sm:h-8 sm:w-8", justAddedToCart
+                ? "bg-green-600 hover:bg-green-700 border-green-600 text-white"
+                : cartItemCount > 0
+                  ? "bg-orange-600 text-white hover:bg-orange-700 border-orange-600"
+                  : "text-orange-600 hover:bg-orange-50"
               )}
-            </div>
-            {cartItemCount > 0 && !justAddedToCart && (
-              <span className="absolute -top-1.5 -right-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-white text-[8px] font-bold text-orange-600 shadow-sm border border-orange-100 ring-1 ring-orange-50 z-10">
-                {cartItemCount}
-              </span>
-            )}
-          </Button>
+              onClick={handleAddToCart}
+            >
+              <div className="flex items-center justify-center w-full h-full">
+                {justAddedToCart ? (
+                  <Check className="w-3.5 h-3.5" />
+                ) : cartItemCount > 0 ? (
+                  <ShoppingBag className="w-3.5 h-3.5" />
+                ) : (
+                  <ShoppingCart className="w-3.5 h-3.5" />
+                )}
+              </div>
+              {cartItemCount > 0 && !justAddedToCart && (
+                <span className="absolute -top-1.5 -right-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-white text-[8px] font-bold text-orange-600 shadow-sm border border-orange-100 ring-1 ring-orange-50 z-10">
+                  {cartItemCount}
+                </span>
+              )}
+            </Button>
+          </div>
         </div>
       </div>
     </motion.div>
