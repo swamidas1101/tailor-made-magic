@@ -68,6 +68,7 @@ export function MaterialCard({ id, name, type, price, image, brand, rating, inSt
             size: "M", // Default for material? Or maybe just 1 meter unit logic implies size irrelevant
             tailorId: "platform_admin",
             shopName: "Tailo Premium",
+            category: type,
         });
         setJustAddedToCart(true);
         toast.success("Added to cart!", {

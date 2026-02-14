@@ -1,17 +1,21 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Star, Clock, IndianRupee, Check, Heart, Share2, Ruler, ChevronRight, Loader2 } from "lucide-react";
+import { ArrowLeft, Star, Clock, IndianRupee, Check, Heart, Share2, Ruler, ChevronRight, Loader2, Settings2, ShoppingBag, Truck, ShieldCheck, AlertTriangle, ArrowLeft as BackIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Layout } from "@/components/layout/Layout";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { useState, useEffect, useMemo } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { MeasurementSelector } from "@/components/measurements/MeasurementSelector";
+import { MeasurementForm } from "@/components/measurements/MeasurementForm";
 import { SizeChartModal } from "@/components/size-chart/SizeChartModal";
 import { SimilarProducts } from "@/components/shared/SimilarProducts";
 import { useFirebaseData } from "@/hooks/useFirebaseData";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useCart } from "@/contexts/CartContext";
+import { cn } from "@/lib/utils";
 import { handleCustomError, showSuccess, showInfo } from "@/lib/toastUtils";
 
 export default function DesignDetail() {
@@ -20,11 +24,12 @@ export default function DesignDetail() {
   const { designs, loading } = useFirebaseData();
   const design = designs.find((d) => d.id === id);
   const [withMaterial, setWithMaterial] = useState(false);
-  const [showMeasurementSelector, setShowMeasurementSelector] = useState(false);
   const [selectedMeasurements, setSelectedMeasurements] = useState<Record<string, string> | null>(null);
   const [measurementMode, setMeasurementMode] = useState<'manual' | 'pickup' | null>(null);
   const [pickupTimeSlot, setPickupTimeSlot] = useState<string>("");
   const [hasSavedMeasurements, setHasSavedMeasurements] = useState(false);
+  const [showConfigSheet, setShowConfigSheet] = useState(false);
+  const [configStep, setConfigStep] = useState<"options" | "measurements">("options");
   const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const wishlisted = design ? isInWishlist(design.id) : false;
   const [activeImage, setActiveImage] = useState<string>(design?.image || "");
@@ -36,7 +41,6 @@ export default function DesignDetail() {
       setActiveImage(design.image);
       // RESET ALL SELECTIONS ON ID CHANGE (e.g. from Similar Products)
       setWithMaterial(false);
-      setShowMeasurementSelector(false);
       setSelectedMeasurements(null);
       setMeasurementMode(null);
       setPickupTimeSlot("");
@@ -100,14 +104,6 @@ export default function DesignDetail() {
     );
   }
 
-  const handleMeasurementConfirm = (measurements: Record<string, string>, isNew: boolean) => {
-    setSelectedMeasurements(measurements);
-    setMeasurementMode('manual');
-    toast.success(isNew ? "Measurements saved!" : "Using saved measurements", {
-      description: `${Object.keys(measurements).length} measurements applied`,
-    });
-  };
-
   const { addToCart } = useCart();
 
   const handleAddToCart = () => {
@@ -128,6 +124,7 @@ export default function DesignDetail() {
       size: "custom",
       quantity: 1,
       withMaterial,
+      category: design.categoryName || (design as any).category || "Premium",
       hasFabricOption: design.priceWithMaterial > design.price && design.priceWithMaterial > 0
     };
 
@@ -281,157 +278,145 @@ export default function DesignDetail() {
             <p className="text-foreground/80 mb-6">{design.description}</p>
 
 
-            {/* Material Checkbox - Renamed to Purchase Option */}
-            {/* Material Checkbox - Renamed to Purchase Option */}
-            <div className="mb-4">
-              <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide text-muted-foreground">Purchase Option</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {/* Service Type Selection - Compact & Rich */}
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-2.5">
+                <h3 className="font-black text-[11px] uppercase tracking-[0.1em] text-foreground">Service Type</h3>
+              </div>
+              <div className="flex flex-wrap gap-2.5">
                 <button
                   type="button"
                   onClick={() => setWithMaterial(false)}
-                  className={`flex items-center justify-between p-3 rounded-lg border transition-all ${!withMaterial
-                    ? "border-orange-500 bg-orange-50 ring-1 ring-orange-500"
-                    : "border-border hover:border-orange-200 bg-white"
-                    }`}
+                  className={cn(
+                    "flex-1 min-w-[160px] flex items-center justify-between p-3.5 rounded-xl border-2 transition-all group",
+                    !withMaterial
+                      ? "border-primary bg-primary/5 shadow-sm"
+                      : "border-border hover:border-primary/20 bg-white"
+                  )}
                 >
-                  <span className="font-bold text-sm text-foreground">Stitching Only</span>
-                  {!withMaterial && <Check className="w-3.5 h-3.5 text-orange-600" />}
+                  <div className="flex items-center gap-2.5 text-left">
+                    <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center transition-colors", !withMaterial ? "bg-primary/20" : "bg-muted")}>
+                      <ShoppingBag className={cn("w-4.5 h-4.5", !withMaterial ? "text-primary" : "text-muted-foreground")} />
+                    </div>
+                    <div>
+                      <p className={cn("text-[13px] font-bold leading-tight", !withMaterial ? "text-primary" : "text-foreground")}>Stitching Only</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">₹{design.price.toLocaleString()}</p>
+                    </div>
+                  </div>
+                  {!withMaterial && <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0">
+                    <Check className="w-3 h-3 text-white" />
+                  </div>}
                 </button>
 
                 {design.priceWithMaterial > design.price && (
                   <button
                     type="button"
                     onClick={() => setWithMaterial(true)}
-                    className={`flex items-center justify-between p-3 rounded-lg border transition-all ${withMaterial
-                      ? "border-orange-500 bg-orange-50 ring-1 ring-orange-500"
-                      : "border-border hover:border-orange-200 bg-white"
-                      }`}
+                    className={cn(
+                      "flex-1 min-w-[160px] flex items-center justify-between p-3.5 rounded-xl border-2 transition-all group",
+                      withMaterial
+                        ? "border-primary bg-primary/5 shadow-sm"
+                        : "border-border hover:border-primary/20 bg-white"
+                    )}
                   >
-                    <span className="font-bold text-sm text-foreground">Stitching + Fabric</span>
-                    {withMaterial && <Check className="w-3.5 h-3.5 text-orange-600" />}
+                    <div className="flex items-center gap-2.5 text-left">
+                      <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center transition-colors", withMaterial ? "bg-primary/20" : "bg-muted")}>
+                        <Truck className={cn("w-4.5 h-4.5", withMaterial ? "text-primary" : "text-muted-foreground")} />
+                      </div>
+                      <div>
+                        <p className={cn("text-[13px] font-bold leading-tight", withMaterial ? "text-primary" : "text-foreground")}>Stitching + Fabric</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">₹{design.priceWithMaterial.toLocaleString()}</p>
+                      </div>
+                    </div>
+                    {withMaterial && <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0">
+                      <Check className="w-3 h-3 text-white" />
+                    </div>}
                   </button>
                 )}
               </div>
             </div>
 
-            {/* Measurements Section */}
+            {/* Tailoring Preferences - More integrated */}
             <div className="mb-4">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-semibold text-xs uppercase tracking-wide text-muted-foreground">Measurements</h3>
-                <SizeChartModal
-                  defaultCategory={design.categoryName || (design as any).category}
-                  trigger={
-                    <Button variant="link" size="sm" className="h-auto p-0 text-orange-600 hover:text-orange-700 font-medium text-[10px]">
-                      <Ruler className="w-3 h-3 mr-1" />
-                      Size Guide
-                    </Button>
-                  }
-                />
+              <div className="flex items-center justify-between mb-2.5">
+                <h3 className="font-black text-[11px] uppercase tracking-[0.1em] text-foreground">Tailoring Preferences</h3>
               </div>
-
-              {/* Measurement Preference */}
-              {/* Measurement Toggle Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
-                <button
-                  onClick={() => {
-                    setShowMeasurementSelector(true);
-                  }}
-                  className={`relative p-3 rounded-lg border-2 text-left transition-all ${measurementMode === 'manual' ? "border-orange-500 bg-orange-50/50 dark:bg-orange-950/10 shadow-sm" : "border-border bg-card hover:border-orange-200"
-                    }`}
-                >
-                  <div className="flex justify-between items-start mb-1">
-                    <span className="font-bold text-sm text-foreground">Add Measurements</span>
-                    {measurementMode === 'manual' && <Check className="w-3.5 h-3.5 text-orange-600" />}
+              <div className="p-3.5 rounded-xl border border-border bg-muted/20 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-9 h-9 rounded-lg bg-background border flex items-center justify-center shrink-0 shadow-sm text-primary">
+                    <Settings2 className="w-4 h-4" />
                   </div>
-                  <p className="text-xs text-muted-foreground">Enter your measurements now</p>
-                </button>
-
-                <button
-                  onClick={() => {
-                    setMeasurementMode('pickup');
-                    setSelectedMeasurements(null); // Clear manual measurements if switching
-                  }}
-                  className={`relative p-3 rounded-lg border-2 text-left transition-all ${measurementMode === 'pickup' ? "border-orange-500 bg-orange-50/50 dark:bg-orange-950/10 shadow-sm" : "border-border bg-card hover:border-orange-200"
-                    }`}
-                >
-                  <div className="flex justify-between items-start mb-1">
-                    <span className="font-bold text-sm text-foreground">Measure at Pickup</span>
-                    {measurementMode === 'pickup' && <Check className="w-3.5 h-3.5 text-orange-600" />}
+                  <div className="min-w-0">
+                    {measurementMode ? (
+                      <div>
+                        <p className="text-[13px] font-bold text-foreground truncate">
+                          {measurementMode === 'manual' ? 'Custom Measurements' : 'At Pickup'}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground truncate">
+                          {measurementMode === 'manual' ? `${measurementCount} sizes provided` : pickupTimeSlot}
+                        </p>
+                      </div>
+                    ) : (
+                      <div>
+                        <p className="text-[13px] font-bold text-muted-foreground">Not Configured</p>
+                        <p className="text-[10px] text-muted-foreground/60">Measurements & Pickup</p>
+                      </div>
+                    )}
                   </div>
-                  <p className="text-xs text-muted-foreground">Tailor visits you</p>
-                </button>
+                </div>
+                <Button
+                  onClick={() => setShowConfigSheet(true)}
+                  variant="outline"
+                  size="sm"
+                  className="rounded-lg h-9 font-bold bg-white hover:bg-muted text-primary px-4 transition-all"
+                >
+                  {measurementMode ? "Edit" : "Configure"}
+                </Button>
               </div>
-
-              {/* Conditional Content based on Selection */}
-              {measurementMode === 'manual' && selectedMeasurements && Object.keys(selectedMeasurements).length > 0 && (
-                <div className="mb-4 p-3 bg-green-50 text-green-800 rounded-lg text-sm flex items-start gap-2 border border-green-100">
-                  <Check className="w-4 h-4 mt-0.5 flex-shrink-0 text-green-600" />
-                  <p>{Object.keys(selectedMeasurements).length} measurements added.</p>
-                </div>
-              )}
-
-              {measurementMode === 'pickup' && (
-                <div className="mb-3 space-y-2 p-3 bg-muted/30 rounded-xl border border-border/50">
-                  <p className="text-xs font-medium text-muted-foreground">Select Pickup Time Slot</p>
-                  <div className="grid grid-cols-3 gap-2">
-                    {["Morning (9-12)", "Afternoon (12-4)", "Evening (4-7)"].map((slot) => (
-                      <button
-                        key={slot}
-                        onClick={() => setPickupTimeSlot(slot)}
-                        className={`text-[10px] py-2 px-1 rounded-lg border transition-all ${pickupTimeSlot === slot
-                          ? "bg-orange-50 border-orange-500 text-orange-700 font-medium shadow-sm"
-                          : "bg-background border-border text-muted-foreground hover:border-orange-200"
-                          }`}
-                      >
-                        {slot.split(" ")[0]}
-                        <span className="block opacity-70 scale-90">{slot.split(" ")[1]}</span>
-                      </button>
-                    ))}
-                  </div>
-                  {!pickupTimeSlot && (
-                    <p className="text-[10px] text-orange-600 animate-pulse">Please select a time slot</p>
-                  )}
-                </div>
-              )}
-
-
             </div>
 
-            {/* Price & Book */}
-            <div className="mt-8 pt-6 border-t border-border">
-              <div className="flex items-center justify-between mb-4">
+            {/* Simple Clean Pricing Card */}
+            <div className="mt-4 pt-4 border-t space-y-6">
+              <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Total Price</p>
-                  <p className="text-3xl font-bold text-foreground flex items-center">
-                    <IndianRupee className="w-6 h-6" />
-                    {(withMaterial ? design.priceWithMaterial : design.price).toLocaleString()}
-                  </p>
+                  <p className="text-[11px] uppercase font-bold tracking-widest text-muted-foreground mb-1">Total Estimated Amount</p>
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-lg font-bold text-foreground opacity-60">₹</span>
+                    <span className="text-4xl font-bold tabular-nums tracking-tight text-foreground">
+                      {(withMaterial ? design.priceWithMaterial : design.price).toLocaleString()}
+                    </span>
+                  </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-muted-foreground">Expected Delivery</p>
-                  <p className="font-semibold">{design.timeInDays} working days</p>
+                  <p className="text-xs font-bold text-primary mb-1">Ready in {design.timeInDays} Days</p>
+                  <p className="text-[10px] text-muted-foreground">Expert quality guaranteed</p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3 mt-6">
+
+              <div className="grid grid-cols-2 gap-4">
                 <Button
                   variant="outline"
                   size="xl"
-                  className="rounded-xl font-bold border-orange-200 text-orange-700 hover:bg-orange-50"
+                  className="h-14 rounded-2xl font-bold border-2 border-border hover:bg-muted/5 transition-all active:scale-[0.98]"
                   onClick={handleAddToCart}
-                  disabled={!measurementMode || (measurementMode === 'pickup' && !pickupTimeSlot)}
                 >
                   Add to Cart
                 </Button>
                 <Button
                   variant="default"
                   size="xl"
-                  className="rounded-xl font-bold shadow-gold-glow"
+                  className="h-14 rounded-2xl font-bold shadow-xl shadow-primary/10 transition-all active:scale-[0.98]"
                   onClick={handleBookNow}
-                  disabled={!measurementMode || (measurementMode === 'pickup' && !pickupTimeSlot)}
                 >
                   Buy Now
                 </Button>
               </div>
+
+              {!measurementMode && (
+                <p className="text-[10px] text-center text-muted-foreground/60 font-medium">
+                  Tailoring preferences will be confirmed in the next step
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -452,14 +437,188 @@ export default function DesignDetail() {
         </div>
       </div>
 
-      {/* Measurement Selector Modal */}
-      <MeasurementSelector
-        isOpen={showMeasurementSelector}
-        onClose={() => setShowMeasurementSelector(false)}
-        categoryId={design.categoryId}
-        categoryName={design.categoryName || (design as any).category || ""}
-        onConfirm={handleMeasurementConfirm}
-      />
+      {/* Unified Tailoring Configuration Sheet */}
+      <Sheet open={showConfigSheet} onOpenChange={setShowConfigSheet}>
+        <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col h-full bg-background border-l shadow-2xl">
+          <SheetHeader className="p-3 sm:p-6 border-b bg-card shrink-0">
+            <div className="flex items-center gap-2">
+              {configStep === "measurements" && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 -ml-2 hover:bg-muted"
+                  onClick={() => setConfigStep("options")}
+                >
+                  <BackIcon className="w-4 h-4" />
+                </Button>
+              )}
+              <div className="flex-1 min-w-0">
+                <SheetTitle className="text-base sm:text-lg font-display font-bold flex items-center gap-2 truncate">
+                  <Settings2 className="w-4 h-4 text-primary shrink-0" />
+                  {configStep === "options" ? "Tailoring Options" : "Select Measurements"}
+                </SheetTitle>
+                <SheetDescription className="text-[10px] sm:text-xs truncate">
+                  {configStep === "options"
+                    ? "Choose how you'd like us to take your measurements."
+                    : `Provide measurements for your ${design.name}`}
+                </SheetDescription>
+              </div>
+            </div>
+          </SheetHeader>
+
+          <div className="flex-1 overflow-y-auto p-3 sm:p-6 bg-muted/5">
+            <AnimatePresence mode="wait">
+              {configStep === "options" ? (
+                <motion.div
+                  key="options"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-6"
+                >
+                  {/* Measurement Method */}
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 ml-1">Measurement Method</Label>
+                    <div className="grid grid-cols-1 gap-2">
+                      <button
+                        onClick={() => setConfigStep("measurements")}
+                        className={cn(
+                          "w-full h-14 px-3 rounded-xl border-2 transition-all flex items-center justify-between text-left group",
+                          measurementMode === 'manual'
+                            ? "bg-primary/5 border-primary shadow-sm"
+                            : "bg-white border-border/50 hover:bg-muted/40"
+                        )}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <div className={cn(
+                            "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
+                            measurementMode === 'manual' ? "bg-primary/10" : "bg-muted"
+                          )}>
+                            <Ruler className={cn("w-4 h-4", measurementMode === 'manual' ? "text-primary" : "text-muted-foreground")} />
+                          </div>
+                          <div>
+                            <p className={cn(
+                              "text-[13px] font-bold",
+                              measurementMode === 'manual' ? "text-primary" : "text-foreground"
+                            )}>{selectedMeasurements ? 'Edit Sizes' : 'Add Sizes'}</p>
+                            <p className="text-[9px] text-muted-foreground leading-none mt-0.5">Provide manual body sizes</p>
+                          </div>
+                        </div>
+                        {measurementMode === 'manual' && <ShieldCheck className="w-4.5 h-4.5 text-primary" />}
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setMeasurementMode('pickup');
+                          setSelectedMeasurements(null);
+                        }}
+                        className={cn(
+                          "w-full h-14 px-3 rounded-xl border-2 transition-all flex items-center justify-between text-left group",
+                          measurementMode === 'pickup'
+                            ? "bg-primary/5 border-primary shadow-sm"
+                            : "bg-white border-border/50 hover:bg-muted/40"
+                        )}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <div className={cn(
+                            "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
+                            measurementMode === 'pickup' ? "bg-primary/10" : "bg-muted"
+                          )}>
+                            <Truck className={cn("w-4 h-4", measurementMode === 'pickup' ? "text-primary" : "text-muted-foreground")} />
+                          </div>
+                          <div>
+                            <p className={cn(
+                              "text-[13px] font-bold",
+                              measurementMode === 'pickup' ? "text-primary" : "text-foreground"
+                            )}>At Pickup</p>
+                            <p className="text-[9px] text-muted-foreground leading-none mt-0.5">Tailor visits you for sizing</p>
+                          </div>
+                        </div>
+                        {measurementMode === 'pickup' && <ShieldCheck className="w-4.5 h-4.5 text-primary" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Pickup Slot Selection */}
+                  {measurementMode === 'pickup' && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      className="space-y-2 pt-1"
+                    >
+                      <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 ml-1">Select Pickup Slot</Label>
+                      <div className="bg-white p-2 rounded-xl border border-border/10 shadow-sm">
+                        <div className="flex flex-col gap-1.5">
+                          {[
+                            { label: "Morning", sub: "9 AM - 12 PM", time: "Morning (9-12)" },
+                            { label: "Afternoon", sub: "12 PM - 4 PM", time: "Afternoon (12-4)" },
+                            { label: "Evening", sub: "4 PM - 7 PM", time: "Evening (4-7)" }
+                          ].map((slot) => {
+                            const isActive = pickupTimeSlot === slot.time;
+                            return (
+                              <button
+                                key={slot.label}
+                                onClick={() => setPickupTimeSlot(slot.time)}
+                                className={cn(
+                                  "flex items-center justify-between px-3 h-11 rounded-lg border transition-all",
+                                  isActive
+                                    ? "bg-primary/5 border-primary shadow-sm ring-1 ring-primary/20"
+                                    : "bg-transparent border-transparent hover:bg-muted/40"
+                                )}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <Clock className={cn("w-3.5 h-3.5", isActive ? "text-primary" : "text-muted-foreground")} />
+                                  <div className="text-left">
+                                    <p className={cn("text-xs font-bold", isActive ? "text-primary" : "text-foreground")}>{slot.label}</p>
+                                    <p className="text-[9px] text-muted-foreground leading-none">{slot.sub}</p>
+                                  </div>
+                                </div>
+                                {isActive && (
+                                  <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center shrink-0">
+                                    <Check className="w-2.5 h-2.5 text-white" />
+                                  </div>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="measurements"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                >
+                  <MeasurementForm
+                    categoryId={design.categoryId}
+                    categoryName={design.categoryName || (design as any).category || ""}
+                    onConfirm={(measurements) => {
+                      setSelectedMeasurements(measurements);
+                      setMeasurementMode('manual');
+                      setConfigStep("options");
+                      toast.success("Measurements updated successfully");
+                    }}
+                    onCancel={() => setConfigStep("options")}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <SheetFooter className="p-3 sm:p-6 border-t bg-card mt-auto">
+            <Button
+              className="w-full h-12 rounded-2xl font-bold shadow-gold-sm"
+              onClick={() => setShowConfigSheet(false)}
+            >
+              Done
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
     </Layout>
   );
 }

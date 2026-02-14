@@ -5,6 +5,7 @@ import { Plus, Trash2, Edit2, Ticket, Check, X, Loader2, Search, Sparkles } from
 import { handleCustomError, showSuccess } from "@/lib/toastUtils";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
     Dialog,
     DialogContent,
@@ -251,12 +252,10 @@ export default function AdminPromos() {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="expiry">Expiry Date</Label>
-                                        <Input
-                                            id="expiry"
-                                            type="date"
-                                            required
-                                            value={formData.expiryDate}
-                                            onChange={e => setFormData({ ...formData, expiryDate: e.target.value })}
+                                        <DatePicker
+                                            date={formData.expiryDate ? new Date(formData.expiryDate) : undefined}
+                                            onChange={(date) => setFormData({ ...formData, expiryDate: date ? date.toISOString().split('T')[0] : '' })}
+                                            className="w-full"
                                         />
                                     </div>
                                     <div className="space-y-2">

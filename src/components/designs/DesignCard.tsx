@@ -82,6 +82,7 @@ export function DesignCard({
       size: "M",
       tailorId: tailorId || "platform_admin",
       shopName: shopName || "Tailo Premium",
+      category: category,
     });
     setJustAddedToCart(true);
     toast.success("Added to cart!", {

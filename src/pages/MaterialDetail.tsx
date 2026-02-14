@@ -69,7 +69,8 @@ export default function MaterialDetail() {
             size: "N/A",
             quantity: quantity,
             tailorId: "platform_admin",
-            shopName: "Tailo Premium"
+            shopName: "Tailo Premium",
+            category: material.type
         });
         toast.success("Added to cart", {
             description: `${quantity}m of ${material.name}`
@@ -86,7 +87,8 @@ export default function MaterialDetail() {
             size: "N/A",
             quantity: quantity,
             tailorId: "platform_admin",
-            shopName: "Tailo Premium"
+            shopName: "Tailo Premium",
+            category: material.type
         });
         toast.success("Proceeding to checkout", {
             description: `${quantity}m of ${material.name} added to cart`

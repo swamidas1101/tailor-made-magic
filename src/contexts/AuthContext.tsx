@@ -31,14 +31,15 @@ export interface AuthContextType {
   loading: boolean;
   loginWithGoogle: () => Promise<void>;
   loginWithEmail: (email: string, password: string) => Promise<void>;
-  signupWithEmail: (email: string, password: string, name: string, role?: UserRole, businessDetails?: BusinessDetails) => Promise<void>;
+  signupWithEmail: (email: string, password: string) => Promise<User>;
   signupWithPhone: (phoneNumber: string, recaptchaVerifier: RecaptchaVerifier) => Promise<ConfirmationResult>;
-  verifyPhoneOTP: (confirmationResult: ConfirmationResult, otp: string, name: string, role?: UserRole, businessDetails?: BusinessDetails) => Promise<void>;
+  verifyPhoneOTP: (confirmationResult: ConfirmationResult, otp: string) => Promise<User>;
+  completeProfile: (uid: string, data: { name: string; dob: string; role: UserRole; businessDetails?: BusinessDetails }) => Promise<void>;
   switchRole: (role: UserRole) => Promise<void>;
   addRole: (role: UserRole, businessDetails?: BusinessDetails) => Promise<void>;
   checkExistingAccount: (email: string) => Promise<{ exists: boolean; roles?: UserRole[] }>;
   verifyAdminCode: (code: string) => Promise<boolean>;
-  signupWithGoogle: (role: UserRole, businessDetails?: BusinessDetails) => Promise<void>;
+  signupWithGoogle: () => Promise<User>;
   updateKYTData: (data: Partial<KYTData>, status?: KYTStatus) => Promise<void>;
   kytStatus: KYTStatus;
   kytData: KYTData | null;
@@ -192,50 +193,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signupWithGoogle = async (role: UserRole, businessDetails?: BusinessDetails) => {
+  const signupWithGoogle = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      const newUser = result.user;
-      const userDocRef = doc(db, "users", newUser.uid);
-      const userDoc = await getDoc(userDocRef);
-
-      if (!userDoc.exists()) {
-        const userData: any = {
-          email: newUser.email,
-          name: newUser.displayName,
-          roles: [role],
-          activeRole: role,
-          createdAt: new Date().toISOString()
-        };
-
-        if (businessDetails && role === 'tailor') {
-          userData.tailorProfile = {
-            businessName: businessDetails.businessName,
-            address: businessDetails.address,
-            specialization: businessDetails.specialization,
-            phone: businessDetails.phone
-          };
-        }
-
-        await setDoc(userDocRef, userData);
-
-        // Force update local state to avoid race condition with onAuthStateChanged default
-        setUserRoles([role]);
-        setActiveRole(role);
-        sessionStorage.setItem(`activeRole_${newUser.uid}`, role);
-      } else {
-        // Account exists. If they tried to sign up as Tailor but are Customer, we could technically addRole here.
-        // For now, let's just warn or handle as login.
-        // Optionally:
-        const data = userDoc.data();
-        const roles = data.roles || (data.role ? [data.role] : ["customer"]);
-        if (!roles.includes(role)) {
-          // They exist but don't have this role. Let's add it!
-          await addRole(role, businessDetails);
-        }
-      }
-    } catch (error) {
+      return result.user;
+    } catch (error: any) {
       console.error("Google Signup Error:", error);
+      throw error;
     }
   };
 
@@ -290,39 +254,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signupWithEmail = async (email: string, password: string, name: string, role: UserRole = "customer", businessDetails?: BusinessDetails) => {
+  const signupWithEmail = async (email: string, password: string) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const newUser = userCredential.user;
-
-      await updateProfile(newUser, {
-        displayName: name
-      });
-
-      const userData: any = {
-        email: newUser.email,
-        name: name,
-        roles: [role],
-        activeRole: role,
-        createdAt: new Date().toISOString()
-      };
-
-      // Add business details if provided
-      if (businessDetails && role === 'tailor') {
-        userData.tailorProfile = {
-          businessName: businessDetails.businessName,
-          address: businessDetails.address,
-          specialization: businessDetails.specialization,
-          phone: businessDetails.phone
-        };
-      }
-
-      await setDoc(doc(db, "users", newUser.uid), userData);
-
-      setUserRoles([role]);
-      setActiveRole(role);
-      sessionStorage.setItem(`activeRole_${newUser.uid}`, role);
-    } catch (error) {
+      return userCredential.user;
+    } catch (error: any) {
       console.error("Email Signup Error:", error);
       throw error;
     }
@@ -337,38 +273,63 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const verifyPhoneOTP = async (confirmationResult: ConfirmationResult, otp: string, name: string, role: UserRole = "customer", businessDetails?: BusinessDetails) => {
+  const verifyPhoneOTP = async (confirmationResult: ConfirmationResult, otp: string) => {
     try {
       const userCredential = await confirmationResult.confirm(otp);
-      const newUser = userCredential.user;
+      return userCredential.user;
+    } catch (error: any) {
+      console.error("OTP Verification Error:", error);
+      throw error;
+    }
+  };
 
-      await updateProfile(newUser, {
-        displayName: name
-      });
+  const completeProfile = async (uid: string, data: { name: string; dob: string; role: UserRole; email?: string; phone?: string; businessDetails?: BusinessDetails }) => {
+    try {
+      const userDocRef = doc(db, "users", uid);
+      const { name, dob, role, businessDetails } = data;
+
+      if (auth.currentUser) {
+        await updateProfile(auth.currentUser, {
+          displayName: name
+        });
+      }
 
       const userData: any = {
-        phone: newUser.phoneNumber,
-        name: name,
+        uid,
+        name,
+        dob,
         roles: [role],
         activeRole: role,
-        createdAt: new Date().toISOString()
+        email: data.email || auth.currentUser?.email || undefined,
+        phone: data.phone || auth.currentUser?.phoneNumber || undefined,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       };
+
+      // Mask synthetic emails for phone-based users
+      if (userData.email?.endsWith("@tailor-made-magic.com")) {
+        delete userData.email;
+      }
+
 
       if (businessDetails && role === 'tailor') {
         userData.tailorProfile = {
           businessName: businessDetails.businessName,
           address: businessDetails.address,
-          specialization: businessDetails.specialization
+          specialization: businessDetails.specialization,
+          phone: businessDetails.phone || auth.currentUser?.phoneNumber || undefined
         };
       }
 
-      await setDoc(doc(db, "users", newUser.uid), userData);
+      await setDoc(userDocRef, userData);
 
+      // Update local state
       setUserRoles([role]);
       setActiveRole(role);
-      sessionStorage.setItem(`activeRole_${newUser.uid}`, role);
-    } catch (error) {
-      console.error("OTP Verification Error:", error);
+      sessionStorage.setItem(`activeRole_${uid}`, role);
+
+    } catch (error: any) {
+      console.error("Complete Profile Error:", error);
       throw error;
     }
   };
@@ -505,6 +466,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signupWithEmail,
       signupWithPhone,
       verifyPhoneOTP,
+      completeProfile,
       switchRole,
       addRole,
       checkExistingAccount,

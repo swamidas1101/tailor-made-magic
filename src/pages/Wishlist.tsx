@@ -20,9 +20,9 @@ export default function Wishlist() {
       size: "M",
       tailorId: item.tailorId || "platform_admin",
       shopName: item.shopName || "Tailo Premium",
+      category: item.category,
     });
-    removeFromWishlist(item.id);
-    toast.success("Moved to cart!", { description: item.name });
+    toast.success("Added to cart!", { description: item.name });
   };
 
   if (items.length === 0) {
@@ -50,16 +50,16 @@ export default function Wishlist() {
     <Layout>
       <div className="container px-4 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl md:text-3xl font-display font-bold">My Wishlist</h1>
-          <p className="text-muted-foreground">{totalItems} saved design{totalItems !== 1 ? 's' : ''}</p>
+        <div className="mb-6">
+          <h1 className="text-xl md:text-2xl font-display font-bold">My Wishlist</h1>
+          <p className="text-sm text-muted-foreground">{totalItems} saved design{totalItems !== 1 ? 's' : ''}</p>
         </div>
 
         {/* Wishlist Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
           {items.map((item) => (
-            <div key={item.id} className="bg-card rounded-xl shadow-soft overflow-hidden group">
-              <div className="relative aspect-[3/4]">
+            <div key={item.id} className="bg-card rounded-lg shadow-soft overflow-hidden group border border-border/50">
+              <div className="relative aspect-square">
                 <Link to={item.id.startsWith('m') ? `/material/${item.id}` : `/design/${item.id}`}>
                   <img
                     src={item.image}
@@ -67,31 +67,37 @@ export default function Wishlist() {
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                 </Link>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute top-2 right-2 bg-white/80 hover:bg-white text-destructive"
-                  onClick={() => removeFromWishlist(item.id)}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-                <div className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              </div>
+              <div className="p-2">
+                <Link to={item.id.startsWith('m') ? `/material/${item.id}` : `/design/${item.id}`} className="hover:text-primary transition-colors">
+                  <h3 className="font-bold text-[11px] truncate leading-tight mb-0.5">{item.name}</h3>
+                </Link>
+                <div className="flex justify-between items-center">
+                  <p className="font-bold text-primary text-[11px]">₹{item.price.toLocaleString()}</p>
+                  <p className="text-[9px] text-muted-foreground truncate max-w-[40px]">{item.category}</p>
+                </div>
+
+                {/* Fixed bottom actions */}
+                <div className="flex gap-2 mt-2.5 pt-2 border-t border-border/50">
                   <Button
                     variant="gold"
-                    size="sm"
-                    className="w-full"
+                    size="icon"
+                    className="h-8 w-8 rounded-lg shadow-sm"
                     onClick={() => handleMoveToCart(item)}
+                    title="Add to Cart"
                   >
-                    <ShoppingBag className="w-4 h-4 mr-2" /> Move to Cart
+                    <ShoppingBag className="w-3.5 h-3.5" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8 text-destructive border-2 border-destructive/10 hover:bg-destructive/5 rounded-lg shrink-0"
+                    onClick={() => removeFromWishlist(item.id)}
+                    title="Remove"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
                   </Button>
                 </div>
-              </div>
-              <div className="p-3">
-                <Link to={item.id.startsWith('m') ? `/material/${item.id}` : `/design/${item.id}`} className="hover:text-primary transition-colors">
-                  <h3 className="font-semibold text-sm truncate">{item.name}</h3>
-                </Link>
-                <p className="text-xs text-muted-foreground">{item.category}</p>
-                <p className="font-bold text-primary mt-1">₹{item.price.toLocaleString()}</p>
               </div>
             </div>
           ))}

@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { GlobalLoader } from '@/components/ui/GlobalLoader';
 import { FileUploader } from '@/components/ui/file-uploader';
 import { cn } from '@/lib/utils';
+import { DatePicker } from "@/components/ui/date-picker";
 
 const steps = [
     { id: 1, name: 'Personal & Address', icon: UserIcon },
@@ -378,10 +379,9 @@ export default function TailorKYT() {
                                         </div>
                                         <div className="space-y-1">
                                             <Label className="text-xs font-semibold">Date of Birth <span className="text-red-500">*</span></Label>
-                                            <Input
-                                                type="date"
-                                                value={formData.personal?.dob || ''}
-                                                onChange={(e) => updateField('personal', 'dob', e.target.value)}
+                                            <DatePicker
+                                                date={formData.personal?.dob ? new Date(formData.personal.dob) : undefined}
+                                                onChange={(date) => updateField('personal', 'dob', date?.toISOString())}
                                                 className="h-9 text-sm"
                                             />
                                         </div>

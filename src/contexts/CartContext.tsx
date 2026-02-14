@@ -21,6 +21,7 @@ export interface CartItem {
   } | null;
   tailorId?: string;
   shopName?: string;
+  category: string;
   estimatedDays?: number;
   hasFabricOption?: boolean;
 }
