@@ -310,9 +310,9 @@ export default function Categories() {
               <h2 className="text-3xl font-display font-bold text-foreground">Women's Collection</h2>
               <div className="h-px flex-1 bg-border"></div>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 md:gap-8">
               {loading && categories.length === 0 ? (
-                Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="aspect-square rounded-2xl" />)
+                Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="aspect-square rounded-2xl" />)
               ) : categories.map((cat) => (
                 <CategoryCard key={cat.id} {...cat} />
               ))}
@@ -326,9 +326,9 @@ export default function Categories() {
               <h2 className="text-3xl font-display font-bold text-foreground">Men's Collection</h2>
               <div className="h-px flex-1 bg-border"></div>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 md:gap-8">
               {loading && menCategories.length === 0 ? (
-                Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="aspect-square rounded-2xl" />)
+                Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="aspect-square rounded-2xl" />)
               ) : menCategories.map((cat) => (
                 <CategoryCard key={cat.id} {...cat} />
               ))}

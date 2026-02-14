@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
+import { useState } from "react";
 
 export interface CategoryCardProps {
   id: string;
@@ -11,17 +12,29 @@ export interface CategoryCardProps {
 }
 
 export function CategoryCard({ id, name, description, image, designCount, firstDesignImage }: CategoryCardProps) {
+  const [hasError, setHasError] = useState(false);
+  const imgSrc = firstDesignImage || image || '/placeholder.svg';
+
   return (
     <Link
       to={`/category/${id}`}
-      className="group block relative h-48 md:h-64 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
+      className="group block relative aspect-[3/4] rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
     >
-      {/* Background Image */}
-      <img
-        src={firstDesignImage || image}
-        alt={name}
-        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-      />
+      {/* Image Container */}
+      <div className="absolute inset-0 w-full h-full bg-gray-200">
+        <img
+          key={imgSrc}
+          src={imgSrc}
+          alt={name}
+          onError={(e) => {
+            if (!hasError) {
+              setHasError(true);
+              (e.target as HTMLImageElement).src = '/placeholder.svg';
+            }
+          }}
+          className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
+        />
+      </div>
 
       {/* Gradient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-90 group-hover:opacity-100 transition-opacity" />
