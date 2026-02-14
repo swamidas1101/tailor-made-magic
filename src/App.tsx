@@ -9,6 +9,9 @@ import { CartProvider } from "@/contexts/CartContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
 import { ScrollToTop } from "@/components/utils/ScrollToTop";
 import { useVersionCheck } from "@/hooks/useVersionCheck";
+
+// Declare global build time variable
+declare const __BUILD_TIME__: string;
 import Index from "./pages/Index";
 import Categories from "./pages/Categories";
 import DesignDetail from "./pages/DesignDetail";
@@ -59,6 +62,9 @@ const queryClient = new QueryClient();
 function AppContent() {
   // Check for new versions periodically
   useVersionCheck();
+
+  // Log current build time for verification
+  console.log(`%c Tailo Premium Build: ${__BUILD_TIME__}`, "color: #D97706; font-weight: bold; background: #FFF7ED; padding: 2px 5px; border-radius: 4px;");
 
   return (
     <>

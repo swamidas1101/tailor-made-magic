@@ -57,14 +57,31 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
         const userWishlistRef = doc(db, "users", user.uid);
         const docSnap = await getDoc(userWishlistRef);
 
+        let finalItems: WishlistItem[] = [];
+
         if (docSnap.exists() && docSnap.data().wishlist) {
           const remoteItems = docSnap.data().wishlist as WishlistItem[];
-          setItems(remoteItems); // Use remote as source of truth
+
+          if (items.length > 0) {
+            // MERGE LOGIC: Unique union of local guest wishlist and remote account wishlist
+            const itemIds = new Set(remoteItems.map(i => i.id));
+            const newItems = items.filter(i => !itemIds.has(i.id));
+            finalItems = [...remoteItems, ...newItems];
+
+            // Sync merged result back to Firestore
+            await setDoc(userWishlistRef, { wishlist: finalItems }, { merge: true });
+          } else {
+            finalItems = remoteItems;
+          }
         } else if (items.length > 0) {
+          finalItems = items;
           await setDoc(userWishlistRef, { wishlist: items }, { merge: true });
         }
 
-        localStorage.removeItem("tailo_wishlist");
+        setItems(finalItems);
+        // Keep local storage as a cache
+        localStorage.setItem("tailo_wishlist", JSON.stringify(finalItems));
+
         setSyncedUid(user.uid);
         initialSyncDone.current = true;
       } catch (err) {
@@ -75,8 +92,12 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
     handleInitialSync();
   }, [user?.uid, authLoading]);
 
-  // Sync changes to DB when items change (only after initial sync)
+  // Sync changes to DB (for users) and always LocalStorage (as cache)
   useEffect(() => {
+    // Local Cache persistence
+    localStorage.setItem("tailo_wishlist", JSON.stringify(items));
+
+    // Logged-in Sync
     if (!user || !initialSyncDone.current) return;
 
     const syncToDb = async () => {

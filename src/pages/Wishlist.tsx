@@ -11,13 +11,17 @@ export default function Wishlist() {
   const { addToCart } = useCart();
 
   const handleMoveToCart = (item: typeof items[0]) => {
+    const isMaterial = item.id.startsWith('m');
+
     addToCart({
       designId: item.id,
       name: item.name,
       image: item.image,
       price: item.price,
-      withMaterial: false,
-      size: "M",
+      withMaterial: isMaterial,
+      size: isMaterial ? "N/A" : "custom",
+      orderType: isMaterial ? undefined : "stitching",
+      measurementType: null,
       tailorId: item.tailorId || "platform_admin",
       shopName: item.shopName || "Tailo Premium",
       category: item.category,

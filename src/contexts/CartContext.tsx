@@ -85,14 +85,45 @@ export function CartProvider({ children }: { children: ReactNode }) {
         const userCartRef = doc(db, "users", user.uid);
         const docSnap = await getDoc(userCartRef);
 
+        let finalItems: CartItem[] = [];
+
         if (docSnap.exists() && docSnap.data().cart) {
           const remoteItems = docSnap.data().cart as CartItem[];
-          setItems(remoteItems); // Use remote as source of truth on login
+
+          if (items.length > 0) {
+            // MERGE LOGIC: Combine local guest items with remote account items
+            // User requested: "if already a item is there in cart and again if we adding to cart, the count should increase"
+            const mergedMap = new Map<string, CartItem>();
+
+            // 1. Load remote items first
+            remoteItems.forEach(item => mergedMap.set(item.id, { ...item }));
+
+            // 2. Add local items, merging quantities if ID matches
+            items.forEach(localItem => {
+              const existing = mergedMap.get(localItem.id);
+              if (existing) {
+                existing.quantity += localItem.quantity;
+              } else {
+                mergedMap.set(localItem.id, { ...localItem });
+              }
+            });
+
+            finalItems = Array.from(mergedMap.values());
+            // Proactively update DB with the merged results
+            await setDoc(userCartRef, { cart: finalItems }, { merge: true });
+          } else {
+            finalItems = remoteItems;
+          }
         } else if (items.length > 0) {
+          // No remote cart, but local exists - just upload local
+          finalItems = items;
           await setDoc(userCartRef, { cart: items }, { merge: true });
         }
 
-        localStorage.removeItem("tailo_cart");
+        setItems(finalItems);
+        // We keep local storage as a cache for the next refresh
+        localStorage.setItem("tailo_cart", JSON.stringify(finalItems));
+
         setSyncedUid(user.uid);
         initialSyncDone.current = true;
       } catch (err) {
@@ -105,8 +136,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     handleInitialSync();
   }, [user?.uid, authLoading]);
 
-  // Sync changes to DB when items change (only after initial sync)
+  // Sync changes to DB (for users) and always LocalStorage (as cache)
   useEffect(() => {
+    // 1. Local Cache persistence (Guest or User)
+    localStorage.setItem("tailo_cart", JSON.stringify(items));
+
+    // 2. Logged-in Sync: Only after initial sync is done
     if (!user || !initialSyncDone.current) return;
 
     const syncToDb = async () => {
@@ -182,7 +217,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("tailo_cart"); // Should we also clear firestore? Yes via useEffect
   };
 
-  const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
+  const totalItems = new Set(items.map(i => i.designId)).size;
   const totalPrice = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
   return (

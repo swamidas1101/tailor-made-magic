@@ -1,7 +1,10 @@
 import { useEffect, useRef } from 'react';
+import { toast } from 'sonner';
 
-const CHECK_INTERVAL = 5 * 60 * 1000; // Check every 5 minutes
-const CURRENT_VERSION = import.meta.env.VITE_APP_VERSION || '1.0.0';
+// Declare the global build time variable injected by Vite
+declare const __BUILD_TIME__: string;
+
+const CHECK_INTERVAL = 3 * 60 * 1000; // Check every 3 minutes
 
 export function useVersionCheck() {
     const notifiedRef = useRef(false);
@@ -22,24 +25,30 @@ export function useVersionCheck() {
                 if (!response.ok) return;
 
                 const data = await response.json();
-                const deployedVersion = data.version;
+                const deployedTimestamp = data.timestamp;
+                const currentBuildTime = __BUILD_TIME__;
 
-                // If versions don't match and we haven't notified yet
-                if (deployedVersion !== CURRENT_VERSION && !notifiedRef.current) {
+                // Compare timestamps to detect a newer deployment
+                if (deployedTimestamp && deployedTimestamp !== currentBuildTime && !notifiedRef.current) {
                     notifiedRef.current = true;
 
-                    // Show a notification to the user
-                    if (confirm('A new version of the app is available! Click OK to refresh and get the latest updates.')) {
-                        // Clear all caches and reload
-                        if ('caches' in window) {
-                            const cacheNames = await caches.keys();
-                            await Promise.all(cacheNames.map(name => caches.delete(name)));
-                        }
-                        window.location.reload();
-                    }
+                    toast.info("Update Available", {
+                        description: "A new version of Tailo is ready with latest updates.",
+                        action: {
+                            label: "Update Now",
+                            onClick: async () => {
+                                // Clear all caches before reload for a clean start
+                                if ('caches' in window) {
+                                    const cacheNames = await caches.keys();
+                                    await Promise.all(cacheNames.map(name => caches.delete(name)));
+                                }
+                                window.location.reload();
+                            }
+                        },
+                        duration: Infinity, // Keep until user acts or dismisses
+                    });
                 }
             } catch (error) {
-                // Silently fail - don't interrupt user experience
                 console.log('Version check failed:', error);
             }
         };

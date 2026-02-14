@@ -65,7 +65,8 @@ export function MaterialCard({ id, name, type, price, image, brand, rating, inSt
             image,
             price,
             withMaterial: true,
-            size: "M", // Default for material? Or maybe just 1 meter unit logic implies size irrelevant
+            size: "N/A",
+            measurementType: null,
             tailorId: "platform_admin",
             shopName: "Tailo Premium",
             category: type,
