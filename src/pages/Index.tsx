@@ -387,19 +387,21 @@ const Index = () => {
                 </Link>
               </Button>
             </motion.div>
-            <motion.div
+            <div
               className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 md:gap-6"
-              variants={containerVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
             >
-              {featuredCategories.map((cat, i) => (
-                <motion.div key={cat.id} variants={itemVariants}>
-                  <CategoryCard {...cat} />
-                </motion.div>
-              ))}
-            </motion.div>
+              {loading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <Skeleton key={i} className="h-48 rounded-2xl" />
+                ))
+              ) : (
+                featuredCategories.map((cat) => (
+                  <motion.div key={cat.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+                    <CategoryCard {...cat} />
+                  </motion.div>
+                ))
+              )}
+            </div>
           </div>
         </section>
 
@@ -426,19 +428,21 @@ const Index = () => {
                 </Link>
               </Button>
             </motion.div>
-            <motion.div
+            <div
               className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 md:gap-6"
-              variants={containerVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
             >
-              {featuredMenCategories.map((cat, i) => (
-                <motion.div key={cat.id} variants={itemVariants}>
-                  <CategoryCard {...cat} />
-                </motion.div>
-              ))}
-            </motion.div>
+              {loading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <Skeleton key={i} className="h-48 rounded-2xl" />
+                ))
+              ) : (
+                featuredMenCategories.map((cat) => (
+                  <motion.div key={cat.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+                    <CategoryCard {...cat} />
+                  </motion.div>
+                ))
+              )}
+            </div>
           </div>
         </section>
 
