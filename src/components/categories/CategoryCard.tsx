@@ -13,7 +13,7 @@ export interface CategoryCardProps {
 
 export function CategoryCard({ id, name, description, image, designCount, firstDesignImage }: CategoryCardProps) {
   const [hasError, setHasError] = useState(false);
-  const imgSrc = firstDesignImage || image || '/placeholder.svg';
+  const imgSrc = image || '/placeholder.svg';
 
   return (
     <Link
