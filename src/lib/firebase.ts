@@ -1,7 +1,7 @@
 
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { initializeFirestore } from "firebase/firestore";
 
 // Firebase App Configuration
 const firebaseConfig = {
@@ -17,9 +17,11 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Services
+// Initialize Services - use long polling to avoid WebChannel transport errors
 export const auth = getAuth(app);
-export const db = getFirestore(app);
+export const db = initializeFirestore(app, {
+    experimentalAutoDetectLongPolling: true,
+});
 export const googleProvider = new GoogleAuthProvider();
 
 export default app;
