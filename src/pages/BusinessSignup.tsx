@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth, UserRole } from "@/contexts/AuthContext";
 import { RecaptchaVerifier, ConfirmationResult } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -25,7 +25,7 @@ const specializations = [
 ];
 
 export default function BusinessSignup() {
-    const { signupWithEmail, signupWithPhone, verifyPhoneOTP, loginWithGoogle, signupWithGoogle, user, activeRole } = useAuth();
+    const { signupWithEmail, signupWithPhone, verifyPhoneOTP, loginWithGoogle, signupWithGoogle, completeProfile, user, activeRole } = useAuth();
     const navigate = useNavigate();
 
     // Multi-step form state
@@ -105,11 +105,19 @@ export default function BusinessSignup() {
         setIsLoading(true);
 
         try {
-            await signupWithEmail(email, password, name, "tailor", {
-                businessName,
-                address,
-                specialization: selectedSpecializations,
-                phone
+            const userResult = await signupWithEmail(email, password);
+            // Complete profile after signup
+            await completeProfile(userResult.uid, {
+                name,
+                dob: '',
+                role: 'tailor' as UserRole,
+                email,
+                businessDetails: {
+                    businessName,
+                    address,
+                    specialization: selectedSpecializations,
+                    phone
+                }
             });
             toast.success("Account created successfully! Welcome to Tailo.");
             navigate("/tailor");
@@ -166,11 +174,18 @@ export default function BusinessSignup() {
         setIsLoading(true);
 
         try {
-            await verifyPhoneOTP(confirmationResult, otp, name, "tailor", {
-                businessName,
-                address,
-                specialization: selectedSpecializations,
-                phone: phone.startsWith('+') ? phone : `+91${phone}`
+            const userResult = await verifyPhoneOTP(confirmationResult, otp);
+            await completeProfile(userResult.uid, {
+                name,
+                dob: '',
+                role: 'tailor' as UserRole,
+                phone: phone.startsWith('+') ? phone : `+91${phone}`,
+                businessDetails: {
+                    businessName,
+                    address,
+                    specialization: selectedSpecializations,
+                    phone: phone.startsWith('+') ? phone : `+91${phone}`
+                }
             });
             toast.success("Account created successfully! Welcome to Tailo.");
             navigate("/tailor");
@@ -188,11 +203,17 @@ export default function BusinessSignup() {
         }
 
         try {
-            await signupWithGoogle('tailor', {
-                businessName,
-                address,
-                specialization: selectedSpecializations,
-                phone: phone
+            const userResult = await signupWithGoogle();
+            await completeProfile(userResult.uid, {
+                name: userResult.displayName || '',
+                dob: '',
+                role: 'tailor' as UserRole,
+                businessDetails: {
+                    businessName,
+                    address,
+                    specialization: selectedSpecializations,
+                    phone
+                }
             });
             toast.success("Signed up as Tailor with Google!");
             // Auto-redirect handles navigation
