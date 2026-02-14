@@ -639,7 +639,7 @@ export default function TailorDesigns() {
                             newImages.splice(index, 1);
                             handleInputChange("images", newImages);
                           }}
-                          className="absolute top-2 right-2 bg-white/90 text-red-600 p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-sm hover:bg-white"
+                          className="absolute top-2 right-2 bg-white/90 text-red-600 p-1.5 rounded-full opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow-sm hover:bg-white"
                         >
                           <Plus className="w-4 h-4 rotate-45" />
                         </button>

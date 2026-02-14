@@ -30,8 +30,8 @@ export function useVersionCheck() {
                 const deployedTimestamp = data.timestamp;
                 const currentBuildTime = __BUILD_TIME__;
 
-                // Check if we already notified/handled this specific version in this session
-                const lastNotified = sessionStorage.getItem('last_version_notified');
+                // Check if we already notified/handled this specific version
+                const lastNotified = localStorage.getItem('app_version_notified');
 
                 // Compare timestamps to detect a newer deployment
                 if (deployedTimestamp &&
@@ -40,7 +40,8 @@ export function useVersionCheck() {
                     !notifiedRef.current) {
 
                     notifiedRef.current = true;
-                    sessionStorage.setItem('last_version_notified', deployedTimestamp);
+                    // Persist the notification state permanently for this version
+                    localStorage.setItem('app_version_notified', deployedTimestamp);
 
                     toast.info("Update Available", {
                         description: "A new version of Tailo is ready with latest updates.",
