@@ -106,7 +106,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Safety timeout: if auth doesn't resolve in 5 seconds, stop loading
+    const timeout = setTimeout(() => {
+      setLoading(false);
+    }, 5000);
+
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      clearTimeout(timeout);
       // Don't set user immediately if we need role data
       if (currentUser) {
         try {
@@ -161,18 +167,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               });
             }
           } else {
-            // New user via Google (account created but no doc yet)
-            // Wait! If we came from signupWithGoogle, the doc might be created there.
-            // But onAuthStateChanged fires potentially before that async function finishes writing?
-            // Or maybe we should let signupWithGoogle handle the doc creation, and this listener essentially "reacts" to it.
-            // However, if we rely on this listener for the INITIAL state, we might get a flash of "customer" before "tailor".
-            // Let's assume for now this listener is safe, but we will handle the doc creation in signupWithGoogle explicitly.
-
-            // For now, if no doc, we treat as a new user? Or wait? 
-            // Better to NOT set user if we expect a doc but don't find it yet?
-            // No, we must let them in as authenticated, but maybe with "customer" default for now?
             setUser(currentUser);
-            // Verify if we should default to customer here or wait for signup
           }
         } catch (error) {
           console.error("Error fetching user roles:", error);
@@ -188,7 +183,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      clearTimeout(timeout);
+      unsubscribe();
+    };
   }, []);
 
   const loginWithGoogle = async () => {
