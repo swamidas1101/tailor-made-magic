@@ -1,6 +1,6 @@
 {
-    "name": "Tailor - Custom Tailoring Platform",
-    "short_name": "Tailor",
+    "name": "Tailonex - Custom Tailoring Platform",
+    "short_name": "Tailonex",
     "description": "Custom tailoring and design platform connecting customers with professional tailors",
     "start_url": "/",
     "scope": "/",
@@ -10,15 +10,15 @@
     "orientation": "portrait-primary",
     "icons": [
         {
-            "src": "/icons/icon-192.png",
+            "src": "/icons/favicon.ico",
             "sizes": "192x192",
-            "type": "image/png",
+            "type": "image/x-icon",
             "purpose": "any maskable"
         },
         {
-            "src": "/icons/icon-512.png",
+            "src": "/icons/favicon.ico",
             "sizes": "512x512",
-            "type": "image/png",
+            "type": "image/x-icon",
             "purpose": "any maskable"
         }
     ],

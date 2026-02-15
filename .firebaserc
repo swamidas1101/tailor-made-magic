@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "tailor-made-magic"
+  },
+  "targets": {
+    "tailor-made-magic": {
+      "hosting": {
+        "app": [
+          "tailor-made-magic"
+        ]
+      }
+    }
+  }
+}

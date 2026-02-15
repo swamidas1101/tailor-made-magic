@@ -52,7 +52,7 @@ export function Header() {
               </motion.div>
               <div>
                 <h1 className="text-xl md:text-2xl font-display font-bold text-foreground leading-none">
-                  Tailo
+                  Tailonex
                 </h1>
                 <p className="hidden sm:block text-[10px] md:text-xs text-muted-foreground font-medium">Premium Tailoring</p>
               </div>
